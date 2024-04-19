@@ -21,6 +21,23 @@ public class CharacterControllerScr : MonoBehaviour
     public float viewClampYMin = -89;
     public float viewClampYMax = 89;
 
+    [Header("Gravity")]
+    public float gravityAmount;
+    public float gravityMin;
+    private float playerGravity;
+
+    public Vector3 jumpingForce;
+    private Vector3 jumpingForceVelocity;
+
+    [Header("Stance")]
+    public PlayerStance playerStance;
+    public float playerStanceSmoothing;
+    public float cameraStandHeight;
+    public float cameraCrouchHeight;
+    public float cameraProneHeight;
+    private float cameraHeight;
+    private float cameraHeightVelocity;
+
     // Awake method is called when the script instance is being loaded
     private void Awake()
     {
@@ -31,6 +48,7 @@ public class CharacterControllerScr : MonoBehaviour
         // Assign a lambda function as the event handler to update input_Movement when the action is performed
         defaultInput.Character.Movement.performed += e => input_Movement = e.ReadValue<Vector2>();
         defaultInput.Character.View.performed += e => input_View = e.ReadValue<Vector2>();
+        defaultInput.Character.Jump.performed += e => Jump();
 
         defaultInput.Enable();
 
@@ -38,12 +56,16 @@ public class CharacterControllerScr : MonoBehaviour
         newCharacterRotation = transform.localRotation.eulerAngles;
 
         characterController = GetComponent<CharacterController>();
+
+        cameraHeight = cameraHolder.localPosition.y;
     }
 
     private void Update()
     {
         CalculateView();
         CalculateMovement();
+        CalculateJump();
+        CalculateCameraHeight();
     }
 
     private void CalculateView()
@@ -64,10 +86,57 @@ public class CharacterControllerScr : MonoBehaviour
         var horizontalSpeed = playerSettings.WalkingStrafeSpeed * input_Movement.x * Time.deltaTime;
 
         var newMovementSpeed = new Vector3(horizontalSpeed, 0, verticalSpeed);
-
         newMovementSpeed = transform.TransformDirection(newMovementSpeed);
 
-        characterController.Move(newMovementSpeed);
+        // For the player not to go crazy fast when falling, set the "Terminal velocity(gravityMin)"
+        if(playerGravity > gravityMin)
+        {
+            playerGravity -= gravityAmount * Time.deltaTime;
+        }
 
+        // Setting the gravity to -1 when player is grounded 
+        if(playerGravity < -0.1f && characterController.isGrounded)
+        {
+            playerGravity = -0.1f;
+        }
+
+        // These two lines are for enabling jump while moving
+        newMovementSpeed.y += playerGravity;
+        newMovementSpeed += jumpingForce * Time.deltaTime;
+
+        characterController.Move(newMovementSpeed);
+    }
+
+    private void CalculateJump()
+    {
+        jumpingForce = Vector3.SmoothDamp(jumpingForce, Vector3.zero, ref jumpingForceVelocity, playerSettings.JumpingFalloff);
+    }
+
+    private void CalculateCameraHeight()
+    {
+        var stanceHeight = cameraStandHeight;
+
+        if(playerStance == PlayerStance.Crouch)
+        {
+            stanceHeight = cameraCrouchHeight;
+        }
+        else if(playerStance == PlayerStance.Prone)
+        {
+            stanceHeight = cameraProneHeight;
+        }
+
+        cameraHeight = Mathf.SmoothDamp(cameraHolder.localPosition.y, stanceHeight, ref cameraHeightVelocity, playerStanceSmoothing);
+        cameraHolder.localPosition = new Vector3(cameraHolder.localPosition.x, cameraHeight, cameraHolder.localPosition.z);
+    }
+
+    private void Jump()
+    {
+        if(!characterController.isGrounded)
+        {
+            return;
+        }
+
+        jumpingForce = Vector3.up * playerSettings.JumpingHeight;
+        playerGravity = 0;
     }
 }

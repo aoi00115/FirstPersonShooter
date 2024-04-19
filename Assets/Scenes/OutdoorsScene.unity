@@ -718,7 +718,7 @@ Transform:
   m_GameObject: {fileID: 842287163}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.58, z: 0}
+  m_LocalPosition: {x: 0, y: 0.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -769,8 +769,18 @@ MonoBehaviour:
     WalkingForwardSpeed: 4
     WalkingBackwardSpeed: 4
     WalkingStrafeSpeed: 4
-  viewClampYMin: -90
-  viewClampYMax: 90
+    JumpingHeight: 6
+    JumpingFalloff: 0.5
+  viewClampYMin: -89
+  viewClampYMax: 89
+  gravityAmount: 0.1
+  gravityMin: -3
+  jumpingForce: {x: 0, y: 0, z: 0}
+  playerStance: 0
+  playerStanceSmoothing: 0.2
+  cameraStandHeight: 0.6
+  cameraCrouchHeight: 0
+  cameraProneHeight: -0.5
 --- !u!143 &1461033303
 CharacterController:
   m_ObjectHideFlags: 0
@@ -827,7 +837,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1461033301}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1

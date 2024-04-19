@@ -7,6 +7,13 @@ public static class Models
 {
     #region - Player -
 
+    public enum PlayerStance
+    {
+        Stand,
+        Crouch,
+        Prone
+    }
+
     [Serializable]
     public class PlayerSettingsModel
     {
@@ -21,6 +28,10 @@ public static class Models
         public float WalkingForwardSpeed;
         public float WalkingBackwardSpeed;
         public float WalkingStrafeSpeed;
+
+        [Header("Jumping")]
+        public float JumpingHeight;
+        public float JumpingFalloff;
     }
 
     #endregion
