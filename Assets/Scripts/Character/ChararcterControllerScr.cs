@@ -90,6 +90,8 @@ public class CharacterControllerScr : MonoBehaviour
         CalculateMovement();
         CalculateJump();
         CalculateStance();
+
+        Debug.Log(playerGravity);
     }
 
     private void CalculateView()
@@ -145,16 +147,16 @@ public class CharacterControllerScr : MonoBehaviour
         newMovementSpeed = Vector3.SmoothDamp(newMovementSpeed, new Vector3(horizontalSpeed * input_Movement.x * Time.deltaTime, 0, verticalSpeed * input_Movement.y * Time.deltaTime), ref newMovementSpeedVelocity, characterController.isGrounded ? playerSettings.MovementSmoothing : playerSettings.FallingSmoothing);
         var movementSpeed = transform.TransformDirection(newMovementSpeed);
 
-        // For the player not to go crazy fast when falling, set the "Terminal velocity(gravityMin)"
+        // Deducting from the playerGravity so that the gravity accelerates as the player falls. For the player not to go crazy fast when falling, set the "Terminal velocity(gravityMin)"
         if(playerGravity > gravityMin)
         {
             playerGravity -= gravityAmount * Time.deltaTime;
         }
 
         // Setting the gravity to -1 when player is grounded 
-        if(playerGravity < -0.1f && characterController.isGrounded)
+        if(playerGravity < -0.01f && characterController.isGrounded)
         {
-            playerGravity = -0.1f;
+            playerGravity = -0.01f;
         }
 
         // These two lines are for enabling jump while moving
