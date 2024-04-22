@@ -7,7 +7,8 @@ public class CharacterControllerScr : MonoBehaviour
 {
     private CharacterController characterController;
     private DefaultInput defaultInput;
-    private Vector2 input_Movement;
+    [HideInInspector]
+    public Vector2 input_Movement;
     [HideInInspector]
     public Vector2 input_View;
 
@@ -53,6 +54,8 @@ public class CharacterControllerScr : MonoBehaviour
     [Header("Weapon")]
     public WeaponController currentWeapon;
 
+    public float universalAnimationSpeed;
+
     // Awake method is called when the script instance is being loaded
     private void Awake()
     {
@@ -90,8 +93,6 @@ public class CharacterControllerScr : MonoBehaviour
         CalculateMovement();
         CalculateJump();
         CalculateStance();
-
-        Debug.Log(playerGravity);
     }
 
     private void CalculateView()
@@ -139,6 +140,14 @@ public class CharacterControllerScr : MonoBehaviour
         else
         {
             playerSettings.SpeedEffector = 1;
+        }
+
+        // Setting animation speed depending on how fast player is moving
+        universalAnimationSpeed = characterController.velocity.magnitude / (playerSettings.WalkingForwardSpeed * playerSettings.SpeedEffector);
+
+        if(universalAnimationSpeed > 1)
+        {
+            universalAnimationSpeed = 1;
         }
 
         verticalSpeed *= playerSettings.SpeedEffector;
