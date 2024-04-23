@@ -44,6 +44,12 @@ public class WeaponController : MonoBehaviour
             return;
         }
 
+        CalculateWeaponRotation();
+        SetWeaponAnimations();
+    }
+
+    private void CalculateWeaponRotation()
+    {
         universalAnimationController.speed = characterController.universalAnimationSpeed;
 
         targetWeaponRotation.y += settings.SwayAmount * (settings.SwayXInverted ? -characterController.input_View.x : characterController.input_View.x) * Time.deltaTime;
@@ -63,5 +69,10 @@ public class WeaponController : MonoBehaviour
         newWeaponMovementRotation = Vector3.SmoothDamp(newWeaponMovementRotation, targetWeaponMovementRotation, ref newWeaponMovementRotationVelocity, settings.MovementSwaySmoothing);
 
         transform.localRotation = Quaternion.Euler(newWeaponRotation + newWeaponMovementRotation);
+    }
+
+    private void SetWeaponAnimations()
+    {
+        
     }
 }

@@ -46,7 +46,8 @@ public class CharacterControllerScr : MonoBehaviour
     private Vector3 stanceCapsuleCenterVelocity;
     private float stanceCapsuleHeightVelocity;
 
-    private bool isSprinting;
+    [HideInInspector]
+    public bool isSprinting;
 
     private Vector3 newMovementSpeed;
     private Vector3 newMovementSpeedVelocity;
@@ -93,6 +94,8 @@ public class CharacterControllerScr : MonoBehaviour
         CalculateMovement();
         CalculateJump();
         CalculateStance();
+
+        Debug.Log(universalAnimationSpeed);
     }
 
     private void CalculateView()
@@ -143,7 +146,7 @@ public class CharacterControllerScr : MonoBehaviour
         }
 
         // Setting animation speed depending on how fast player is moving
-        universalAnimationSpeed = characterController.velocity.magnitude / (playerSettings.WalkingForwardSpeed * playerSettings.SpeedEffector);
+        universalAnimationSpeed = characterController.velocity.magnitude / playerSettings.WalkingForwardSpeed; // By multiplying it by "playerSettings.SpeedEffector" It'll play the animation at the speed of one no matter the stance
 
         if(universalAnimationSpeed > 1)
         {
