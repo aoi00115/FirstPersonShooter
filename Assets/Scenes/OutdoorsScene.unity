@@ -1345,6 +1345,11 @@ PrefabInstance:
       propertyPath: playerSettings.StaminaDuration
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 1253444034479973497, guid: e7dcc75e269a3a8419eef95fafa61a1d,
+        type: 3}
+      propertyPath: playerSettings.FallingSmoothing
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 1573174935631742586, guid: e7dcc75e269a3a8419eef95fafa61a1d,
         type: 3}
       propertyPath: swayScale

@@ -66,6 +66,7 @@ public class CharacterControllerScr : MonoBehaviour
 
     [HideInInspector]
     public bool isFalling;
+    private Vector3 jumpingMomentum;
 
     #region - Awake -
 
@@ -187,7 +188,15 @@ public class CharacterControllerScr : MonoBehaviour
         movementSpeed.y += playerGravity;
         movementSpeed += jumpingForce * Time.deltaTime;
 
-        characterController.Move(movementSpeed);
+        if(characterController.isGrounded)  // Move the player position with characterController.Move
+        {
+            characterController.Move(movementSpeed);
+        }
+        else    // Carries the momentum when jumping and move the player position with characterController.Move
+        {
+            characterController.Move(movementSpeed + (jumpingMomentum * Time.deltaTime));
+        }
+        
         
         // Setting walking animation speed depending on how fast player is moving
         walkingAnimationSpeed = characterController.velocity.magnitude / playerSettings.WalkingForwardSpeed; // By multiplying it by "playerSettings.SpeedEffector" It'll play the animation at the speed of one no matter the stance  
@@ -244,6 +253,12 @@ public class CharacterControllerScr : MonoBehaviour
         jumpingForce = Vector3.up * playerSettings.JumpingHeight;
         playerGravity = 0;
         currentWeapon.TriggerJump();
+        // Store the player's moving direction as vector3 and translate it into world coordinate
+        jumpingMomentum = transform.TransformDirection(newMovementSpeed) * 50;
+        if(isSprinting)
+        {
+            isSprinting = false;
+        }
     }
 
     #endregion
@@ -345,7 +360,7 @@ public class CharacterControllerScr : MonoBehaviour
         // Timer has to have less than 2 seconds to sprint when the limit is on. Sprint immediately if the limit is off.
         if(isLimitedSprint)
         {            
-            if(timer < 2)
+            if(timer < 1)
             {            
                 isSprinting = true; 
                 isLimitedSprint = false;

@@ -34,7 +34,7 @@ public class WeaponController : MonoBehaviour
     public float swayAmountA = 1;
     public float swayAmountB = 2;
     public float swayScale = 50;
-    public float adsSwayScale = 10;
+    public float adsSwayScale = 600;
     public float swayLerpSpeed = 14;
     private float swayTime;
     public Vector3 swayPosition;
