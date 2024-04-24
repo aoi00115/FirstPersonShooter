@@ -26,8 +26,7 @@ public class WeaponController : MonoBehaviour
     Vector3 newWeaponMovementRotation;
     Vector3 newWeaponMovementRotationVelocity;
 
-    private bool isGroundedTrigger;
-    private bool isFallingTrigger;
+    private bool isJumping;
     private float fallingDelay;
     
     private void Start()
@@ -50,21 +49,13 @@ public class WeaponController : MonoBehaviour
 
         CalculateWeaponRotation();
         SetWeaponAnimations();
-
-        // This isGrounded comes from CharacterControllerScr, not the CharacterController component!!!
-        if(characterController.isGrounded && !isGroundedTrigger)
-        {            
-            isGroundedTrigger = true;
-        }
-        else if(!characterController.isGrounded && isGroundedTrigger)
-        {            
-            isGroundedTrigger = false;
-        }
     }
 
     public void TriggerJump()
     {
-        isGroundedTrigger = false;
+        // Debug.Log("Trigger Jumping");
+        universalAnimationController.SetTrigger("JumpingTrigger");
+        isJumping = true;     // Jumping
     }
 
     private void CalculateWeaponRotation()
@@ -94,6 +85,31 @@ public class WeaponController : MonoBehaviour
 
     private void SetWeaponAnimations()
     {
+        // Setting delay so that the isGroundedTrigger does not immediately turn true after jumping
+        if(!isJumping)
+        {
+            fallingDelay = 0;
+        }
+        else
+        {
+            fallingDelay += Time.deltaTime;
+        }
+
+        // This isGrounded comes from CharacterControllerScr, not the CharacterController component!!!
+        if(characterController.characterController.isGrounded && isJumping && fallingDelay > 0.01f)        // Landing
+        {            
+            // Debug.Log("Trigger Land");
+            universalAnimationController.Play("Landing");
+            isJumping = false;
+        }
+        else if(!characterController.characterController.isGrounded && !isJumping)                          // Falling
+        {
+            // Debug.Log("Trigger Falling");
+            universalAnimationController.SetTrigger("FallingTrigger");
+            isJumping = true;
+        }
+        
+        universalAnimationController.SetBool("isIdle", characterController.isIdle);
         universalAnimationController.SetFloat("WalkingAnimationSpeed", characterController.walkingAnimationSpeed);
     }
 }

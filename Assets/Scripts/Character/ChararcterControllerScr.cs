@@ -50,6 +50,8 @@ public class CharacterControllerScr : MonoBehaviour
 
     [HideInInspector]
     public bool isSprinting;
+    [HideInInspector]
+    public bool isIdle;
 
     private Vector3 newMovementSpeed;
     private Vector3 newMovementSpeedVelocity;
@@ -59,8 +61,6 @@ public class CharacterControllerScr : MonoBehaviour
 
     public float walkingAnimationSpeed;
 
-    [HideInInspector]
-    public bool isGrounded;    // Use characterController.isGrounded for jumping etc and use this for falling check, otherwise player wont be able to jump on the edge of an object
     [HideInInspector]
     public bool isFalling;
 
@@ -103,26 +103,10 @@ public class CharacterControllerScr : MonoBehaviour
 
     private void Update()
     {
-        SetIsGrounded();
-        SetIsFalling();
-
         CalculateView();
         CalculateMovement();
         CalculateJump();
         CalculateStance();
-    }
-
-    #endregion
-
-    #region - IsFalling / IsGrounded -
-    private void SetIsGrounded()
-    {
-        isGrounded = Physics.CheckSphere(feetTransform.position, playerSettings.isGroundedRadius, groundMask);
-    }
-
-    private void SetIsFalling()
-    {
-        isFalling = (!isGrounded && characterController.velocity.magnitude > playerSettings.isFallingSpeed);
     }
 
     #endregion
@@ -151,6 +135,7 @@ public class CharacterControllerScr : MonoBehaviour
         var verticalSpeed = playerSettings.WalkingForwardSpeed;
         var horizontalSpeed = playerSettings.WalkingStrafeSpeed;
 
+        // Multiplying player movement speed by sprinting speed when sprinting
         if(isSprinting)
         {
             verticalSpeed = playerSettings.RunningForwardSpeed;
@@ -176,14 +161,6 @@ public class CharacterControllerScr : MonoBehaviour
             playerSettings.SpeedEffector = 1;
         }
 
-        // Setting walking animation speed depending on how fast player is moving
-        walkingAnimationSpeed = characterController.velocity.magnitude / playerSettings.WalkingForwardSpeed; // By multiplying it by "playerSettings.SpeedEffector" It'll play the animation at the speed of one no matter the stance
-
-        if(walkingAnimationSpeed > 1)
-        {
-            walkingAnimationSpeed = 1;
-        }
-
         verticalSpeed *= playerSettings.SpeedEffector;
         horizontalSpeed *= playerSettings.SpeedEffector;
 
@@ -207,6 +184,24 @@ public class CharacterControllerScr : MonoBehaviour
         movementSpeed += jumpingForce * Time.deltaTime;
 
         characterController.Move(movementSpeed);
+        
+        // Setting walking animation speed depending on how fast player is moving
+        walkingAnimationSpeed = characterController.velocity.magnitude / playerSettings.WalkingForwardSpeed; // By multiplying it by "playerSettings.SpeedEffector" It'll play the animation at the speed of one no matter the stance  
+        
+        if(walkingAnimationSpeed > 1)
+        {
+            walkingAnimationSpeed = 1;
+        }
+
+        // Calculating whether play is idle or not
+        if(input_Movement == Vector2.zero)
+        {
+            isIdle = true;
+        }
+        else
+        {
+            isIdle = false;
+        }
     }
 
     #endregion
