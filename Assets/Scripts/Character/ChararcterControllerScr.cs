@@ -16,6 +16,8 @@ public class CharacterControllerScr : MonoBehaviour
     private Vector3 newCameraRotation;
     private Vector3 newCharacterRotation;
 
+    private float timer = 0;
+
     [Header("References")]
     public Transform cameraHolder;
     public Transform feetTransform;
@@ -50,6 +52,7 @@ public class CharacterControllerScr : MonoBehaviour
 
     [HideInInspector]
     public bool isSprinting;
+    private bool isLimitedSprint;
     [HideInInspector]
     public bool isIdle;
 
@@ -107,6 +110,7 @@ public class CharacterControllerScr : MonoBehaviour
         CalculateMovement();
         CalculateJump();
         CalculateStance();
+        CalculateSprint();
     }
 
     #endregion
@@ -222,8 +226,13 @@ public class CharacterControllerScr : MonoBehaviour
 
         if(playerStance == PlayerStance.Crouch || playerStance == PlayerStance.Prone)
         {
+            if(StanceCheck(playerCrouchStance.StanceCollider.height))
+            {
+                return;
+            }
             if(StanceCheck(playerStandStance.StanceCollider.height))
             {
+                playerStance = PlayerStance.Crouch;
                 return;
             }
             
@@ -312,13 +321,73 @@ public class CharacterControllerScr : MonoBehaviour
 
     private void ToggleSprint()
     {
+        if(playerStance == PlayerStance.Crouch || playerStance == PlayerStance.Prone)
+        {
+            if(StanceCheck(playerCrouchStance.StanceCollider.height))
+            {
+                return;
+            }
+            if(StanceCheck(playerStandStance.StanceCollider.height))
+            {
+                playerStance = PlayerStance.Crouch;
+                return;
+            }
+            
+            playerStance = PlayerStance.Stand;
+        }
+        
         if(input_Movement.y <= 0.2f)
         {
             isSprinting = false;
             return;
         }
+        
+        // Timer has to have less than 2 seconds to sprint when the limit is on. Sprint immediately if the limit is off.
+        if(isLimitedSprint)
+        {            
+            if(timer < 2)
+            {            
+                isSprinting = true; 
+                isLimitedSprint = false;
+            }
+            else
+            {
+                return;
+            }
+        }
+        else
+        {
+            isSprinting = true; 
+        }
+    }
 
-        isSprinting = !isSprinting;
+    private void CalculateSprint()
+    {
+        if(isSprinting)
+        {
+            // Increase the timer, and if the stamina ran out turn on the limit and disable sprinting
+            if(playerSettings.StaminaDuration < timer)
+            {
+                isLimitedSprint = true;
+                isSprinting = false;
+            }
+            else
+            {
+                timer += Time.deltaTime;
+            }
+        }
+        else
+        {
+            // When not sprinting, reduce the time until 0
+            if(timer > 0)
+            {
+                timer -= Time.deltaTime;
+            }
+            else
+            {
+                timer = 0;
+            }
+        }
     }
 
     private void StopSprint()
@@ -327,15 +396,6 @@ public class CharacterControllerScr : MonoBehaviour
         {
             isSprinting = false;
         }
-    }
-
-    #endregion
-
-    #region - Gizmos -
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawWireSphere(feetTransform.position, playerSettings.isGroundedRadius);
     }
 
     #endregion

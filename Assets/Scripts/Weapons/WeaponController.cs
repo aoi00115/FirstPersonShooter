@@ -28,6 +28,16 @@ public class WeaponController : MonoBehaviour
 
     private bool isJumping;
     private float fallingDelay;
+
+    [Header("Weapon Sway")]
+    public Transform weaponSwayObject;
+    public float swayAmountA = 1;
+    public float swayAmountB = 2;
+    public float swayScale = 50;
+    public float adsSwayScale = 10;
+    public float swayLerpSpeed = 14;
+    private float swayTime;
+    public Vector3 swayPosition;
     
     private void Start()
     {
@@ -48,6 +58,7 @@ public class WeaponController : MonoBehaviour
         }
 
         CalculateWeaponRotation();
+        CalculateWeaponSway();
         SetWeaponAnimations();
     }
 
@@ -83,6 +94,20 @@ public class WeaponController : MonoBehaviour
         transform.localRotation = Quaternion.Euler(newWeaponRotation + newWeaponMovementRotation);
     }
 
+    private void CalculateWeaponSway()
+    {
+        var targetPosition = LissajousCurve(swayTime, swayAmountA, swayAmountB) / swayScale;
+
+        swayPosition = Vector3.Lerp(swayPosition, targetPosition, Time.smoothDeltaTime * swayLerpSpeed);
+        swayTime += Time.deltaTime;
+        if(swayTime > 6.3f)
+        {
+            swayTime = 0;
+        }
+
+        weaponSwayObject.localPosition = swayPosition;
+    }
+
     private void SetWeaponAnimations()
     {
         // Setting delay so that the isGroundedTrigger does not immediately turn true after jumping
@@ -109,7 +134,13 @@ public class WeaponController : MonoBehaviour
             isJumping = true;
         }
         
+        // Based on the characterController.isIdle switch between idle and other animations
         universalAnimationController.SetBool("isIdle", characterController.isIdle);
         universalAnimationController.SetFloat("WalkingAnimationSpeed", characterController.walkingAnimationSpeed);
+    }
+
+    private Vector3 LissajousCurve(float Time, float A, float B)
+    {
+        return new Vector3(Mathf.Sin(Time), A * Mathf.Sin(B * Time + Mathf.PI));
     }
 }

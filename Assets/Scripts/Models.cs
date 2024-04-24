@@ -31,6 +31,7 @@ public static class Models
         [Header("Movement - Running")]
         public float RunningForwardSpeed;
         public float RunningStrafeSpeed;
+        public float StaminaDuration;
 
         [Header("Movement - Walking")]
         public float WalkingForwardSpeed;

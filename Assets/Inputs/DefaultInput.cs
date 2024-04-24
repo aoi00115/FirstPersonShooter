@@ -194,7 +194,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""361f8c3d-d22e-41d4-a115-ffc1f5db42fa"",
-                    ""path"": ""<Keyboard>/shift"",
+                    ""path"": ""<Keyboard>/e"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -205,7 +205,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""8e111505-d754-49d6-a406-817a0b7db3a1"",
-                    ""path"": ""<Keyboard>/shift"",
+                    ""path"": ""<Keyboard>/e"",
                     ""interactions"": ""Press(behavior=1)"",
                     ""processors"": """",
                     ""groups"": """",
