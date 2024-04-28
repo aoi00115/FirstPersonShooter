@@ -8,6 +8,11 @@ public static class Weapons
     [Serializable]
     public class Gun
     {
+        [Header("References")]
+        public CharacterControllerScr characterController;
+        public Transform armsnWeapons;
+        public Transform cameraHolder;
+
         [Header("Gun Settings")]
         public int ammoCount;
         public int magCapacity;
@@ -18,17 +23,17 @@ public static class Weapons
         public float putAwayDuration;
         public float fireRate;
         public int fireMode;
+        public Vector2 bulletSpread;
         public int damage;
         public bool isFireModeSwitchable;
-        public Vector2 gunPosition;
-        public Vector2 adsPosition;
+        public Vector3 defaultGunPosition;
+        public Vector3 gunPosition;
+        public Vector3 adsPosition;
         public bool isAimable;
-        public bool isADS;
         public bool isPrimary;
         public bool isSecondary;
 
         [Header("Recoil Settings")]
-        public Transform cameraHolder;
         public Vector3 recoil;
         public Vector3 ADSRecoil;
         public float snappiness;

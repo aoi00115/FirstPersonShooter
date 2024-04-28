@@ -11,6 +11,8 @@ public class Pistol : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        gun.armsnWeapons = transform.Find("../../../../");
+        gun.characterController = transform.Find("../../../../../../../").GetComponent<CharacterControllerScr>();
         gun.cameraHolder = transform.Find("../../../../../../");
     }
 

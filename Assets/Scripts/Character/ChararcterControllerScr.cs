@@ -54,7 +54,15 @@ public class CharacterControllerScr : MonoBehaviour
     public bool isSprinting;
     private bool isLimitedSprint;
     [HideInInspector]
+    public bool isWalking;
+    [HideInInspector]
     public bool isIdle;
+    [HideInInspector]
+    public bool isStand;
+    [HideInInspector]
+    public bool isCrouch;
+    [HideInInspector]
+    public bool isProne;
 
     private Vector3 newMovementSpeed;
     private Vector3 newMovementSpeedVelocity;
@@ -209,10 +217,12 @@ public class CharacterControllerScr : MonoBehaviour
         // Calculating whether play is idle or not
         if(input_Movement == Vector2.zero)
         {
+            isWalking = false;
             isIdle = true;
         }
         else
         {
+            isWalking = true;
             isIdle = false;
         }
     }
@@ -268,14 +278,23 @@ public class CharacterControllerScr : MonoBehaviour
     private void CalculateStance()
     {
         var currentStance = playerStandStance;
+        isStand = true;
+        isCrouch = false;
+        isProne = false;
 
         if(playerStance == PlayerStance.Crouch)
         {
             currentStance = playerCrouchStance;
+            isStand = false;
+            isCrouch = true;
+            isProne = false;
         }
         else if(playerStance == PlayerStance.Prone)
         {
             currentStance = playerProneStance;
+            isStand = false;
+            isCrouch = false;
+            isProne = true;
         }
 
         cameraHeight = Mathf.SmoothDamp(cameraHolder.localPosition.y, currentStance.CameraHeight, ref cameraHeightVelocity, playerStanceSmoothing);
