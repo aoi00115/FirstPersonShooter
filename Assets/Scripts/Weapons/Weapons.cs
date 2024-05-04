@@ -9,15 +9,20 @@ public static class Weapons
     public class Gun
     {
         [Header("References")]
+        public WeaponController weaponController;
         public CharacterControllerScr characterController;
-        public Transform armsnWeapons;
-        public Transform cameraHolder;
+        public Transform cameraRecoil;
+        public Animator gunAnimator;
+        public Animator armsAnimator;
+        public Animator cameraAnimator;
+        public Transform socket;
 
         [Header("Gun Settings")]
         public int ammoCount;
         public int magCapacity;
         public int ammoReserveCount;
         public float adsDuration;
+        public float adsZoom;
         public float reloadDuration;
         public float drawDuration;
         public float putAwayDuration;
@@ -26,12 +31,11 @@ public static class Weapons
         public Vector2 bulletSpread;
         public int damage;
         public bool isFireModeSwitchable;
-        public Vector3 defaultGunPosition;
-        public Vector3 gunPosition;
         public Vector3 adsPosition;
         public bool isAimable;
         public bool isPrimary;
         public bool isSecondary;
+        public bool inUse;
 
         [Header("Recoil Settings")]
         public Vector3 recoil;

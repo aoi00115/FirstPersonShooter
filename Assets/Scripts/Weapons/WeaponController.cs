@@ -9,7 +9,10 @@ public class WeaponController : MonoBehaviour
     [Header("References")]
     public Animator universalAnimationController;
 
-    [Header("Settings")]
+    [Header("Weapon Settings")]
+    public GameObject currentWeapon;
+
+    [Header("Weapon Sway Settings")]
     public WeaponSettingsModel settings;
 
     bool isInitialised;
@@ -29,7 +32,7 @@ public class WeaponController : MonoBehaviour
     private bool isJumping;
     private float fallingDelay;
 
-    [Header("Weapon Sway")]
+    [Header("Weapon Idle Sway")]
     public Transform weaponSwayObject;
     public float swayAmountA = 1;
     public float swayAmountB = 2;
@@ -38,6 +41,7 @@ public class WeaponController : MonoBehaviour
     public float swayLerpSpeed = 14;
     private float swayTime;
     public Vector3 swayPosition;
+    public Transform swayPoint;
     
     private void Start()
     {
@@ -57,9 +61,11 @@ public class WeaponController : MonoBehaviour
             return;
         }
 
-        CalculateWeaponRotation();
+        // CalculateWeaponRotation();
         CalculateWeaponSway();
-        SetWeaponAnimations();
+        CalculateSwayPoint();
+        // SetWeaponAnimations();
+
     }
 
     public void TriggerJump()
@@ -94,6 +100,42 @@ public class WeaponController : MonoBehaviour
         transform.localRotation = Quaternion.Euler(newWeaponRotation + newWeaponMovementRotation);
     }
 
+    // Set the swayPoint to the equipped guns socket
+    public void CalculateSwayPoint()
+    {
+        swayPoint.position = currentWeapon.transform.parent.position;
+    }
+
+    // private void CalculateWeaponRotation()
+    // {
+    //     // Camera rotation when looking around
+    //     targetWeaponRotation.y += settings.SwayAmount * (settings.SwayXInverted ? -characterController.input_View.x : characterController.input_View.x) * Time.deltaTime;
+    //     targetWeaponRotation.x += settings.SwayAmount * (settings.SwayYInverted ? characterController.input_View.y : -characterController.input_View.y) * Time.deltaTime;
+
+    //     targetWeaponRotation.x = Mathf.Clamp(targetWeaponRotation.x, -settings.SwayClampX, settings.SwayClampX);
+    //     targetWeaponRotation.y = Mathf.Clamp(targetWeaponRotation.y, -settings.SwayClampY, settings.SwayClampY);
+    //     targetWeaponRotation.z = targetWeaponRotation.y;
+
+    //     // Smooth damping for resetting the weapon sway(↑) and for setting weapon sway(↓)
+    //     targetWeaponRotation = Vector3.SmoothDamp(targetWeaponRotation, Vector3.zero, ref targetWeaponRotationVelocity, settings.SwayResetSmoothing);
+    //     newWeaponRotation = Vector3.SmoothDamp(newWeaponRotation, targetWeaponRotation, ref newWeaponRotationVelocity, settings.SwaySmoothing);
+
+    //     // Camera rotation along z axis when moving side to side 
+    //     targetWeaponMovementRotation.z = settings.MovementSwayX * -characterController.input_Movement.x;
+    //     targetWeaponMovementRotation.x = settings.MovementSwayY * -characterController.input_Movement.y;
+
+    //     targetWeaponMovementRotation = Vector3.SmoothDamp(targetWeaponMovementRotation, Vector3.zero, ref targetWeaponMovementRotationVelocity, settings.SwayResetSmoothing);
+    //     newWeaponMovementRotation = Vector3.SmoothDamp(newWeaponMovementRotation, targetWeaponMovementRotation, ref newWeaponMovementRotationVelocity, settings.MovementSwaySmoothing);
+
+    //     // Calculate the final rotation based on weapon sway and movement sway
+    //     Vector3 finalRotation = newWeaponRotation + newWeaponMovementRotation;
+
+    //     // Rotate the weapon around the sway point
+    //     transform.RotateAround(swayPoint.position, transform.up, finalRotation.y);
+    //     transform.RotateAround(swayPoint.position, transform.right, finalRotation.x);
+    //     transform.RotateAround(swayPoint.position, transform.forward, finalRotation.z);
+    // }
+
     private void CalculateWeaponSway()
     {
         var targetPosition = LissajousCurve(swayTime, swayAmountA, swayAmountB) / swayScale;
@@ -106,6 +148,11 @@ public class WeaponController : MonoBehaviour
         }
 
         weaponSwayObject.localPosition = swayPosition;
+    }
+
+    private Vector3 LissajousCurve(float Time, float A, float B)
+    {
+        return new Vector3(Mathf.Sin(Time), A * Mathf.Sin(B * Time + Mathf.PI));
     }
 
     private void SetWeaponAnimations()
@@ -137,10 +184,5 @@ public class WeaponController : MonoBehaviour
         // Based on the characterController.isIdle switch between idle and other animations
         universalAnimationController.SetBool("isIdle", characterController.isIdle);
         universalAnimationController.SetFloat("WalkingAnimationSpeed", characterController.walkingAnimationSpeed);
-    }
-
-    private Vector3 LissajousCurve(float Time, float A, float B)
-    {
-        return new Vector3(Mathf.Sin(Time), A * Mathf.Sin(B * Time + Mathf.PI));
     }
 }

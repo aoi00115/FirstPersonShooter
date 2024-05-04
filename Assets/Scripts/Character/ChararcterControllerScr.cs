@@ -19,7 +19,7 @@ public class CharacterControllerScr : MonoBehaviour
     private float timer = 0;
 
     [Header("References")]
-    public Transform cameraHolder;
+    public Transform headPosition;
     public Transform feetTransform;
 
     [Header("Settings")]
@@ -68,7 +68,7 @@ public class CharacterControllerScr : MonoBehaviour
     private Vector3 newMovementSpeedVelocity;
 
     [Header("Weapon")]
-    public WeaponController currentWeapon;
+    public WeaponController weaponController;
 
     public float walkingAnimationSpeed;
 
@@ -96,16 +96,16 @@ public class CharacterControllerScr : MonoBehaviour
 
         defaultInput.Enable();
 
-        newCameraRotation = cameraHolder.localRotation.eulerAngles;
+        newCameraRotation = headPosition.localRotation.eulerAngles;
         newCharacterRotation = transform.localRotation.eulerAngles;
 
         characterController = GetComponent<CharacterController>();
 
-        cameraHeight = cameraHolder.localPosition.y;
+        cameraHeight = headPosition.localPosition.y;
 
-        if(currentWeapon)
+        if(weaponController)
         {
-            currentWeapon.Initialise(this);
+            weaponController.Initialise(this);
         }
     }
 
@@ -135,7 +135,7 @@ public class CharacterControllerScr : MonoBehaviour
         newCameraRotation.x += playerSettings.ViewYSensitivity * (playerSettings.ViewYInverted ? input_View.y : -input_View.y) * Time.deltaTime;
         newCameraRotation.x = Mathf.Clamp(newCameraRotation.x, viewClampYMin, viewClampYMax);
 
-        cameraHolder.localRotation = Quaternion.Euler(newCameraRotation);
+        headPosition.localRotation = Quaternion.Euler(newCameraRotation);
     }
 
     private void CalculateMovement()
@@ -262,7 +262,7 @@ public class CharacterControllerScr : MonoBehaviour
         // Jump
         jumpingForce = Vector3.up * playerSettings.JumpingHeight;
         playerGravity = 0;
-        currentWeapon.TriggerJump();
+        weaponController.TriggerJump();
         // Store the player's moving direction as vector3 and translate it into world coordinate
         jumpingMomentum = transform.TransformDirection(newMovementSpeed) * 50;
         if(isSprinting)
@@ -297,8 +297,8 @@ public class CharacterControllerScr : MonoBehaviour
             isProne = true;
         }
 
-        cameraHeight = Mathf.SmoothDamp(cameraHolder.localPosition.y, currentStance.CameraHeight, ref cameraHeightVelocity, playerStanceSmoothing);
-        cameraHolder.localPosition = new Vector3(cameraHolder.localPosition.x, cameraHeight, cameraHolder.localPosition.z);
+        cameraHeight = Mathf.SmoothDamp(headPosition.localPosition.y, currentStance.CameraHeight, ref cameraHeightVelocity, playerStanceSmoothing);
+        headPosition.localPosition = new Vector3(headPosition.localPosition.x, cameraHeight, headPosition.localPosition.z);
 
         characterController.height = Mathf.SmoothDamp(characterController.height, currentStance.StanceCollider.height, ref stanceCapsuleHeightVelocity, playerStanceSmoothing);
         characterController.center = Vector3.SmoothDamp(characterController.center, currentStance.StanceCollider.center, ref stanceCapsuleCenterVelocity, playerStanceSmoothing);
