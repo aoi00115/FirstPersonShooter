@@ -11,11 +11,20 @@ public static class Weapons
         [Header("References")]
         public WeaponController weaponController;
         public CharacterControllerScr characterController;
+        public Transform armsRig;
         public Transform cameraRecoil;
+        public Transform weaponHolder;
+        public Transform weaponSway;
+        public Transform weaponRecoil;
         public Animator gunAnimator;
         public Animator armsAnimator;
         public Animator cameraAnimator;
+        public RuntimeAnimatorController gunAnimatorController;
+        public RuntimeAnimatorController armsAnimatorController;
+        public RuntimeAnimatorController cameraAnimatorController;
         public Transform socket;
+        public Transform swayPoint;
+        public Vector3 weaponRotation;
 
         [Header("Gun Settings")]
         public int ammoCount;

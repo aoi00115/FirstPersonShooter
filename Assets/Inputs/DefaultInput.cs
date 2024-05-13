@@ -89,6 +89,24 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Fire"",
+                    ""type"": ""Button"",
+                    ""id"": ""ff3e12f7-e201-4109-93eb-9b75a421bc01"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Reload"",
+                    ""type"": ""Button"",
+                    ""id"": ""bfa5acbe-366e-42c3-9856-ef44ac5eff43"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -212,6 +230,28 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""action"": ""SprintReleased"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""54f3b1dc-e413-4b32-aa19-37f1ee4fbf62"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Fire"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b0d77c05-d661-4fe7-8981-e0c48db788fb"",
+                    ""path"": ""<Keyboard>/#(R)"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Reload"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -227,6 +267,8 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         m_Character_Prone = m_Character.FindAction("Prone", throwIfNotFound: true);
         m_Character_Sprint = m_Character.FindAction("Sprint", throwIfNotFound: true);
         m_Character_SprintReleased = m_Character.FindAction("SprintReleased", throwIfNotFound: true);
+        m_Character_Fire = m_Character.FindAction("Fire", throwIfNotFound: true);
+        m_Character_Reload = m_Character.FindAction("Reload", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -295,6 +337,8 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Character_Prone;
     private readonly InputAction m_Character_Sprint;
     private readonly InputAction m_Character_SprintReleased;
+    private readonly InputAction m_Character_Fire;
+    private readonly InputAction m_Character_Reload;
     public struct CharacterActions
     {
         private @DefaultInput m_Wrapper;
@@ -306,6 +350,8 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         public InputAction @Prone => m_Wrapper.m_Character_Prone;
         public InputAction @Sprint => m_Wrapper.m_Character_Sprint;
         public InputAction @SprintReleased => m_Wrapper.m_Character_SprintReleased;
+        public InputAction @Fire => m_Wrapper.m_Character_Fire;
+        public InputAction @Reload => m_Wrapper.m_Character_Reload;
         public InputActionMap Get() { return m_Wrapper.m_Character; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -336,6 +382,12 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
             @SprintReleased.started += instance.OnSprintReleased;
             @SprintReleased.performed += instance.OnSprintReleased;
             @SprintReleased.canceled += instance.OnSprintReleased;
+            @Fire.started += instance.OnFire;
+            @Fire.performed += instance.OnFire;
+            @Fire.canceled += instance.OnFire;
+            @Reload.started += instance.OnReload;
+            @Reload.performed += instance.OnReload;
+            @Reload.canceled += instance.OnReload;
         }
 
         private void UnregisterCallbacks(ICharacterActions instance)
@@ -361,6 +413,12 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
             @SprintReleased.started -= instance.OnSprintReleased;
             @SprintReleased.performed -= instance.OnSprintReleased;
             @SprintReleased.canceled -= instance.OnSprintReleased;
+            @Fire.started -= instance.OnFire;
+            @Fire.performed -= instance.OnFire;
+            @Fire.canceled -= instance.OnFire;
+            @Reload.started -= instance.OnReload;
+            @Reload.performed -= instance.OnReload;
+            @Reload.canceled -= instance.OnReload;
         }
 
         public void RemoveCallbacks(ICharacterActions instance)
@@ -387,5 +445,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         void OnProne(InputAction.CallbackContext context);
         void OnSprint(InputAction.CallbackContext context);
         void OnSprintReleased(InputAction.CallbackContext context);
+        void OnFire(InputAction.CallbackContext context);
+        void OnReload(InputAction.CallbackContext context);
     }
 }

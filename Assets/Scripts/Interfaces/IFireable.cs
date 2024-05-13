@@ -11,4 +11,6 @@ public interface IFireable
     void SwitchFireMode();
     void Draw();
     void PutAway();
+    void SetUp();
+    void Reset();
 }

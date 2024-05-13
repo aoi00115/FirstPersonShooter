@@ -5,12 +5,16 @@ using static Models;
 public class WeaponController : MonoBehaviour
 {
     private CharacterControllerScr characterController;
+    private DefaultInput defaultInput;
 
     [Header("References")]
     public Animator universalAnimationController;
 
     [Header("Weapon Settings")]
+    public GameObject[] weaponArray;
+    private int weaponIndex;
     public GameObject currentWeapon;
+    public IFireable fireable;
 
     [Header("Weapon Sway Settings")]
     public WeaponSettingsModel settings;
@@ -42,10 +46,12 @@ public class WeaponController : MonoBehaviour
     private float swayTime;
     public Vector3 swayPosition;
     public Transform swayPoint;
-    
+
     private void Start()
     {
         newWeaponRotation = transform.localRotation.eulerAngles;
+
+        InitialWeaponSetUp();
     }
 
     public void Initialise(CharacterControllerScr CharacterController)
@@ -61,11 +67,11 @@ public class WeaponController : MonoBehaviour
             return;
         }
 
-        // CalculateWeaponRotation();
+        CalculateWeaponRotation();
         CalculateWeaponSway();
-        CalculateSwayPoint();
         // SetWeaponAnimations();
 
+        CalculateCurrentWeapon();
     }
 
     public void TriggerJump()
@@ -97,44 +103,8 @@ public class WeaponController : MonoBehaviour
         newWeaponMovementRotation = Vector3.SmoothDamp(newWeaponMovementRotation, targetWeaponMovementRotation, ref newWeaponMovementRotationVelocity, settings.MovementSwaySmoothing);
 
         // Combining both weapon sway and movement sway
-        transform.localRotation = Quaternion.Euler(newWeaponRotation + newWeaponMovementRotation);
+        swayPoint.localRotation = Quaternion.Euler(newWeaponRotation + newWeaponMovementRotation);
     }
-
-    // Set the swayPoint to the equipped guns socket
-    public void CalculateSwayPoint()
-    {
-        swayPoint.position = currentWeapon.transform.parent.position;
-    }
-
-    // private void CalculateWeaponRotation()
-    // {
-    //     // Camera rotation when looking around
-    //     targetWeaponRotation.y += settings.SwayAmount * (settings.SwayXInverted ? -characterController.input_View.x : characterController.input_View.x) * Time.deltaTime;
-    //     targetWeaponRotation.x += settings.SwayAmount * (settings.SwayYInverted ? characterController.input_View.y : -characterController.input_View.y) * Time.deltaTime;
-
-    //     targetWeaponRotation.x = Mathf.Clamp(targetWeaponRotation.x, -settings.SwayClampX, settings.SwayClampX);
-    //     targetWeaponRotation.y = Mathf.Clamp(targetWeaponRotation.y, -settings.SwayClampY, settings.SwayClampY);
-    //     targetWeaponRotation.z = targetWeaponRotation.y;
-
-    //     // Smooth damping for resetting the weapon sway(↑) and for setting weapon sway(↓)
-    //     targetWeaponRotation = Vector3.SmoothDamp(targetWeaponRotation, Vector3.zero, ref targetWeaponRotationVelocity, settings.SwayResetSmoothing);
-    //     newWeaponRotation = Vector3.SmoothDamp(newWeaponRotation, targetWeaponRotation, ref newWeaponRotationVelocity, settings.SwaySmoothing);
-
-    //     // Camera rotation along z axis when moving side to side 
-    //     targetWeaponMovementRotation.z = settings.MovementSwayX * -characterController.input_Movement.x;
-    //     targetWeaponMovementRotation.x = settings.MovementSwayY * -characterController.input_Movement.y;
-
-    //     targetWeaponMovementRotation = Vector3.SmoothDamp(targetWeaponMovementRotation, Vector3.zero, ref targetWeaponMovementRotationVelocity, settings.SwayResetSmoothing);
-    //     newWeaponMovementRotation = Vector3.SmoothDamp(newWeaponMovementRotation, targetWeaponMovementRotation, ref newWeaponMovementRotationVelocity, settings.MovementSwaySmoothing);
-
-    //     // Calculate the final rotation based on weapon sway and movement sway
-    //     Vector3 finalRotation = newWeaponRotation + newWeaponMovementRotation;
-
-    //     // Rotate the weapon around the sway point
-    //     transform.RotateAround(swayPoint.position, transform.up, finalRotation.y);
-    //     transform.RotateAround(swayPoint.position, transform.right, finalRotation.x);
-    //     transform.RotateAround(swayPoint.position, transform.forward, finalRotation.z);
-    // }
 
     private void CalculateWeaponSway()
     {
@@ -184,5 +154,41 @@ public class WeaponController : MonoBehaviour
         // Based on the characterController.isIdle switch between idle and other animations
         universalAnimationController.SetBool("isIdle", characterController.isIdle);
         universalAnimationController.SetFloat("WalkingAnimationSpeed", characterController.walkingAnimationSpeed);
+    }
+
+    private void InitialWeaponSetUp()
+    {      
+        if(weaponArray[0].transform.childCount > 0)
+        {
+            currentWeapon = weaponArray[0];
+            weaponIndex = 0;
+            CalculateCurrentWeapon();
+            fireable.SetUp();
+        }
+        else
+        {
+            currentWeapon = weaponArray[1];
+            weaponIndex = 1;
+            CalculateCurrentWeapon();
+            fireable.SetUp();
+        }
+    }
+
+    private void SwitchWeapons()
+    {
+        weaponIndex++;
+        if(weaponIndex >= weaponArray.Length)
+        {
+            weaponIndex = 0;
+        }
+        currentWeapon = weaponArray[weaponIndex];
+        CalculateCurrentWeapon();
+        fireable.SetUp();
+    }
+
+    // Assigning IFireable
+    private void CalculateCurrentWeapon()
+    {
+        fireable = currentWeapon.transform.GetChild(0).GetComponent<IFireable>();
     }
 }

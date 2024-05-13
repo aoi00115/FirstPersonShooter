@@ -94,6 +94,10 @@ public class CharacterControllerScr : MonoBehaviour
         defaultInput.Character.Sprint.performed += e => ToggleSprint();
         defaultInput.Character.SprintReleased.performed += e => StopSprint();
 
+        // Weapon Action
+        defaultInput.Character.Fire.performed += e => weaponController.fireable.Fire();
+        defaultInput.Character.Reload.performed += e => weaponController.fireable.Reload();
+
         defaultInput.Enable();
 
         newCameraRotation = headPosition.localRotation.eulerAngles;
@@ -107,6 +111,8 @@ public class CharacterControllerScr : MonoBehaviour
         {
             weaponController.Initialise(this);
         }
+
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     #endregion
