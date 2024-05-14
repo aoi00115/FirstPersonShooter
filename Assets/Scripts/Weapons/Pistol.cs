@@ -7,6 +7,7 @@ public class Pistol : MonoBehaviour, IFireable
 {
     [Header("Pistol Settings")]
     public Gun gun;
+    public bool isADS;
     
     // Start is called before the first frame update
     void Start()
@@ -17,7 +18,7 @@ public class Pistol : MonoBehaviour, IFireable
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void Fire()
@@ -28,12 +29,19 @@ public class Pistol : MonoBehaviour, IFireable
 
     public void ADSIn()
     {
-        
+        isADS = true;
+        gun.armsAnimator.SetBool("isADS", isADS);
+        // gun.armsAnimator.SetTrigger("ADSTrigger");
+        gun.armsAnimator.SetFloat("ADSSpeed", 1.0f);
+        gun.armsAnimator.Play(gameObject.name + "_ADS_In_Animation");
     }
 
     public void ADSOut()
     {
-        
+        isADS = false;
+        gun.armsAnimator.SetBool("isADS", isADS);
+        // gun.armsAnimator.SetTrigger("ADSOutTrigger");
+        gun.armsAnimator.SetFloat("ADSSpeed", -1.0f);
     }
 
     public void Reload()
@@ -56,6 +64,12 @@ public class Pistol : MonoBehaviour, IFireable
     public void PutAway()
     {
         
+    }
+
+    public void Walk(float walkingAnimationSpeed, bool isIdle)
+    {
+        gun.armsAnimator.SetBool("isIdle", isIdle);
+        gun.armsAnimator.SetFloat("WalkingAnimationSpeed", walkingAnimationSpeed);
     }
     
     public void SetUp()

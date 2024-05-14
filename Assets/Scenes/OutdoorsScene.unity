@@ -24,7 +24,7 @@ RenderSettings:
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
-  m_AmbientMode: 4
+  m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
@@ -2458,7 +2458,7 @@ MonoBehaviour:
     ammoCount: 0
     magCapacity: 0
     ammoReserveCount: 0
-    adsDuration: 0
+    adsDuration: 0.167
     adsZoom: 0
     reloadDuration: 0
     drawDuration: 0
@@ -2477,6 +2477,8 @@ MonoBehaviour:
     ADSRecoil: {x: 0, y: 0, z: 0}
     snappiness: 0
     returnSpeed: 0
+  isADS: 0
+  timer: 0
 --- !u!95 &119854271406696265
 Animator:
   serializedVersion: 5
@@ -2612,6 +2614,8 @@ MonoBehaviour:
     ADSRecoil: {x: 0, y: 0, z: 0}
     snappiness: 0
     returnSpeed: 0
+  isADS: 0
+  timer: 0
 --- !u!23 &263238842356092870
 MeshRenderer:
   m_ObjectHideFlags: 0

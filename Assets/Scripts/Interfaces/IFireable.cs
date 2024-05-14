@@ -11,6 +11,7 @@ public interface IFireable
     void SwitchFireMode();
     void Draw();
     void PutAway();
+    void Walk(float walkingAnimationSpeed, bool isIdle);
     void SetUp();
     void Reset();
 }

@@ -69,7 +69,7 @@ public class WeaponController : MonoBehaviour
 
         CalculateWeaponRotation();
         CalculateWeaponSway();
-        // SetWeaponAnimations();
+        SetWeaponAnimations();
 
         CalculateCurrentWeapon();
     }
@@ -152,8 +152,7 @@ public class WeaponController : MonoBehaviour
         }
         
         // Based on the characterController.isIdle switch between idle and other animations
-        universalAnimationController.SetBool("isIdle", characterController.isIdle);
-        universalAnimationController.SetFloat("WalkingAnimationSpeed", characterController.walkingAnimationSpeed);
+        fireable.Walk(characterController.walkingAnimationSpeed, characterController.isIdle);
     }
 
     private void InitialWeaponSetUp()

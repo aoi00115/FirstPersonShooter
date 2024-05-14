@@ -107,6 +107,24 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ADSIn"",
+                    ""type"": ""Button"",
+                    ""id"": ""7eac4c55-bd2f-4be4-ae2b-a131ee292ac7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ADSOut"",
+                    ""type"": ""Button"",
+                    ""id"": ""85823eb4-b6a0-428f-94c7-4a0adc1c849f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -252,6 +270,28 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""action"": ""Reload"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0a241986-b974-433a-998d-ce6010d70354"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ADSIn"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9e6982d7-94c0-4474-9727-46deea4293fe"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": ""Press(behavior=1)"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ADSOut"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -269,6 +309,8 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         m_Character_SprintReleased = m_Character.FindAction("SprintReleased", throwIfNotFound: true);
         m_Character_Fire = m_Character.FindAction("Fire", throwIfNotFound: true);
         m_Character_Reload = m_Character.FindAction("Reload", throwIfNotFound: true);
+        m_Character_ADSIn = m_Character.FindAction("ADSIn", throwIfNotFound: true);
+        m_Character_ADSOut = m_Character.FindAction("ADSOut", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -339,6 +381,8 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Character_SprintReleased;
     private readonly InputAction m_Character_Fire;
     private readonly InputAction m_Character_Reload;
+    private readonly InputAction m_Character_ADSIn;
+    private readonly InputAction m_Character_ADSOut;
     public struct CharacterActions
     {
         private @DefaultInput m_Wrapper;
@@ -352,6 +396,8 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         public InputAction @SprintReleased => m_Wrapper.m_Character_SprintReleased;
         public InputAction @Fire => m_Wrapper.m_Character_Fire;
         public InputAction @Reload => m_Wrapper.m_Character_Reload;
+        public InputAction @ADSIn => m_Wrapper.m_Character_ADSIn;
+        public InputAction @ADSOut => m_Wrapper.m_Character_ADSOut;
         public InputActionMap Get() { return m_Wrapper.m_Character; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -388,6 +434,12 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
             @Reload.started += instance.OnReload;
             @Reload.performed += instance.OnReload;
             @Reload.canceled += instance.OnReload;
+            @ADSIn.started += instance.OnADSIn;
+            @ADSIn.performed += instance.OnADSIn;
+            @ADSIn.canceled += instance.OnADSIn;
+            @ADSOut.started += instance.OnADSOut;
+            @ADSOut.performed += instance.OnADSOut;
+            @ADSOut.canceled += instance.OnADSOut;
         }
 
         private void UnregisterCallbacks(ICharacterActions instance)
@@ -419,6 +471,12 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
             @Reload.started -= instance.OnReload;
             @Reload.performed -= instance.OnReload;
             @Reload.canceled -= instance.OnReload;
+            @ADSIn.started -= instance.OnADSIn;
+            @ADSIn.performed -= instance.OnADSIn;
+            @ADSIn.canceled -= instance.OnADSIn;
+            @ADSOut.started -= instance.OnADSOut;
+            @ADSOut.performed -= instance.OnADSOut;
+            @ADSOut.canceled -= instance.OnADSOut;
         }
 
         public void RemoveCallbacks(ICharacterActions instance)
@@ -447,5 +505,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         void OnSprintReleased(InputAction.CallbackContext context);
         void OnFire(InputAction.CallbackContext context);
         void OnReload(InputAction.CallbackContext context);
+        void OnADSIn(InputAction.CallbackContext context);
+        void OnADSOut(InputAction.CallbackContext context);
     }
 }
