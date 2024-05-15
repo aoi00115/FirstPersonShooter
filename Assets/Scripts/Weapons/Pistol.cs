@@ -18,25 +18,32 @@ public class Pistol : MonoBehaviour, IFireable
     void Update()
     {
         CalculateADSTime();
+        CalculateDrawTime();
+        CalculatePutAwayTime();
     }
 
     public void Fire()
     {
-        // if(gun.isADS)
+        // Fire only after drawing or only not putting away
+        if(gun.isDraw)
+        {            
+            return;
+        }        
+        if(gun.isPuttingAway)
+        {
+            return;
+        }
+        // if(gun.isReloading)
         // {
-        //     gun.armsAnimator.Play(gameObject.name + "_Arms_ADS_Fire_Animation");
-        //     gun.gunAnimator.Play(gameObject.name + "_Gun_ADS_Fire_Animation");
+        //     return;
         // }
-        // else
-        // {
-        //     gun.armsAnimator.Play(gameObject.name + "_Arms_Fire_Animation");
-        //     gun.gunAnimator.Play(gameObject.name + "_Gun_Fire_Animation");
-        // }
+
         // If fired when running, stop running
         if(gun.characterController.isSprinting == true)
         {
             gun.characterController.isSprinting = false;
         }
+
         gun.armsAnimator.Play("Arms Fire Blend Tree");
         gun.gunAnimator.Play(gameObject.name + "_Gun_Fire_Animation");
     }
@@ -51,14 +58,15 @@ public class Pistol : MonoBehaviour, IFireable
         gun.isADSIn = true;
         gun.isADSOut = false;
         gun.armsAnimator.SetFloat("ADSSpeed", gun.adsSpeed);
+
         // When the animation is not reset when the timer is 0, play it back from 0 time frame, and when the timer is not 0, play the animation from where the animation is continued
         if(gun.adsTimer == 0)
         {
-            gun.armsAnimator.Play(gameObject.name + "_ADS_In_Animation", -1, 0);
+            gun.armsAnimator.Play(gameObject.name + "_ADS_Animation", -1, 0);
         }
         else
         {
-            gun.armsAnimator.Play(gameObject.name + "_ADS_In_Animation");
+            gun.armsAnimator.Play(gameObject.name + "_ADS_Animation");
         }
         
     }
@@ -68,6 +76,11 @@ public class Pistol : MonoBehaviour, IFireable
         gun.isADSOut = true;
         gun.isADSIn = false;
         gun.armsAnimator.SetFloat("ADSSpeed", -gun.adsSpeed);
+    }
+
+    public bool CalculateADS()
+    {
+        return gun.isADS;
     }
 
     public void CalculateADSTime()
@@ -125,16 +138,13 @@ public class Pistol : MonoBehaviour, IFireable
         if(gun.adsTimer == 0)
         {
             gun.isADSOut = false;
-            gun.armsAnimator.SetFloat("ADSSpeed", 0f);
+            gun.armsAnimator.SetFloat("ADSSpeed", 0f);            
+            // When not ADS (Hip fire) play the empty state
+            gun.armsAnimator.Play("ADS Empty");
         }
 
         // Setting the float used in the blend tree in animator, it calculates the normalized ADS time from 0 to 1 where 0 being hip fire, and 1 being ADS
         gun.armsAnimator.SetFloat("ADSProgress", gun.adsTimer / (gun.adsDuration / gun.adsSpeed));
-    }
-
-    public bool CalculateADS()
-    {
-        return gun.isADS;
     }
 
     public void Reload()
@@ -150,13 +160,109 @@ public class Pistol : MonoBehaviour, IFireable
     }
 
     public void Draw()
+    {        
+        gun.armsAnimator.Play(gameObject.name + "_Draw_Animation", -1, 0);
+        gun.isPuttingAway = false;
+        gun.isDraw = true;
+    }
+
+    public void CalculateDrawTime()
     {
-        
+        if(gun.isDraw)
+        {
+            // Increase the timer when aiming in, until it reaches up to ADSduration, and if it reaches, freeze the timer by setting adsTimer to ADSduration
+            if(gun.drawDuration >= gun.drawTimer)
+            {
+                gun.drawTimer += Time.deltaTime;
+            }
+            else
+            {
+                // If ADS when drawing the gun, it'll reset the timer to 0 and ADS from the start
+                if(gun.isADS)
+                {
+                    ADSOut();
+                    gun.adsTimer = 0;
+                    ADSIn();
+                }
+                gun.drawTimer = 0;
+                gun.isDraw = false;
+                gun.armsAnimator.Play("Draw Empty");
+            }
+        }
     }
 
     public void PutAway()
     {
-        
+        gun.armsAnimator.Play(gameObject.name + "_PutAway_Animation");
+        if(!gun.isPuttingAway)
+        {
+            gun.isPuttingAway = !gun.isPuttingAway;            
+            gun.armsAnimator.SetFloat("PutAwaySpeed", 1);
+        }
+        else
+        {
+            gun.isPuttingAway = !gun.isPuttingAway;
+            gun.armsAnimator.SetFloat("PutAwaySpeed", -1);
+        }
+
+        // If reloading, stop reloading when putting the weapon away. Calculate Reload time with CalculateReloadTime() function just like other Claculate-Time function
+        gun.armsAnimator.Play("Reload Empty");
+        gun.gunAnimator.Play(gameObject.name + "_Gun_Idle_Animation");
+        gun.cameraAnimator.Play(gameObject.name + "_Camera_Idle_Animation");
+    }
+
+    public bool CalculatePutAway()
+    {
+        return gun.isPutAway;
+    }
+
+    public void CalculatePutAwayTime()
+    {
+        if(gun.isPuttingAway)
+        {
+            // Increase the timer when aiming in, until it reaches up to ADSduration, and if it reaches, freeze the timer by setting adsTimer to ADSduration
+            if(gun.putAwayDuration > gun.putAwayTimer)
+            {
+                gun.putAwayTimer += Time.deltaTime;                
+            }
+            else
+            {
+                gun.putAwayTimer = gun.putAwayDuration;
+            }
+        }
+        else
+        {
+            // Decrease the timer when aiming out, until it reaches to 0, if it reaches, set the timer to 0
+            if(gun.putAwayTimer > 0)
+            {
+                gun.putAwayTimer -= Time.deltaTime;
+            }
+            else
+            {
+                gun.putAwayTimer = 0;
+            }
+        }
+
+        // When the ADS animation reaches the ADSduration time frame, stop the animation from playing by setting the speed to 0
+        if(gun.putAwayDuration == gun.putAwayTimer)
+        {
+            gun.isPutAway = true;
+            gun.armsAnimator.SetFloat("PutAwaySpeed", 0f);
+
+            gun.weaponController.SwitchWeapons();
+        }
+        else
+        {
+            gun.isPutAway = false;
+        }
+
+        // When the ADS animation reaches zero time frame, stop the animation from playing by setting the speed to 0
+        if(gun.putAwayTimer == 0)
+        {
+            gun.armsAnimator.SetFloat("PutAwaySpeed", 0f);            
+            // When not ADS (Hip fire) play the empty state
+            gun.armsAnimator.Play("PutAway Empty");
+        }
     }
 
     public void Walk(float walkingAnimationSpeed, bool isIdle)
@@ -202,6 +308,8 @@ public class Pistol : MonoBehaviour, IFireable
         gun.armsRig.SetParent(gun.weaponHolder);
         gun.weaponSway.localPosition = gun.swayPoint.localPosition;
         gun.armsRig.SetParent(gun.weaponRecoil);
+
+        Draw();
     }
 
     public void Reset()

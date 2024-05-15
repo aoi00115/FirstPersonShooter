@@ -33,8 +33,15 @@ public static class Weapons
         public int ammoReserveCount;
         public Vector3 adsPosition;
         public float reloadDuration;
+        public float reloadTimer;
+        public bool isReloading;
         public float drawDuration;
+        public float drawTimer;
+        public bool isDraw;
         public float putAwayDuration;
+        public float putAwayTimer;
+        public bool isPutAway;
+        public bool isPuttingAway;
         public float fireRate;
         public int fireMode;
         public Vector2 bulletSpread;

@@ -176,16 +176,18 @@ public class WeaponController : MonoBehaviour
         }
     }
 
-    private void SwitchWeapons()
+    public void SwitchWeapons()
     {
-        weaponIndex++;
-        if(weaponIndex >= weaponArray.Length)
-        {
-            weaponIndex = 0;
-        }
-        currentWeapon = weaponArray[weaponIndex];
-        CalculateCurrentWeapon();
-        fireable.SetUp();
+        fireable.Draw();
+        
+        // weaponIndex++;1
+        // if(weaponIndex >= weaponArray.Length)
+        // {
+        //     weaponIndex = 0;
+        // }
+        // currentWeapon = weaponArray[weaponIndex];
+        // CalculateCurrentWeapon();
+        // fireable.SetUp();
     }
 
     // Assigning IFireable

@@ -125,6 +125,15 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SwitchWeapons"",
+                    ""type"": ""Button"",
+                    ""id"": ""ba9b347b-14d4-4d6f-a4ca-eb04ac3ca3fb"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -292,6 +301,17 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""action"": ""ADSOut"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""07d1984c-ae20-4715-8a1b-4d334fad941f"",
+                    ""path"": ""<Mouse>/backButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwitchWeapons"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -311,6 +331,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         m_Character_Reload = m_Character.FindAction("Reload", throwIfNotFound: true);
         m_Character_ADSIn = m_Character.FindAction("ADSIn", throwIfNotFound: true);
         m_Character_ADSOut = m_Character.FindAction("ADSOut", throwIfNotFound: true);
+        m_Character_SwitchWeapons = m_Character.FindAction("SwitchWeapons", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -383,6 +404,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Character_Reload;
     private readonly InputAction m_Character_ADSIn;
     private readonly InputAction m_Character_ADSOut;
+    private readonly InputAction m_Character_SwitchWeapons;
     public struct CharacterActions
     {
         private @DefaultInput m_Wrapper;
@@ -398,6 +420,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         public InputAction @Reload => m_Wrapper.m_Character_Reload;
         public InputAction @ADSIn => m_Wrapper.m_Character_ADSIn;
         public InputAction @ADSOut => m_Wrapper.m_Character_ADSOut;
+        public InputAction @SwitchWeapons => m_Wrapper.m_Character_SwitchWeapons;
         public InputActionMap Get() { return m_Wrapper.m_Character; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -440,6 +463,9 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
             @ADSOut.started += instance.OnADSOut;
             @ADSOut.performed += instance.OnADSOut;
             @ADSOut.canceled += instance.OnADSOut;
+            @SwitchWeapons.started += instance.OnSwitchWeapons;
+            @SwitchWeapons.performed += instance.OnSwitchWeapons;
+            @SwitchWeapons.canceled += instance.OnSwitchWeapons;
         }
 
         private void UnregisterCallbacks(ICharacterActions instance)
@@ -477,6 +503,9 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
             @ADSOut.started -= instance.OnADSOut;
             @ADSOut.performed -= instance.OnADSOut;
             @ADSOut.canceled -= instance.OnADSOut;
+            @SwitchWeapons.started -= instance.OnSwitchWeapons;
+            @SwitchWeapons.performed -= instance.OnSwitchWeapons;
+            @SwitchWeapons.canceled -= instance.OnSwitchWeapons;
         }
 
         public void RemoveCallbacks(ICharacterActions instance)
@@ -507,5 +536,6 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         void OnReload(InputAction.CallbackContext context);
         void OnADSIn(InputAction.CallbackContext context);
         void OnADSOut(InputAction.CallbackContext context);
+        void OnSwitchWeapons(InputAction.CallbackContext context);
     }
 }

@@ -2526,8 +2526,13 @@ MonoBehaviour:
     ammoReserveCount: 0
     adsPosition: {x: 0, y: 0, z: 0}
     reloadDuration: 0
-    drawDuration: 0
-    putAwayDuration: 0
+    drawDuration: 0.233
+    drawTimer: 0
+    isDraw: 0
+    putAwayDuration: 0.233
+    putAwayTimer: 0
+    isPutAway: 0
+    isPuttingAway: 0
     fireRate: 0
     fireMode: 0
     bulletSpread: {x: 0, y: 0}
@@ -2668,7 +2673,12 @@ MonoBehaviour:
     adsPosition: {x: 0, y: 0, z: 0}
     reloadDuration: 0
     drawDuration: 0
+    drawTimer: 0
+    isDraw: 0
     putAwayDuration: 0
+    putAwayTimer: 0
+    isPutAway: 0
+    isPuttingAway: 0
     fireRate: 0
     fireMode: 0
     bulletSpread: {x: 0, y: 0}
