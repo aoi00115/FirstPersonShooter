@@ -16,6 +16,7 @@ public static class Weapons
         public Transform weaponHolder;
         public Transform weaponSway;
         public Transform weaponRecoil;
+        public Transform weaponADSRecoil;
         public Animator gunAnimator;
         public Animator armsAnimator;
         public Animator cameraAnimator;
@@ -26,12 +27,11 @@ public static class Weapons
         public Transform swayPoint;
         public Vector3 weaponRotation;
 
-        [Header("Gun Settings")]
+        [Header("Gun Stats Settings")]
         public int ammoCount;
         public int magCapacity;
         public int ammoReserveCount;
-        public float adsDuration;
-        public float adsZoom;
+        public Vector3 adsPosition;
         public float reloadDuration;
         public float drawDuration;
         public float putAwayDuration;
@@ -39,8 +39,17 @@ public static class Weapons
         public int fireMode;
         public Vector2 bulletSpread;
         public int damage;
+
+        [Header("ADS Settings")]
+        public float adsDuration;
+        public float adsSpeed;
+        public float adsZoom;
+        public float adsTimer;
+        public bool isADS;
+        public bool isADSIn;
+        public bool isADSOut;
+
         public bool isFireModeSwitchable;
-        public Vector3 adsPosition;
         public bool isAimable;
         public bool isPrimary;
         public bool isSecondary;

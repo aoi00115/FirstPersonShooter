@@ -7,41 +7,134 @@ public class Pistol : MonoBehaviour, IFireable
 {
     [Header("Pistol Settings")]
     public Gun gun;
-    public bool isADS;
     
     // Start is called before the first frame update
     void Start()
     {
-        // SetCurrentWeapon();
+        gun.adsDuration += 0.01f;
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        CalculateADSTime();
     }
 
     public void Fire()
     {
-        gun.armsAnimator.Play(gameObject.name + "_Arms_Fire_Animation");
+        // if(gun.isADS)
+        // {
+        //     gun.armsAnimator.Play(gameObject.name + "_Arms_ADS_Fire_Animation");
+        //     gun.gunAnimator.Play(gameObject.name + "_Gun_ADS_Fire_Animation");
+        // }
+        // else
+        // {
+        //     gun.armsAnimator.Play(gameObject.name + "_Arms_Fire_Animation");
+        //     gun.gunAnimator.Play(gameObject.name + "_Gun_Fire_Animation");
+        // }
+        // If fired when running, stop running
+        if(gun.characterController.isSprinting == true)
+        {
+            gun.characterController.isSprinting = false;
+        }
+        gun.armsAnimator.Play("Arms Fire Blend Tree");
         gun.gunAnimator.Play(gameObject.name + "_Gun_Fire_Animation");
     }
 
     public void ADSIn()
     {
-        isADS = true;
-        gun.armsAnimator.SetBool("isADS", isADS);
-        // gun.armsAnimator.SetTrigger("ADSTrigger");
-        gun.armsAnimator.SetFloat("ADSSpeed", 1.0f);
-        gun.armsAnimator.Play(gameObject.name + "_ADS_In_Animation");
+        // If ADS when running, stop running
+        if(gun.characterController.isSprinting == true)
+        {
+            gun.characterController.isSprinting = false;
+        }
+        gun.isADSIn = true;
+        gun.isADSOut = false;
+        gun.armsAnimator.SetFloat("ADSSpeed", gun.adsSpeed);
+        // When the animation is not reset when the timer is 0, play it back from 0 time frame, and when the timer is not 0, play the animation from where the animation is continued
+        if(gun.adsTimer == 0)
+        {
+            gun.armsAnimator.Play(gameObject.name + "_ADS_In_Animation", -1, 0);
+        }
+        else
+        {
+            gun.armsAnimator.Play(gameObject.name + "_ADS_In_Animation");
+        }
+        
     }
 
     public void ADSOut()
     {
-        isADS = false;
-        gun.armsAnimator.SetBool("isADS", isADS);
-        // gun.armsAnimator.SetTrigger("ADSOutTrigger");
-        gun.armsAnimator.SetFloat("ADSSpeed", -1.0f);
+        gun.isADSOut = true;
+        gun.isADSIn = false;
+        gun.armsAnimator.SetFloat("ADSSpeed", -gun.adsSpeed);
+    }
+
+    public void CalculateADSTime()
+    {
+        if(gun.isADSIn)
+        {
+            // Increase the timer when aiming in, until it reaches up to ADSduration, and if it reaches, freeze the timer by setting adsTimer to ADSduration
+            if(gun.adsDuration / gun.adsSpeed >= gun.adsTimer)
+            {
+                gun.adsTimer += Time.deltaTime;                
+            }
+            else
+            {
+                gun.adsTimer = gun.adsDuration / gun.adsSpeed;
+            }
+        }
+        if(gun.isADSOut)
+        {
+            // Decrease the timer when aiming out, until it reaches to 0, if it reaches, set the timer to 0
+            if(gun.adsTimer > 0)
+            {
+                gun.adsTimer -= Time.deltaTime;
+            }
+            else
+            {
+                gun.adsTimer = 0;
+            }
+        }
+
+        // When the ADS animation reaches the ADSduration time frame, stop the animation from playing by setting the speed to 0
+        if(gun.adsDuration / gun.adsSpeed == gun.adsTimer)
+        {
+            gun.isADS = true;
+            gun.isADSIn = false;
+            gun.armsAnimator.SetFloat("ADSSpeed", 0f);
+
+            // Parenting the arms rig to the WeaponADSRecoil to change the sway pivot point for ADS
+            // if(gun.weaponADSRecoil.childCount == 0)
+            // {
+            //     gun.armsRig.SetParent(gun.weaponADSRecoil);
+            // }
+        }
+        else
+        {
+            gun.isADS = false;
+
+            // Parenting the arms rig back to the WeaponRecoil to change the sway pivot point for gun
+            // if(gun.weaponRecoil.childCount == 0)
+            // {
+            //     gun.armsRig.SetParent(gun.weaponRecoil);
+            // }
+        }
+
+        // When the ADS animation reaches zero time frame, stop the animation from playing by setting the speed to 0
+        if(gun.adsTimer == 0)
+        {
+            gun.isADSOut = false;
+            gun.armsAnimator.SetFloat("ADSSpeed", 0f);
+        }
+
+        // Setting the float used in the blend tree in animator, it calculates the normalized ADS time from 0 to 1 where 0 being hip fire, and 1 being ADS
+        gun.armsAnimator.SetFloat("ADSProgress", gun.adsTimer / (gun.adsDuration / gun.adsSpeed));
+    }
+
+    public bool CalculateADS()
+    {
+        return gun.isADS;
     }
 
     public void Reload()
@@ -88,6 +181,7 @@ public class Pistol : MonoBehaviour, IFireable
         gun.weaponHolder = transform.Find("../../");
         gun.weaponSway = transform.Find("../../WeaponSway");
         gun.weaponRecoil = transform.Find("../../WeaponSway/WeaponRecoil");
+        gun.weaponADSRecoil = transform.Find("../../WeaponADSSway/WeaponADSRecoil");
         gun.socket = transform.Find("../../WeaponSway/WeaponRecoil/ArmsRig/arms_rig/root/upper_arm_R/lower_arm_R/hand_R/" + gameObject.name + "Socket");
         gun.swayPoint = transform.Find("../../SwayPoints/" + gameObject.name + "SwayPoint");
 

@@ -46,6 +46,7 @@ public class WeaponController : MonoBehaviour
     private float swayTime;
     public Vector3 swayPosition;
     public Transform swayPoint;
+    public Transform adsSwayPoint;
 
     private void Start()
     {
@@ -77,7 +78,7 @@ public class WeaponController : MonoBehaviour
     public void TriggerJump()
     {
         // Debug.Log("Trigger Jumping");
-        universalAnimationController.SetTrigger("JumpingTrigger");
+        // universalAnimationController.SetTrigger("JumpingTrigger");
         isJumping = true;     // Jumping
     }
 
@@ -104,11 +105,13 @@ public class WeaponController : MonoBehaviour
 
         // Combining both weapon sway and movement sway
         swayPoint.localRotation = Quaternion.Euler(newWeaponRotation + newWeaponMovementRotation);
+        // Copying the rotation of swayPoint to adsSwayPoint too so that they syncronize in movement
+        adsSwayPoint.localRotation = swayPoint.localRotation;
     }
 
     private void CalculateWeaponSway()
-    {
-        var targetPosition = LissajousCurve(swayTime, swayAmountA, swayAmountB) / swayScale;
+    {        
+        var targetPosition = LissajousCurve(swayTime, swayAmountA, swayAmountB) / (fireable.CalculateADS() ? adsSwayScale : swayScale);
 
         swayPosition = Vector3.Lerp(swayPosition, targetPosition, Time.smoothDeltaTime * swayLerpSpeed);
         swayTime += Time.deltaTime;
@@ -141,13 +144,13 @@ public class WeaponController : MonoBehaviour
         if(characterController.characterController.isGrounded && isJumping && fallingDelay > 0.01f)        // Landing
         {            
             // Debug.Log("Trigger Land");
-            universalAnimationController.Play("Landing");
+            // universalAnimationController.Play("Landing");
             isJumping = false;
         }
         else if(!characterController.characterController.isGrounded && !isJumping)                          // Falling
         {
             // Debug.Log("Trigger Falling");
-            universalAnimationController.SetTrigger("FallingTrigger");
+            // universalAnimationController.SetTrigger("FallingTrigger");
             isJumping = true;
         }
         

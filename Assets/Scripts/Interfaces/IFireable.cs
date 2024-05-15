@@ -7,6 +7,8 @@ public interface IFireable
     void Fire();
     void ADSIn();
     void ADSOut();
+    void CalculateADSTime();
+    bool CalculateADS();
     void Reload();
     void SwitchFireMode();
     void Draw();

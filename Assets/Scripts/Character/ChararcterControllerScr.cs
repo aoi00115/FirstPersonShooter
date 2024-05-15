@@ -363,43 +363,47 @@ public class CharacterControllerScr : MonoBehaviour
 
     private void ToggleSprint()
     {
-        if(playerStance == PlayerStance.Crouch || playerStance == PlayerStance.Prone)
+        // When not ADS(Hip fire)
+        if(!weaponController.fireable.CalculateADS())
         {
-            if(StanceCheck(playerCrouchStance.StanceCollider.height))
+            if(playerStance == PlayerStance.Crouch || playerStance == PlayerStance.Prone)
             {
-                return;
+                if(StanceCheck(playerCrouchStance.StanceCollider.height))
+                {
+                    return;
+                }
+                if(StanceCheck(playerStandStance.StanceCollider.height))
+                {
+                    playerStance = PlayerStance.Crouch;
+                    return;
+                }
+                
+                playerStance = PlayerStance.Stand;
             }
-            if(StanceCheck(playerStandStance.StanceCollider.height))
+            
+            if(input_Movement.y <= 0.2f)
             {
-                playerStance = PlayerStance.Crouch;
+                isSprinting = false;
                 return;
             }
             
-            playerStance = PlayerStance.Stand;
-        }
-        
-        if(input_Movement.y <= 0.2f)
-        {
-            isSprinting = false;
-            return;
-        }
-        
-        // Timer has to have less than 2 seconds to sprint when the limit is on. Sprint immediately if the limit is off.
-        if(isLimitedSprint)
-        {            
-            if(timer < 1)
+            // Timer has to have less than 2 seconds to sprint when the limit is on. Sprint immediately if the limit is off.
+            if(isLimitedSprint)
             {            
-                isSprinting = true; 
-                isLimitedSprint = false;
+                if(timer < 1)
+                {            
+                    isSprinting = true; 
+                    isLimitedSprint = false;
+                }
+                else
+                {
+                    return;
+                }
             }
             else
             {
-                return;
+                isSprinting = true; 
             }
-        }
-        else
-        {
-            isSprinting = true; 
         }
     }
 

@@ -943,8 +943,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 751222251}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.046, y: -0.069000006, z: 0.209}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.045656923, y: -0.05658984, z: 0.22413445}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1283,6 +1283,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2483936888338210282}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &975528383
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 975528384}
+  m_Layer: 0
+  m_Name: WeaponADSSway
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &975528384
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 975528383}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1663104770}
+  m_Father: {fileID: 1016967491}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &986262231
 GameObject:
   m_ObjectHideFlags: 0
@@ -1362,11 +1394,12 @@ MonoBehaviour:
   weaponSwayObject: {fileID: 1016967491}
   swayAmountA: 1
   swayAmountB: 2
-  swayScale: 300
-  adsSwayScale: 600
+  swayScale: 400
+  adsSwayScale: 1000
   swayLerpSpeed: 14
   swayPosition: {x: 0, y: 0, z: 0}
   swayPoint: {fileID: 152391432}
+  adsSwayPoint: {fileID: 975528384}
 --- !u!4 &1016967491
 Transform:
   m_ObjectHideFlags: 0
@@ -1380,6 +1413,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 975528384}
   - {fileID: 152391432}
   - {fileID: 405716707}
   - {fileID: 1739147604}
@@ -1734,6 +1768,37 @@ Transform:
   - {fileID: 1958641484}
   - {fileID: 1835441501}
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1663104769
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1663104770}
+  m_Layer: 0
+  m_Name: WeaponADSRecoil
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1663104770
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1663104769}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 975528384}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1688519803
 GameObject:
@@ -2443,6 +2508,7 @@ MonoBehaviour:
     weaponHolder: {fileID: 0}
     weaponSway: {fileID: 0}
     weaponRecoil: {fileID: 0}
+    weaponADSRecoil: {fileID: 0}
     gunAnimator: {fileID: 0}
     armsAnimator: {fileID: 0}
     cameraAnimator: {fileID: 0}
@@ -2458,8 +2524,7 @@ MonoBehaviour:
     ammoCount: 0
     magCapacity: 0
     ammoReserveCount: 0
-    adsDuration: 0.167
-    adsZoom: 0
+    adsPosition: {x: 0, y: 0, z: 0}
     reloadDuration: 0
     drawDuration: 0
     putAwayDuration: 0
@@ -2467,8 +2532,14 @@ MonoBehaviour:
     fireMode: 0
     bulletSpread: {x: 0, y: 0}
     damage: 0
+    adsDuration: 0.167
+    adsSpeed: 1
+    adsZoom: 0
+    adsTimer: 0
+    isADS: 0
+    isADSIn: 0
+    isADSOut: 0
     isFireModeSwitchable: 0
-    adsPosition: {x: 0, y: 0, z: 0}
     isAimable: 0
     isPrimary: 0
     isSecondary: 0
@@ -2477,8 +2548,6 @@ MonoBehaviour:
     ADSRecoil: {x: 0, y: 0, z: 0}
     snappiness: 0
     returnSpeed: 0
-  isADS: 0
-  timer: 0
 --- !u!95 &119854271406696265
 Animator:
   serializedVersion: 5
@@ -2583,6 +2652,7 @@ MonoBehaviour:
     weaponHolder: {fileID: 0}
     weaponSway: {fileID: 0}
     weaponRecoil: {fileID: 0}
+    weaponADSRecoil: {fileID: 0}
     gunAnimator: {fileID: 0}
     armsAnimator: {fileID: 0}
     cameraAnimator: {fileID: 0}
@@ -2595,8 +2665,7 @@ MonoBehaviour:
     ammoCount: 0
     magCapacity: 0
     ammoReserveCount: 0
-    adsDuration: 0
-    adsZoom: 0
+    adsPosition: {x: 0, y: 0, z: 0}
     reloadDuration: 0
     drawDuration: 0
     putAwayDuration: 0
@@ -2604,8 +2673,14 @@ MonoBehaviour:
     fireMode: 0
     bulletSpread: {x: 0, y: 0}
     damage: 0
+    adsDuration: 0
+    adsSpeed: 0
+    adsZoom: 0
+    adsTimer: 0
+    isADS: 0
+    isADSIn: 0
+    isADSOut: 0
     isFireModeSwitchable: 0
-    adsPosition: {x: 0, y: 0, z: 0}
     isAimable: 0
     isPrimary: 0
     isSecondary: 0
@@ -2614,8 +2689,6 @@ MonoBehaviour:
     ADSRecoil: {x: 0, y: 0, z: 0}
     snappiness: 0
     returnSpeed: 0
-  isADS: 0
-  timer: 0
 --- !u!23 &263238842356092870
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2761,6 +2834,7 @@ MonoBehaviour:
   swayLerpSpeed: 14
   swayPosition: {x: 0, y: 0, z: 0}
   swayPoint: {fileID: 0}
+  adsSwayPoint: {fileID: 0}
 --- !u!1 &784885988762485812
 GameObject:
   m_ObjectHideFlags: 0
