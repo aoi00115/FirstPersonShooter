@@ -8,12 +8,13 @@ public interface IFireable
     void ADSIn();
     void ADSOut();
     bool CalculateADS();
+    bool CalculateADSIn();
     void Reload();
     void SwitchFireMode();
     void Draw();
     void PutAway();
-    bool CalculatePutAway();
     void Walk(float walkingAnimationSpeed, bool isIdle);
+    void Sprint(bool isSprint);
     void SetUp();
     void Reset();
 }

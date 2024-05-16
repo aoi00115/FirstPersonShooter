@@ -205,14 +205,17 @@ public class CharacterControllerScr : MonoBehaviour
         movementSpeed.y += playerGravity;
         movementSpeed += jumpingForce * Time.deltaTime;
 
-        if(characterController.isGrounded)  // Move the player position with characterController.Move
-        {
-            characterController.Move(movementSpeed);
-        }
-        else    // Carries the momentum when jumping and move the player position with characterController.Move
-        {
-            characterController.Move(movementSpeed + (jumpingMomentum * Time.deltaTime));
-        }
+        // Move the player position with characterController.Move
+        characterController.Move(movementSpeed);
+
+        // if(characterController.isGrounded)  
+        // {
+        //     characterController.Move(movementSpeed);
+        // }
+        // else    // Carries the momentum when jumping and move the player position with characterController.Move
+        // {
+        //     characterController.Move(movementSpeed + (jumpingMomentum * Time.deltaTime));
+        // }
         
         
         // Setting walking animation speed depending on how fast player is moving
@@ -364,47 +367,49 @@ public class CharacterControllerScr : MonoBehaviour
 
     private void ToggleSprint()
     {
-        // When not ADS(Hip fire)
-        if(!weaponController.fireable.CalculateADS())
+        // Return when ADS
+        if(weaponController.fireable.CalculateADS() || weaponController.fireable.CalculateADSIn())
         {
-            if(playerStance == PlayerStance.Crouch || playerStance == PlayerStance.Prone)
+            return;
+        }
+        
+        if(playerStance == PlayerStance.Crouch || playerStance == PlayerStance.Prone)
+        {
+            if(StanceCheck(playerCrouchStance.StanceCollider.height))
             {
-                if(StanceCheck(playerCrouchStance.StanceCollider.height))
-                {
-                    return;
-                }
-                if(StanceCheck(playerStandStance.StanceCollider.height))
-                {
-                    playerStance = PlayerStance.Crouch;
-                    return;
-                }
-                
-                playerStance = PlayerStance.Stand;
+                return;
             }
-            
-            if(input_Movement.y <= 0.2f)
+            if(StanceCheck(playerStandStance.StanceCollider.height))
             {
-                isSprinting = false;
+                playerStance = PlayerStance.Crouch;
                 return;
             }
             
-            // Timer has to have less than 2 seconds to sprint when the limit is on. Sprint immediately if the limit is off.
-            if(isLimitedSprint)
+            playerStance = PlayerStance.Stand;
+        }
+        
+        if(input_Movement.y <= 0.2f)
+        {
+            isSprinting = false;
+            return;
+        }
+        
+        // Timer has to have less than 2 seconds to sprint when the limit is on. Sprint immediately if the limit is off.
+        if(isLimitedSprint)
+        {            
+            if(timer < playerSettings.SprintableTiming)
             {            
-                if(timer < 1)
-                {            
-                    isSprinting = true; 
-                    isLimitedSprint = false;
-                }
-                else
-                {
-                    return;
-                }
+                isSprinting = true; 
+                isLimitedSprint = false;
             }
             else
             {
-                isSprinting = true; 
+                return;
             }
+        }
+        else
+        {
+            isSprinting = true; 
         }
     }
 
@@ -421,6 +426,12 @@ public class CharacterControllerScr : MonoBehaviour
             else
             {
                 timer += Time.deltaTime;
+            }
+
+            // This will ensure to stand while sprinting. Without this it player might sprint while changing the stance to crouch or prone, resulting in sprinting while in crouch or prone position
+            if(playerStance == PlayerStance.Crouch || playerStance == PlayerStance.Prone)
+            {
+                playerStance = PlayerStance.Stand;
             }
         }
         else

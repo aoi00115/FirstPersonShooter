@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 using static Weapons;
 
-public class Pistol : MonoBehaviour, IFireable
+public class Pistol : MonoBehaviour, IFireable, IDisplayable
 {
     [Header("Pistol Settings")]
     public Gun gun;
@@ -18,25 +19,25 @@ public class Pistol : MonoBehaviour, IFireable
     void Update()
     {
         CalculateADSTime();
+        CalculateReloadTime();
         CalculateDrawTime();
         CalculatePutAwayTime();
     }
 
     public void Fire()
     {
-        // Fire only after drawing or only not putting away
-        if(gun.isDraw)
+        // Fire only after drawing, reloading or only not putting away
+        if(gun.isDrawing || gun.isPuttingAway || gun.isReloading)
         {            
             return;
-        }        
-        if(gun.isPuttingAway)
+        }
+
+        // When mag is empty, return
+        if(gun.ammoCount <= 0)
         {
+            gun.ammoCount = 0;
             return;
         }
-        // if(gun.isReloading)
-        // {
-        //     return;
-        // }
 
         // If fired when running, stop running
         if(gun.characterController.isSprinting == true)
@@ -46,15 +47,31 @@ public class Pistol : MonoBehaviour, IFireable
 
         gun.armsAnimator.Play("Arms Fire Blend Tree");
         gun.gunAnimator.Play(gameObject.name + "_Gun_Fire_Animation");
+
+        gun.audioSource.PlayOneShot(gun.fireClip, 1);
+
+        gun.ammoCount--;
     }
 
     public void ADSIn()
     {
+        // If ADS when reloading, set isADSIn true and do nothing
+        if(gun.isReloading || gun.isDrawing)
+        {
+            gun.isTryingToADSWhileDoingSomethingElse = true;
+            return;
+        }
+        else if(gun.isPuttingAway)
+        {
+            gun.isTryingToADSWhileDoingSomethingElse = true;
+        }
+
         // If ADS when running, stop running
         if(gun.characterController.isSprinting == true)
         {
             gun.characterController.isSprinting = false;
         }
+
         gun.isADSIn = true;
         gun.isADSOut = false;
         gun.armsAnimator.SetFloat("ADSSpeed", gun.adsSpeed);
@@ -68,11 +85,18 @@ public class Pistol : MonoBehaviour, IFireable
         {
             gun.armsAnimator.Play(gameObject.name + "_ADS_Animation");
         }
-        
     }
 
     public void ADSOut()
     {
+        // If ADSOut when reloading, set isADSIn false and do nothing
+        if(gun.isReloading || gun.isDrawing)
+        {
+            gun.isTryingToADSWhileDoingSomethingElse = false;
+            return;
+        }
+        gun.isTryingToADSWhileDoingSomethingElse = false;
+
         gun.isADSOut = true;
         gun.isADSIn = false;
         gun.armsAnimator.SetFloat("ADSSpeed", -gun.adsSpeed);
@@ -83,12 +107,17 @@ public class Pistol : MonoBehaviour, IFireable
         return gun.isADS;
     }
 
+    public bool CalculateADSIn()
+    {
+        return gun.isADSIn;
+    }
+
     public void CalculateADSTime()
     {
         if(gun.isADSIn)
         {
             // Increase the timer when aiming in, until it reaches up to ADSduration, and if it reaches, freeze the timer by setting adsTimer to ADSduration
-            if(gun.adsDuration / gun.adsSpeed >= gun.adsTimer)
+            if(gun.adsDuration / gun.adsSpeed > gun.adsTimer)
             {
                 gun.adsTimer += Time.deltaTime;                
             }
@@ -149,9 +178,83 @@ public class Pistol : MonoBehaviour, IFireable
 
     public void Reload()
     {
+        // Return when ammo is full, or reesrved ammo is 0
+        if(gun.ammoCount == gun.magCapacity || gun.ammoReserveCount == 0 || gun.isPuttingAway)
+        {
+            return;
+        }
+
+        // If reload when sprinting and isReloadWhileSprint is fault, stop running
+        if(gun.characterController.isSprinting == true && !gun.isReloadWhileSprint)
+        {
+            gun.characterController.isSprinting = false;
+        }
+
+        // If reload when ADS, ADSout
+        if(gun.isADS || gun.isADSIn)
+        {
+            ADSOut();
+            gun.isTryingToADSWhileDoingSomethingElse = true;
+        }
+
+        if(!gun.isReloading)
+        {
+            gun.isReloading = true;
+        }
+
         gun.armsAnimator.Play(gameObject.name + "_Arms_Reload_Animation");
         gun.gunAnimator.Play(gameObject.name + "_Gun_Reload_Animation");
         gun.cameraAnimator.Play(gameObject.name + "_Camera_Reload_Animation");
+    }
+
+    public void CalculateReloadTime()
+    {
+        if(gun.isReloading)
+        {
+            // Increase the timer when aiming in, until it reaches up to ADSduration, and if it reaches, freeze the timer by setting adsTimer to ADSduration
+            if(gun.reloadDuration > gun.reloadTimer)
+            {
+                gun.reloadTimer += Time.deltaTime;                
+            }
+            else
+            {
+                // If the timer reaches the reload duration
+                gun.reloadTimer = gun.reloadDuration;
+                gun.isReloading = false;
+
+                // If ADS when reloading the gun, reset everything and reADS
+                if(gun.isTryingToADSWhileDoingSomethingElse)
+                {
+                    ADSIn();
+                }
+            }
+        }
+        else
+        {
+            // When reload is cancelled
+            gun.reloadTimer = 0;
+            gun.armsAnimator.Play("Reload Empty");
+            gun.gunAnimator.Play("Reload Empty");
+            gun.cameraAnimator.Play(gameObject.name + "_Camera_Idle_Animation");
+        }
+
+        if(gun.magInDuration <= gun.reloadTimer)
+        {
+            // Action after reloading goes below
+            int loadedAmmo = gun.magCapacity - gun.ammoCount;
+            if(gun.ammoReserveCount < loadedAmmo)
+            {
+                loadedAmmo = gun.ammoReserveCount;
+            }
+            gun.ammoReserveCount -= loadedAmmo;
+            gun.ammoCount += loadedAmmo;
+        }
+
+        // Cancel reload if sprint and isReloadWhileSprint is fault
+        if(gun.characterController.isSprinting && !gun.isReloadWhileSprint)
+        {
+            gun.isReloading = false;
+        }
     }
 
     public void SwitchFireMode()
@@ -163,36 +266,38 @@ public class Pistol : MonoBehaviour, IFireable
     {        
         gun.armsAnimator.Play(gameObject.name + "_Draw_Animation", -1, 0);
         gun.isPuttingAway = false;
-        gun.isDraw = true;
+        gun.putAwayTimer = 0;
+        gun.isDrawing = true;
     }
 
     public void CalculateDrawTime()
     {
-        if(gun.isDraw)
+        if(gun.isDrawing)
         {
             // Increase the timer when aiming in, until it reaches up to ADSduration, and if it reaches, freeze the timer by setting adsTimer to ADSduration
-            if(gun.drawDuration >= gun.drawTimer)
+            if(gun.drawDuration > gun.drawTimer)
             {
                 gun.drawTimer += Time.deltaTime;
             }
             else
             {
+                gun.drawTimer = 0;
+                gun.isDrawing = false;
+                gun.armsAnimator.Play("Draw Empty");
+                
                 // If ADS when drawing the gun, it'll reset the timer to 0 and ADS from the start
-                if(gun.isADS)
+                if(gun.isTryingToADSWhileDoingSomethingElse)
                 {
                     ADSOut();
                     gun.adsTimer = 0;
                     ADSIn();
                 }
-                gun.drawTimer = 0;
-                gun.isDraw = false;
-                gun.armsAnimator.Play("Draw Empty");
             }
         }
     }
 
     public void PutAway()
-    {
+    {        
         gun.armsAnimator.Play(gameObject.name + "_PutAway_Animation");
         if(!gun.isPuttingAway)
         {
@@ -205,15 +310,7 @@ public class Pistol : MonoBehaviour, IFireable
             gun.armsAnimator.SetFloat("PutAwaySpeed", -1);
         }
 
-        // If reloading, stop reloading when putting the weapon away. Calculate Reload time with CalculateReloadTime() function just like other Claculate-Time function
-        gun.armsAnimator.Play("Reload Empty");
-        gun.gunAnimator.Play(gameObject.name + "_Gun_Idle_Animation");
-        gun.cameraAnimator.Play(gameObject.name + "_Camera_Idle_Animation");
-    }
-
-    public bool CalculatePutAway()
-    {
-        return gun.isPutAway;
+        gun.isReloading = false;
     }
 
     public void CalculatePutAwayTime()
@@ -227,7 +324,19 @@ public class Pistol : MonoBehaviour, IFireable
             }
             else
             {
+                // If the timer reaches the putaway duration
                 gun.putAwayTimer = gun.putAwayDuration;
+
+                gun.armsAnimator.SetFloat("PutAwaySpeed", 0f);
+
+                // Action after putting the weapon away goes in below
+                gun.weaponController.SwitchWeapons();
+
+                // If PutAway when ADS,
+                if(gun.isADS || gun.isADSIn)
+                {
+                    gun.isTryingToADSWhileDoingSomethingElse = true;
+                }
             }
         }
         else
@@ -240,28 +349,11 @@ public class Pistol : MonoBehaviour, IFireable
             else
             {
                 gun.putAwayTimer = 0;
+
+                gun.armsAnimator.SetFloat("PutAwaySpeed", 0f);            
+                // When not ADS (Hip fire) play the empty state
+                gun.armsAnimator.Play("PutAway Empty");
             }
-        }
-
-        // When the ADS animation reaches the ADSduration time frame, stop the animation from playing by setting the speed to 0
-        if(gun.putAwayDuration == gun.putAwayTimer)
-        {
-            gun.isPutAway = true;
-            gun.armsAnimator.SetFloat("PutAwaySpeed", 0f);
-
-            gun.weaponController.SwitchWeapons();
-        }
-        else
-        {
-            gun.isPutAway = false;
-        }
-
-        // When the ADS animation reaches zero time frame, stop the animation from playing by setting the speed to 0
-        if(gun.putAwayTimer == 0)
-        {
-            gun.armsAnimator.SetFloat("PutAwaySpeed", 0f);            
-            // When not ADS (Hip fire) play the empty state
-            gun.armsAnimator.Play("PutAway Empty");
         }
     }
 
@@ -269,6 +361,11 @@ public class Pistol : MonoBehaviour, IFireable
     {
         gun.armsAnimator.SetBool("isIdle", isIdle);
         gun.armsAnimator.SetFloat("WalkingAnimationSpeed", walkingAnimationSpeed);
+    }
+
+    public void Sprint(bool isSprint)
+    {
+        gun.armsAnimator.SetBool("isSprint", isSprint);
     }
     
     public void SetUp()
@@ -299,6 +396,8 @@ public class Pistol : MonoBehaviour, IFireable
         gun.armsAnimator.runtimeAnimatorController = gun.armsAnimatorController;
         gun.cameraAnimator.runtimeAnimatorController = gun.cameraAnimatorController;
 
+        gun.audioSource = GetComponent<AudioSource>();
+
         // Setting the parent of primary/secondary weapon to it's appropriate weapon socket
         gun.weaponController.currentWeapon.transform.SetParent(gun.socket);
         gun.weaponController.currentWeapon.transform.localPosition = Vector3.zero;
@@ -322,5 +421,12 @@ public class Pistol : MonoBehaviour, IFireable
         gun.weaponController.currentWeapon.transform.SetParent(gun.weaponHolder);
         gun.weaponController.currentWeapon.transform.localPosition = Vector3.zero;
         gun.weaponController.currentWeapon.transform.localRotation = Quaternion.Euler(Vector3.zero);
+    }
+
+    public void DisplayWeaponStats(TMP_Text weaponNameTMP, TMP_Text ammoCountTMP, TMP_Text ammoReserveCountTMP)
+    {
+        weaponNameTMP.text = gameObject.name;
+        ammoCountTMP.text = gun.ammoCount.ToString();
+        ammoReserveCountTMP.text = gun.ammoReserveCount.ToString();
     }
 }

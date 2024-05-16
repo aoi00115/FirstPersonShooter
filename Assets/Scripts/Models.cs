@@ -32,6 +32,7 @@ public static class Models
         public float RunningForwardSpeed;
         public float RunningStrafeSpeed;
         public float StaminaDuration;
+        public int SprintableTiming;
 
         [Header("Movement - Walking")]
         public float WalkingForwardSpeed;

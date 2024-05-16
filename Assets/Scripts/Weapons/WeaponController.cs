@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 using static Models;
 
 
@@ -10,11 +11,20 @@ public class WeaponController : MonoBehaviour
     [Header("References")]
     public Animator universalAnimationController;
 
+    [Header("HUD Settings")]
+    public TMP_Text weaponNameTMP;
+    public TMP_Text ammoCountTMP;
+    public TMP_Text ammoReserveCountTMP;
+
     [Header("Weapon Settings")]
     public GameObject[] weaponArray;
     private int weaponIndex;
+    public GameObject melee;
+    public GameObject lethal;
+    public GameObject tactical;
     public GameObject currentWeapon;
     public IFireable fireable;
+    public IDisplayable displayable;
 
     [Header("Weapon Sway Settings")]
     public WeaponSettingsModel settings;
@@ -66,6 +76,11 @@ public class WeaponController : MonoBehaviour
         if(!isInitialised)
         {
             return;
+        }
+
+        if(currentWeapon != null)
+        {
+            displayable.DisplayWeaponStats(weaponNameTMP, ammoCountTMP, ammoReserveCountTMP);
         }
 
         CalculateWeaponRotation();
@@ -156,6 +171,8 @@ public class WeaponController : MonoBehaviour
         
         // Based on the characterController.isIdle switch between idle and other animations
         fireable.Walk(characterController.walkingAnimationSpeed, characterController.isIdle);
+
+        fireable.Sprint(characterController.isSprinting);
     }
 
     private void InitialWeaponSetUp()
@@ -194,5 +211,6 @@ public class WeaponController : MonoBehaviour
     private void CalculateCurrentWeapon()
     {
         fireable = currentWeapon.transform.GetChild(0).GetComponent<IFireable>();
+        displayable = currentWeapon.transform.GetChild(0).GetComponent<IDisplayable>();
     }
 }

@@ -31,16 +31,17 @@ public static class Weapons
         public int ammoCount;
         public int magCapacity;
         public int ammoReserveCount;
-        public Vector3 adsPosition;
+        public bool isReloadWhileSprint;
         public float reloadDuration;
+        public float magInDuration;
         public float reloadTimer;
+        public bool isTryingToADSWhileDoingSomethingElse;
         public bool isReloading;
         public float drawDuration;
         public float drawTimer;
-        public bool isDraw;
+        public bool isDrawing;
         public float putAwayDuration;
         public float putAwayTimer;
-        public bool isPutAway;
         public bool isPuttingAway;
         public float fireRate;
         public int fireMode;
@@ -48,6 +49,7 @@ public static class Weapons
         public int damage;
 
         [Header("ADS Settings")]
+        public Vector3 adsPosition;
         public float adsDuration;
         public float adsSpeed;
         public float adsZoom;
@@ -67,6 +69,11 @@ public static class Weapons
         public Vector3 ADSRecoil;
         public float snappiness;
         public float returnSpeed;
+
+        [Header("Audio")]
+        public AudioSource audioSource;
+        public AudioClip fireClip;
+
     }
 
     [Serializable]
