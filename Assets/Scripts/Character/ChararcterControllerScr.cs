@@ -21,6 +21,7 @@ public class CharacterControllerScr : MonoBehaviour
     [Header("References")]
     public Transform headPosition;
     public Transform feetTransform;
+    public Camera camera;
 
     [Header("Settings")]
     public PlayerSettingsModel playerSettings;
@@ -128,7 +129,9 @@ public class CharacterControllerScr : MonoBehaviour
         CalculateMovement();
         CalculateJump();
         CalculateStance();
-        CalculateSprint();
+        CalculateSprint();        
+
+        camera.fieldOfView = playerSettings.FieldOfView;
     }
 
     #endregion

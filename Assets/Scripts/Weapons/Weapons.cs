@@ -12,6 +12,7 @@ public static class Weapons
         public WeaponController weaponController;
         public CharacterControllerScr characterController;
         public Transform armsRig;
+        public Camera camera;
         public Transform cameraRecoil;
         public Transform weaponHolder;
         public Transform weaponSway;
@@ -51,9 +52,11 @@ public static class Weapons
         [Header("ADS Settings")]
         public Vector3 adsPosition;
         public float adsDuration;
+        public float adsTimer;
         public float adsSpeed;
         public float adsZoom;
-        public float adsTimer;
+        public float adsZoomStartTime;
+        public float adsZoomTimer;
         public bool isADS;
         public bool isADSIn;
         public bool isADSOut;

@@ -8,6 +8,8 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
 {
     [Header("Pistol Settings")]
     public Gun gun;
+
+
     
     // Start is called before the first frame update
     void Start()
@@ -22,6 +24,8 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         CalculateReloadTime();
         CalculateDrawTime();
         CalculatePutAwayTime();
+
+        Debug.Log(gun.adsDuration / gun.adsSpeed);
     }
 
     public void Fire()
@@ -72,6 +76,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             gun.characterController.isSprinting = false;
         }
 
+        gun.isADS = false;
         gun.isADSIn = true;
         gun.isADSOut = false;
         gun.armsAnimator.SetFloat("ADSSpeed", gun.adsSpeed);
@@ -97,6 +102,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         }
         gun.isTryingToADSWhileDoingSomethingElse = false;
 
+        gun.isADS = false;
         gun.isADSOut = true;
         gun.isADSIn = false;
         gun.armsAnimator.SetFloat("ADSSpeed", -gun.adsSpeed);
@@ -117,13 +123,24 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         if(gun.isADSIn)
         {
             // Increase the timer when aiming in, until it reaches up to ADSduration, and if it reaches, freeze the timer by setting adsTimer to ADSduration
-            if(gun.adsDuration / gun.adsSpeed > gun.adsTimer)
+            if(gun.adsDuration / gun.adsSpeed >= gun.adsTimer)
             {
                 gun.adsTimer += Time.deltaTime;                
+
+                // Start counting up the ADS zoom timer when ads timer go past the ads zoom start time
+                if(gun.adsZoomStartTime / gun.adsSpeed < gun.adsTimer)
+                {
+                    gun.adsZoomTimer += Time.deltaTime;
+                }
             }
             else
             {
                 gun.adsTimer = gun.adsDuration / gun.adsSpeed;
+                gun.adsZoomTimer = (gun.adsDuration / gun.adsSpeed) - (gun.adsZoomStartTime / gun.adsSpeed);
+
+                gun.isADS = true;
+                gun.isADSIn = false;
+                gun.armsAnimator.SetFloat("ADSSpeed", 0f);
             }
         }
         if(gun.isADSOut)
@@ -137,30 +154,16 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             {
                 gun.adsTimer = 0;
             }
-        }
 
-        // When the ADS animation reaches the ADSduration time frame, stop the animation from playing by setting the speed to 0
-        if(gun.adsDuration / gun.adsSpeed == gun.adsTimer)
-        {
-            gun.isADS = true;
-            gun.isADSIn = false;
-            gun.armsAnimator.SetFloat("ADSSpeed", 0f);
-
-            // Parenting the arms rig to the WeaponADSRecoil to change the sway pivot point for ADS
-            // if(gun.weaponADSRecoil.childCount == 0)
-            // {
-            //     gun.armsRig.SetParent(gun.weaponADSRecoil);
-            // }
-        }
-        else
-        {
-            gun.isADS = false;
-
-            // Parenting the arms rig back to the WeaponRecoil to change the sway pivot point for gun
-            // if(gun.weaponRecoil.childCount == 0)
-            // {
-            //     gun.armsRig.SetParent(gun.weaponRecoil);
-            // }
+            // Do the above but for ads zoom timer
+            if(gun.adsZoomTimer > 0)
+            {
+                gun.adsZoomTimer -= Time.deltaTime;
+            }
+            else
+            {
+                gun.adsZoomTimer = 0;
+            }
         }
 
         // When the ADS animation reaches zero time frame, stop the animation from playing by setting the speed to 0
@@ -174,6 +177,9 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
 
         // Setting the float used in the blend tree in animator, it calculates the normalized ADS time from 0 to 1 where 0 being hip fire, and 1 being ADS
         gun.armsAnimator.SetFloat("ADSProgress", gun.adsTimer / (gun.adsDuration / gun.adsSpeed));
+
+        // Change the fov according to the ads zoom progress
+        gun.camera.fieldOfView = Mathf.Lerp(gun.characterController.playerSettings.FieldOfView, gun.characterController.playerSettings.FieldOfView - gun.adsZoom, (gun.adsZoomTimer / ((gun.adsDuration / gun.adsSpeed) - (gun.adsZoomStartTime / gun.adsSpeed))));
     }
 
     public void Reload()
@@ -381,6 +387,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
 
         gun.armsRig = transform.Find("../../WeaponSway/WeaponRecoil/ArmsRig");
         gun.cameraRecoil = transform.Find("../../../CameraHolder/CameraRecoil");
+        gun.camera = transform.Find("../../../CameraHolder/CameraRecoil/Camera").GetComponent<Camera>();
         gun.weaponHolder = transform.Find("../../");
         gun.weaponSway = transform.Find("../../WeaponSway");
         gun.weaponRecoil = transform.Find("../../WeaponSway/WeaponRecoil");

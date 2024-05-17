@@ -1576,7 +1576,7 @@ Transform:
   m_GameObject: {fileID: 975528383}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.0488, z: 0.2652}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2015,11 +2015,13 @@ MonoBehaviour:
   input_View: {x: 0, y: 0}
   headPosition: {fileID: 1835441501}
   feetTransform: {fileID: 1958641484}
+  camera: {fileID: 1945842481}
   playerSettings:
     ViewXSensitivity: 10
     ViewYSensitivity: 10
     ViewXInverted: 0
     ViewYInverted: 0
+    FieldOfView: 90
     sprintingHold: 0
     MovementSmoothing: 0.05
     RunningForwardSpeed: 8
@@ -3296,6 +3298,7 @@ MonoBehaviour:
     weaponController: {fileID: 0}
     characterController: {fileID: 0}
     armsRig: {fileID: 0}
+    camera: {fileID: 0}
     cameraRecoil: {fileID: 0}
     weaponHolder: {fileID: 0}
     weaponSway: {fileID: 0}
@@ -3334,9 +3337,11 @@ MonoBehaviour:
     damage: 0
     adsPosition: {x: 0, y: 0, z: 0}
     adsDuration: 0.167
-    adsSpeed: 1
-    adsZoom: 0
     adsTimer: 0
+    adsSpeed: 1
+    adsZoom: 10
+    adsZoomStartTime: 0.1
+    adsZoomTimer: 0
     isADS: 0
     isADSIn: 0
     isADSOut: 0
@@ -3451,6 +3456,7 @@ MonoBehaviour:
     weaponController: {fileID: 0}
     characterController: {fileID: 0}
     armsRig: {fileID: 0}
+    camera: {fileID: 0}
     cameraRecoil: {fileID: 0}
     weaponHolder: {fileID: 0}
     weaponSway: {fileID: 0}
@@ -3486,9 +3492,11 @@ MonoBehaviour:
     damage: 0
     adsPosition: {x: 0, y: 0, z: 0}
     adsDuration: 0
+    adsTimer: 0
     adsSpeed: 0
     adsZoom: 0
-    adsTimer: 0
+    adsZoomStartTime: 0
+    adsZoomTimer: 0
     isADS: 0
     isADSIn: 0
     isADSOut: 0
@@ -3720,11 +3728,13 @@ MonoBehaviour:
   input_View: {x: 0, y: 0}
   headPosition: {fileID: 0}
   feetTransform: {fileID: 129434759531985206}
+  camera: {fileID: 0}
   playerSettings:
     ViewXSensitivity: 10
     ViewYSensitivity: 10
     ViewXInverted: 0
     ViewYInverted: 0
+    FieldOfView: 0
     sprintingHold: 0
     MovementSmoothing: 0.05
     RunningForwardSpeed: 8

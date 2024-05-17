@@ -23,6 +23,8 @@ public static class Models
 
         public bool ViewXInverted;
         public bool ViewYInverted;
+        [Range(65f, 120f)]
+        public float FieldOfView;
 
         [Header("Movement Settings")]
         public bool sprintingHold;
