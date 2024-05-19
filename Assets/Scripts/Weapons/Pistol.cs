@@ -7,9 +7,7 @@ using static Weapons;
 public class Pistol : MonoBehaviour, IFireable, IDisplayable
 {
     [Header("Pistol Settings")]
-    public Gun gun;
-
-
+    public Gun gun;   
     
     // Start is called before the first frame update
     void Start()
@@ -25,7 +23,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         CalculateDrawTime();
         CalculatePutAwayTime();
 
-        Debug.Log(gun.adsDuration / gun.adsSpeed);
+        Debug.Log(Mathf.Round(gun.characterController.walkingAnimationSpeed * 10f) / 10f);
     }
 
     public void Fire()
@@ -48,6 +46,8 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         {
             gun.characterController.isSprinting = false;
         }
+
+        gun.fireCrossHairTimer = gun.crossHairResetDuration;
 
         gun.armsAnimator.Play("Arms Fire Blend Tree");
         gun.gunAnimator.Play(gameObject.name + "_Gun_Fire_Animation");
@@ -125,7 +125,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             // Increase the timer when aiming in, until it reaches up to ADSduration, and if it reaches, freeze the timer by setting adsTimer to ADSduration
             if(gun.adsDuration / gun.adsSpeed >= gun.adsTimer)
             {
-                gun.adsTimer += Time.deltaTime;                
+                gun.adsTimer += Time.deltaTime;
 
                 // Start counting up the ADS zoom timer when ads timer go past the ads zoom start time
                 if(gun.adsZoomStartTime / gun.adsSpeed < gun.adsTimer)
@@ -435,5 +435,38 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         weaponNameTMP.text = gameObject.name;
         ammoCountTMP.text = gun.ammoCount.ToString();
         ammoReserveCountTMP.text = gun.ammoReserveCount.ToString();
+    }
+
+    public void DisplayCrossHair(RectTransform crossHair)
+    {
+        CanvasGroup crossHairAlpha = crossHair.gameObject.GetComponent<CanvasGroup>();
+
+        if(gun.fireCrossHairTimer > 0)
+        {
+            gun.fireCrossHairTimer -= Time.deltaTime;
+        }
+        else
+        {
+            gun.fireCrossHairTimer = 0;
+        }
+
+        gun.walkCrossHairLerp = Mathf.Lerp(0, (gun.characterController.isSprinting ? gun.walkCrossHairSize * 2f : gun.walkCrossHairSize), Mathf.Round(gun.characterController.walkingAnimationSpeed * 10f) / 10f);
+        gun.fireCrossHairLerp = Mathf.Lerp(0, gun.fireCrossHairSize, gun.fireCrossHairTimer / gun.crossHairResetDuration);
+        gun.addedCrossHairSize = gun.crossHairSize + gun.fireCrossHairLerp + gun.walkCrossHairLerp;
+
+        if(gun.isADSIn || gun.isADSOut || gun.isADS)
+        {
+            gun.currentCrossHairSize = Mathf.Lerp(gun.addedCrossHairSize, 0, gun.adsTimer / (gun.adsDuration / gun.adsSpeed));
+            gun.currentAlpha = Mathf.Lerp(1, 0, (gun.adsTimer / (gun.adsDuration / gun.adsSpeed)) / 0.8f);
+        }
+        else
+        {
+            gun.currentCrossHairSize = gun.addedCrossHairSize;            
+            gun.currentAlpha = 1;
+        }
+
+        crossHair.sizeDelta = new Vector2(gun.currentCrossHairSize, gun.currentCrossHairSize);
+        crossHairAlpha.alpha = gun.currentAlpha;
+        crossHair.gameObject.SetActive(!gun.isADS);
     }
 }

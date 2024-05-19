@@ -15,6 +15,7 @@ public class WeaponController : MonoBehaviour
     public TMP_Text weaponNameTMP;
     public TMP_Text ammoCountTMP;
     public TMP_Text ammoReserveCountTMP;
+    public RectTransform crossHair;
 
     [Header("Weapon Settings")]
     public GameObject[] weaponArray;
@@ -78,16 +79,23 @@ public class WeaponController : MonoBehaviour
             return;
         }
 
-        if(currentWeapon != null)
-        {
-            displayable.DisplayWeaponStats(weaponNameTMP, ammoCountTMP, ammoReserveCountTMP);
-        }
-
         CalculateWeaponRotation();
         CalculateWeaponSway();
         SetWeaponAnimations();
 
-        CalculateCurrentWeapon();
+        CalculateCurrentWeapon();        
+
+        if(currentWeapon != null)
+        {
+            displayable.DisplayWeaponStats(weaponNameTMP, ammoCountTMP, ammoReserveCountTMP);
+            displayable.DisplayCrossHair(crossHair);
+        }
+        else
+        {
+            weaponNameTMP.text = "null";
+            ammoCountTMP.text = "null";
+            ammoReserveCountTMP.text = "null";
+        }
     }
 
     public void TriggerJump()

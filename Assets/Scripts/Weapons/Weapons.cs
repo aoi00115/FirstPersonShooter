@@ -29,6 +29,7 @@ public static class Weapons
         public Vector3 weaponRotation;
 
         [Header("Gun Stats Settings")]
+        public int damage;
         public int ammoCount;
         public int magCapacity;
         public int ammoReserveCount;
@@ -36,7 +37,6 @@ public static class Weapons
         public float reloadDuration;
         public float magInDuration;
         public float reloadTimer;
-        public bool isTryingToADSWhileDoingSomethingElse;
         public bool isReloading;
         public float drawDuration;
         public float drawTimer;
@@ -47,7 +47,22 @@ public static class Weapons
         public float fireRate;
         public int fireMode;
         public Vector2 bulletSpread;
-        public int damage;
+        public float crossHairSize;
+        public float fireCrossHairSize;
+        public float walkCrossHairSize;
+        public float crossHairResetDuration;
+        [HideInInspector]
+        public float currentCrossHairSize;
+        [HideInInspector]
+        public float fireCrossHairTimer;
+        [HideInInspector]
+        public float fireCrossHairLerp;
+        [HideInInspector]
+        public float walkCrossHairLerp;
+        [HideInInspector]
+        public float addedCrossHairSize;
+        [HideInInspector]
+        public float currentAlpha;
 
         [Header("ADS Settings")]
         public Vector3 adsPosition;
@@ -60,6 +75,7 @@ public static class Weapons
         public bool isADS;
         public bool isADSIn;
         public bool isADSOut;
+        public bool isTryingToADSWhileDoingSomethingElse;
 
         public bool isFireModeSwitchable;
         public bool isAimable;
