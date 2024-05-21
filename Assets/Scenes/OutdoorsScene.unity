@@ -3773,16 +3773,6 @@ MonoBehaviour:
     fireRate: 0
     fireMode: 0
     bulletSpread: {x: 0, y: 0}
-    crossHairSize: 10
-    fireCrossHairSize: 10
-    walkCrossHairSize: 5
-    crossHairResetDuration: 0.25
-    currentCrossHairSize: 0
-    fireCrossHairTimer: 0
-    fireCrossHairLerp: 0
-    walkCrossHairLerp: 0
-    addedCrossHairSize: 0
-    currentAlpha: 0
     adsPosition: {x: 0, y: 0, z: 0}
     adsDuration: 0.167
     adsTimer: 0
@@ -3799,6 +3789,20 @@ MonoBehaviour:
     isPrimary: 0
     isSecondary: 0
     inUse: 1
+    crossHairSize: 15
+    standCrossHairSize: 15
+    crouchCrossHairSize: 10
+    proneCrossHairSize: 5
+    fireCrossHairSize: 10
+    walkCrossHairSize: 5
+    crossHairResetDuration: 0.25
+    currentCrossHairSize: 0
+    fireCrossHairTimer: 0
+    fireCrossHairLerp: 0
+    walkCrossHairLerp: 0
+    addedCrossHairSize: 0
+    crossHairStanceSizeVelocity: 0
+    currentAlpha: 0
     recoil: {x: 0, y: 0, z: 0}
     ADSRecoil: {x: 0, y: 0, z: 0}
     snappiness: 0
@@ -3938,16 +3942,6 @@ MonoBehaviour:
     fireRate: 0
     fireMode: 0
     bulletSpread: {x: 0, y: 0}
-    crossHairSize: 0
-    fireCrossHairSize: 0
-    walkCrossHairSize: 0
-    crossHairResetDuration: 0
-    currentCrossHairSize: 0
-    fireCrossHairTimer: 0
-    fireCrossHairLerp: 0
-    walkCrossHairLerp: 0
-    addedCrossHairSize: 0
-    currentAlpha: 0
     adsPosition: {x: 0, y: 0, z: 0}
     adsDuration: 0
     adsTimer: 0
@@ -3964,6 +3958,20 @@ MonoBehaviour:
     isPrimary: 0
     isSecondary: 0
     inUse: 0
+    crossHairSize: 0
+    standCrossHairSize: 0
+    crouchCrossHairSize: 0
+    proneCrossHairSize: 0
+    fireCrossHairSize: 0
+    walkCrossHairSize: 0
+    crossHairResetDuration: 0
+    currentCrossHairSize: 0
+    fireCrossHairTimer: 0
+    fireCrossHairLerp: 0
+    walkCrossHairLerp: 0
+    addedCrossHairSize: 0
+    crossHairStanceSizeVelocity: 0
+    currentAlpha: 0
     recoil: {x: 0, y: 0, z: 0}
     ADSRecoil: {x: 0, y: 0, z: 0}
     snappiness: 0

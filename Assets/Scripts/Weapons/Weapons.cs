@@ -47,22 +47,6 @@ public static class Weapons
         public float fireRate;
         public int fireMode;
         public Vector2 bulletSpread;
-        public float crossHairSize;
-        public float fireCrossHairSize;
-        public float walkCrossHairSize;
-        public float crossHairResetDuration;
-        [HideInInspector]
-        public float currentCrossHairSize;
-        [HideInInspector]
-        public float fireCrossHairTimer;
-        [HideInInspector]
-        public float fireCrossHairLerp;
-        [HideInInspector]
-        public float walkCrossHairLerp;
-        [HideInInspector]
-        public float addedCrossHairSize;
-        [HideInInspector]
-        public float currentAlpha;
 
         [Header("ADS Settings")]
         public Vector3 adsPosition;
@@ -82,6 +66,29 @@ public static class Weapons
         public bool isPrimary;
         public bool isSecondary;
         public bool inUse;
+
+        [Header("Cross Hair Settings")]
+        public float crossHairSize;
+        public float standCrossHairSize;
+        public float crouchCrossHairSize;
+        public float proneCrossHairSize;
+        public float fireCrossHairSize;
+        public float walkCrossHairSize;
+        public float crossHairResetDuration;
+        [HideInInspector]
+        public float currentCrossHairSize;
+        [HideInInspector]
+        public float fireCrossHairTimer;
+        [HideInInspector]
+        public float fireCrossHairLerp;
+        [HideInInspector]
+        public float walkCrossHairLerp;
+        [HideInInspector]
+        public float addedCrossHairSize;
+        [HideInInspector]
+        public float crossHairStanceSizeVelocity;
+        [HideInInspector]
+        public float currentAlpha;
 
         [Header("Recoil Settings")]
         public Vector3 recoil;

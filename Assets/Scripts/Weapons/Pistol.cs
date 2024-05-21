@@ -7,7 +7,7 @@ using static Weapons;
 public class Pistol : MonoBehaviour, IFireable, IDisplayable
 {
     [Header("Pistol Settings")]
-    public Gun gun;   
+    public Gun gun;
     
     // Start is called before the first frame update
     void Start()
@@ -449,6 +449,23 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         {
             gun.fireCrossHairTimer = 0;
         }
+
+        var stanceCrossHairSize = 0f;
+
+        if(gun.characterController.isStand)
+        {
+            stanceCrossHairSize = gun.standCrossHairSize;
+        }
+        else if(gun.characterController.isCrouch)
+        {
+            stanceCrossHairSize = gun.crouchCrossHairSize;
+        }
+        else if(gun.characterController.isProne)
+        {
+            stanceCrossHairSize = gun.proneCrossHairSize;
+        }
+
+        gun.crossHairSize = Mathf.SmoothDamp(gun.crossHairSize, stanceCrossHairSize, ref gun.crossHairStanceSizeVelocity, gun.characterController.playerStanceSmoothing);
 
         gun.walkCrossHairLerp = Mathf.Lerp(0, (gun.characterController.isSprinting ? gun.walkCrossHairSize * 2f : gun.walkCrossHairSize), Mathf.Round(gun.characterController.walkingAnimationSpeed * 10f) / 10f);
         gun.fireCrossHairLerp = Mathf.Lerp(0, gun.fireCrossHairSize, gun.fireCrossHairTimer / gun.crossHairResetDuration);
