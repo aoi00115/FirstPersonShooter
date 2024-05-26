@@ -80,9 +80,13 @@ public static class Weapons
         [HideInInspector]
         public float fireCrossHairTimer;
         [HideInInspector]
+        public float sprintCrossHairTimer;
+        [HideInInspector]
         public float fireCrossHairLerp;
         [HideInInspector]
         public float walkCrossHairLerp;
+        [HideInInspector]
+        public float sprintCrossHairLerp;
         [HideInInspector]
         public float addedCrossHairSize;
         [HideInInspector]

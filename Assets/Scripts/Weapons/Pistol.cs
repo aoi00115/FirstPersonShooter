@@ -441,6 +441,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
     {
         CanvasGroup crossHairAlpha = crossHair.gameObject.GetComponent<CanvasGroup>();
 
+        // Reducing the timer after a shot is fired
         if(gun.fireCrossHairTimer > 0)
         {
             gun.fireCrossHairTimer -= Time.deltaTime;
@@ -448,6 +449,30 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         else
         {
             gun.fireCrossHairTimer = 0;
+        }
+
+        // Calculating the timer when sprinting to adjust the cross hair size when sprinting
+        if(gun.characterController.isSprinting)
+        {
+            if(gun.sprintCrossHairTimer < 0.05f)
+            {
+                gun.sprintCrossHairTimer += Time.deltaTime;
+            }
+            else
+            {
+                gun.sprintCrossHairTimer = 0.05f;
+            }
+        }
+        else
+        {
+            if(gun.sprintCrossHairTimer > 0)
+            {
+                gun.sprintCrossHairTimer -= Time.deltaTime;
+            }
+            else
+            {
+                gun.sprintCrossHairTimer = 0;
+            }
         }
 
         var stanceCrossHairSize = 0f;
@@ -465,11 +490,12 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             stanceCrossHairSize = gun.proneCrossHairSize;
         }
 
-        gun.crossHairSize = Mathf.SmoothDamp(gun.crossHairSize, stanceCrossHairSize, ref gun.crossHairStanceSizeVelocity, gun.characterController.playerStanceSmoothing);
-
-        gun.walkCrossHairLerp = Mathf.Lerp(0, (gun.characterController.isSprinting ? gun.walkCrossHairSize * 2f : gun.walkCrossHairSize), Mathf.Round(gun.characterController.walkingAnimationSpeed * 10f) / 10f);
+        gun.crossHairSize = Mathf.SmoothDamp(gun.crossHairSize, stanceCrossHairSize, ref gun.crossHairStanceSizeVelocity, gun.characterController.playerStanceSmoothing);        
+        gun.walkCrossHairLerp = Mathf.Lerp(0, gun.walkCrossHairSize, Mathf.Round(gun.characterController.walkingAnimationSpeed * 10f) / 10f);
+        gun.sprintCrossHairLerp = Mathf.Lerp(0, gun.walkCrossHairSize * 2f, gun.sprintCrossHairTimer / 0.05f);
         gun.fireCrossHairLerp = Mathf.Lerp(0, gun.fireCrossHairSize, gun.fireCrossHairTimer / gun.crossHairResetDuration);
-        gun.addedCrossHairSize = gun.crossHairSize + gun.fireCrossHairLerp + gun.walkCrossHairLerp;
+
+        gun.addedCrossHairSize = gun.crossHairSize + gun.fireCrossHairLerp + gun.walkCrossHairLerp + gun.sprintCrossHairLerp;
 
         if(gun.isADSIn || gun.isADSOut || gun.isADS)
         {
