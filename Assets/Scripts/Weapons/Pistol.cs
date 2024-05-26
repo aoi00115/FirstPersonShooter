@@ -22,8 +22,6 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         CalculateReloadTime();
         CalculateDrawTime();
         CalculatePutAwayTime();
-
-        Debug.Log(Mathf.Round(gun.characterController.walkingAnimationSpeed * 10f) / 10f);
     }
 
     public void Fire()
@@ -382,12 +380,12 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         // }
 
         // Setting up all the scripts and reference
-        gun.characterController = transform.Find("../../../../").GetComponent<CharacterControllerScr>();
+        gun.characterController = transform.Find("../../../../../../").GetComponent<CharacterControllerScr>();
         gun.weaponController = transform.Find("../../").GetComponent<WeaponController>();
 
         gun.armsRig = transform.Find("../../WeaponSway/WeaponRecoil/ArmsRig");
-        gun.cameraRecoil = transform.Find("../../../CameraHolder/CameraRecoil");
-        gun.camera = transform.Find("../../../CameraHolder/CameraRecoil/Camera").GetComponent<Camera>();
+        gun.cameraRecoil = transform.Find("../../../");
+        gun.camera = transform.Find("../../../CameraAnimator/Camera").GetComponent<Camera>();
         gun.weaponHolder = transform.Find("../../");
         gun.weaponSway = transform.Find("../../WeaponSway");
         gun.weaponRecoil = transform.Find("../../WeaponSway/WeaponRecoil");
@@ -397,7 +395,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
 
         gun.gunAnimator = GetComponent<Animator>();
         gun.armsAnimator = transform.Find("../../WeaponSway/WeaponRecoil/ArmsRig").GetComponent<Animator>();
-        gun.cameraAnimator = transform.Find("../../../CameraHolder").GetComponent<Animator>();
+        gun.cameraAnimator = transform.Find("../../../CameraAnimator").GetComponent<Animator>();
 
         gun.gunAnimator.runtimeAnimatorController = gun.gunAnimatorController;
         gun.armsAnimator.runtimeAnimatorController = gun.armsAnimatorController;
@@ -451,30 +449,6 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             gun.fireCrossHairTimer = 0;
         }
 
-        // Calculating the timer when sprinting to adjust the cross hair size when sprinting
-        if(gun.characterController.isSprinting)
-        {
-            if(gun.sprintCrossHairTimer < 0.05f)
-            {
-                gun.sprintCrossHairTimer += Time.deltaTime;
-            }
-            else
-            {
-                gun.sprintCrossHairTimer = 0.05f;
-            }
-        }
-        else
-        {
-            if(gun.sprintCrossHairTimer > 0)
-            {
-                gun.sprintCrossHairTimer -= Time.deltaTime;
-            }
-            else
-            {
-                gun.sprintCrossHairTimer = 0;
-            }
-        }
-
         var stanceCrossHairSize = 0f;
 
         if(gun.characterController.isStand)
@@ -492,10 +466,9 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
 
         gun.crossHairSize = Mathf.SmoothDamp(gun.crossHairSize, stanceCrossHairSize, ref gun.crossHairStanceSizeVelocity, gun.characterController.playerStanceSmoothing);        
         gun.walkCrossHairLerp = Mathf.Lerp(0, gun.walkCrossHairSize, Mathf.Round(gun.characterController.walkingAnimationSpeed * 10f) / 10f);
-        gun.sprintCrossHairLerp = Mathf.Lerp(0, gun.walkCrossHairSize * 2f, gun.sprintCrossHairTimer / 0.05f);
         gun.fireCrossHairLerp = Mathf.Lerp(0, gun.fireCrossHairSize, gun.fireCrossHairTimer / gun.crossHairResetDuration);
 
-        gun.addedCrossHairSize = gun.crossHairSize + gun.fireCrossHairLerp + gun.walkCrossHairLerp + gun.sprintCrossHairLerp;
+        gun.addedCrossHairSize = gun.crossHairSize + gun.fireCrossHairLerp + gun.walkCrossHairLerp;
 
         if(gun.isADSIn || gun.isADSOut || gun.isADS)
         {

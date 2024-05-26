@@ -205,7 +205,7 @@ public class WeaponController : MonoBehaviour
     {
         fireable.Draw();
         
-        // weaponIndex++;1
+        // weaponIndex++;
         // if(weaponIndex >= weaponArray.Length)
         // {
         //     weaponIndex = 0;

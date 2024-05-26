@@ -22,6 +22,7 @@ public class CharacterControllerScr : MonoBehaviour
     public Transform headPosition;
     public Transform feetTransform;
     public Camera camera;
+    public Transform cameraHolder;
 
     [Header("Settings")]
     public PlayerSettingsModel playerSettings;
@@ -77,6 +78,8 @@ public class CharacterControllerScr : MonoBehaviour
     public bool isFalling;
     private Vector3 jumpingMomentum;
 
+    private Vector3 headBobbingStartPos;
+
     #region - Awake -
 
     // Awake method is called when the script instance is being loaded
@@ -111,6 +114,8 @@ public class CharacterControllerScr : MonoBehaviour
 
         cameraHeight = headPosition.localPosition.y;
 
+        headBobbingStartPos = cameraHolder.localPosition;
+
         if(weaponController)
         {
             weaponController.Initialise(this);
@@ -129,7 +134,14 @@ public class CharacterControllerScr : MonoBehaviour
         CalculateMovement();
         CalculateJump();
         CalculateStance();
-        CalculateSprint();        
+        CalculateSprint();
+
+        if(playerSettings.enableHeadBobbing)
+        {
+            CheckMotion();
+            ResetPosition();
+            camera.transform.LookAt(FocusTarget());
+        }
 
         camera.fieldOfView = playerSettings.FieldOfView;
     }
@@ -457,6 +469,74 @@ public class CharacterControllerScr : MonoBehaviour
         {
             isSprinting = false;
         }
+    }
+
+    #endregion
+
+    #region - Head Bobbing -
+
+    private void PlayMotion(Vector3 motion)
+    {
+        cameraHolder.localPosition += motion; 
+    }
+
+    private void CheckMotion()
+    {
+        float speed = new Vector3(characterController.velocity.x, 0, characterController.velocity.z).magnitude;
+
+        if(speed < playerSettings.HeadBobbingToggleSpeed) 
+        {
+            return;
+        }
+        if(!characterController.isGrounded) 
+        {
+            return;
+        }
+
+        PlayMotion(FootStepMotion());
+    }
+
+    private Vector3 FootStepMotion()
+    {
+        Vector3 pos = Vector3.zero;
+        float frequency = 0;
+        float amplitude = 0;
+
+        if(isSprinting)
+        {
+            amplitude = playerSettings.HeadBobbingAmplitude * 2.5f;
+            frequency = playerSettings.HeadBobbingFrequency * 1.5f;
+        }
+        else
+        {
+            amplitude = playerSettings.HeadBobbingAmplitude * walkingAnimationSpeed;
+            frequency = playerSettings.HeadBobbingFrequency * walkingAnimationSpeed;
+        }
+        Debug.Log(frequency);
+
+        if(newCameraRotation.x < 83 && newCameraRotation.x > -83)
+        {            
+            pos.y += Mathf.Sin(Time.time * frequency) * (amplitude / 500);
+            pos.x += Mathf.Cos(Time.time * frequency / 2) * ((amplitude * 2) / 500);
+        }
+
+        return pos;
+    }
+
+    private void ResetPosition()
+    {
+        if(cameraHolder.localPosition == headBobbingStartPos) 
+        { 
+            return;
+        }
+        cameraHolder.localPosition = Vector3.Lerp(cameraHolder.localPosition, headBobbingStartPos, 10 * Time.deltaTime);
+    }
+
+    private Vector3 FocusTarget()
+    {
+        Vector3 pos = new Vector3(transform.position.x, transform.position.y + headPosition.localPosition.y, transform.position.z);
+        pos += headPosition.forward * 15.0f;
+        return pos;
     }
 
     #endregion

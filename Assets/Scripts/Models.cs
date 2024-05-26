@@ -51,6 +51,15 @@ public static class Models
         public float CrouchSpeedEffector;
         public float ProneSpeedEffector;
         public float FallingSpeedEffector;
+
+        [Header("Head Bobbing Settings")]
+        public bool enableHeadBobbing;
+        [Range(0, 1f)]
+        public float HeadBobbingAmplitude;
+        [Range(0, 30)]
+        public float HeadBobbingFrequency;
+        public float HeadBobbingToggleSpeed;
+
     }
 
     [Serializable]
