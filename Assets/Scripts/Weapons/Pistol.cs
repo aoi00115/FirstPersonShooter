@@ -52,6 +52,13 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
 
         gun.audioSource.PlayOneShot(gun.fireClip, 1);
 
+        // Ejecting bullet casing
+        GameObject instantiatedBulletCasing;
+        instantiatedBulletCasing = Instantiate(gun.bulletCasing, gun.ejectionPoint.position, gun.ejectionPoint.rotation);
+        Rigidbody bulletCasingRb = instantiatedBulletCasing.GetComponent<Rigidbody>();
+        bulletCasingRb.AddRelativeForce(Random.Range(5.0f, 6.0f), Random.Range(2.0f, 4.0f), 0, ForceMode.Impulse);
+        Destroy(instantiatedBulletCasing, 5);
+
         gun.ammoCount--;
     }
 
@@ -397,6 +404,8 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         gun.armsAnimator = transform.Find("../../WeaponSway/WeaponRecoil/ArmsRig").GetComponent<Animator>();
         gun.cameraAnimator = transform.Find("../../../CameraAnimator").GetComponent<Animator>();
 
+        gun.ejectionPoint = transform.Find("EjectionPoint");
+
         gun.gunAnimator.runtimeAnimatorController = gun.gunAnimatorController;
         gun.armsAnimator.runtimeAnimatorController = gun.armsAnimatorController;
         gun.cameraAnimator.runtimeAnimatorController = gun.cameraAnimatorController;
@@ -465,7 +474,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         }
 
         gun.crossHairSize = Mathf.SmoothDamp(gun.crossHairSize, stanceCrossHairSize, ref gun.crossHairStanceSizeVelocity, gun.characterController.playerStanceSmoothing);        
-        gun.walkCrossHairLerp = Mathf.Lerp(0, gun.walkCrossHairSize, Mathf.Round(gun.characterController.walkingAnimationSpeed * 10f) / 10f);
+        gun.walkCrossHairLerp = Mathf.Lerp(0, gun.walkCrossHairSize, gun.characterController.smoothedWalkingAnimationSpeed);
         gun.fireCrossHairLerp = Mathf.Lerp(0, gun.fireCrossHairSize, gun.fireCrossHairTimer / gun.crossHairResetDuration);
 
         gun.addedCrossHairSize = gun.crossHairSize + gun.fireCrossHairLerp + gun.walkCrossHairLerp;

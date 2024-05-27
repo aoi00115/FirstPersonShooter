@@ -73,12 +73,15 @@ public class CharacterControllerScr : MonoBehaviour
     public WeaponController weaponController;
 
     public float walkingAnimationSpeed;
+    public float smoothedWalkingAnimationSpeed;
+    private float smoothedWalkingAnimationSpeedVelocity;
 
     [HideInInspector]
     public bool isFalling;
     private Vector3 jumpingMomentum;
 
     private Vector3 headBobbingStartPos;
+
 
     #region - Awake -
 
@@ -136,14 +139,11 @@ public class CharacterControllerScr : MonoBehaviour
         CalculateStance();
         CalculateSprint();
 
-        if(playerSettings.enableHeadBobbing)
-        {
-            CheckMotion();
-            ResetPosition();
-            camera.transform.LookAt(FocusTarget());
-        }
+        CalculateHeadBobbing();
 
         camera.fieldOfView = playerSettings.FieldOfView;
+
+        Debug.Log(Mathf.Round(smoothedWalkingAnimationSpeed * 10f) / 10f);
     }
 
     #endregion
@@ -202,6 +202,7 @@ public class CharacterControllerScr : MonoBehaviour
         horizontalSpeed *= playerSettings.SpeedEffector;
 
         newMovementSpeed = Vector3.SmoothDamp(newMovementSpeed, new Vector3(horizontalSpeed * input_Movement.x * Time.deltaTime, 0, verticalSpeed * input_Movement.y * Time.deltaTime), ref newMovementSpeedVelocity, characterController.isGrounded ? playerSettings.MovementSmoothing : playerSettings.FallingSmoothing);
+
         var movementSpeed = transform.TransformDirection(newMovementSpeed);
 
         // Deducting from the playerGravity so that the gravity accelerates as the player falls. For the player not to go crazy fast when falling, set the "Terminal velocity(gravityMin)"
@@ -235,10 +236,16 @@ public class CharacterControllerScr : MonoBehaviour
         
         // Setting walking animation speed depending on how fast player is moving
         walkingAnimationSpeed = characterController.velocity.magnitude / playerSettings.WalkingForwardSpeed; // By multiplying it by "playerSettings.SpeedEffector" It'll play the animation at the speed of one no matter the stance  
+        smoothedWalkingAnimationSpeed = Mathf.SmoothDamp(smoothedWalkingAnimationSpeed, walkingAnimationSpeed, ref smoothedWalkingAnimationSpeedVelocity, 0.1f); // Smoothed walkingAnimationSpeed for head bobbing and cross hair spreading
         
         if(walkingAnimationSpeed > 1)
         {
             walkingAnimationSpeed = 1;
+        }
+
+        if(smoothedWalkingAnimationSpeed > 1)
+        {
+            smoothedWalkingAnimationSpeed = 1;
         }
 
         // Calculating whether play is idle or not
@@ -475,6 +482,19 @@ public class CharacterControllerScr : MonoBehaviour
 
     #region - Head Bobbing -
 
+    private void CalculateHeadBobbing()
+    {
+        if(playerSettings.enableHeadBobbing)
+        {
+            CheckMotion();
+            ResetPosition();
+            if(newCameraRotation.x < 60 && newCameraRotation.x > -60)
+            { 
+                cameraHolder.transform.LookAt(FocusTarget());
+            }
+        }
+    }
+
     private void PlayMotion(Vector3 motion)
     {
         cameraHolder.localPosition += motion; 
@@ -504,21 +524,21 @@ public class CharacterControllerScr : MonoBehaviour
 
         if(isSprinting)
         {
-            amplitude = playerSettings.HeadBobbingAmplitude * 2.5f;
-            frequency = playerSettings.HeadBobbingFrequency * 1.5f;
+            amplitude = (playerSettings.HeadBobbingAmplitude * (Mathf.Round(smoothedWalkingAnimationSpeed * 10f) / 10f)) * 2.5f;
+            frequency = (playerSettings.HeadBobbingFrequency * (Mathf.Round(smoothedWalkingAnimationSpeed * 10f) / 10f)) * 1.5f;
         }
         else
         {
-            amplitude = playerSettings.HeadBobbingAmplitude * walkingAnimationSpeed;
-            frequency = playerSettings.HeadBobbingFrequency * walkingAnimationSpeed;
+            amplitude = playerSettings.HeadBobbingAmplitude * (Mathf.Round(smoothedWalkingAnimationSpeed * 10f) / 10f);
+            frequency = playerSettings.HeadBobbingFrequency * (Mathf.Round(smoothedWalkingAnimationSpeed * 10f) / 10f);
         }
-        Debug.Log(frequency);
 
-        if(newCameraRotation.x < 83 && newCameraRotation.x > -83)
-        {            
-            pos.y += Mathf.Sin(Time.time * frequency) * (amplitude / 500);
-            pos.x += Mathf.Cos(Time.time * frequency / 2) * ((amplitude * 2) / 500);
-        }
+        // Fix this part!!! So that it has smoother transition of head bobbing when fully looking up or down. Or fix the weird head bobbing problem as a whole
+        // if(newCameraRotation.x < 83 && newCameraRotation.x > -83)
+        // {            
+        pos.y += Mathf.Sin(Time.time * frequency) * (amplitude / 500);
+        pos.x += Mathf.Cos(Time.time * frequency / 2) * ((amplitude * 2) / 500);
+        // }
 
         return pos;
     }

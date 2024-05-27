@@ -72,8 +72,8 @@ public static class Weapons
         public float standCrossHairSize;
         public float crouchCrossHairSize;
         public float proneCrossHairSize;
-        public float fireCrossHairSize;
         public float walkCrossHairSize;
+        public float fireCrossHairSize;
         public float crossHairResetDuration;
         [HideInInspector]
         public float currentCrossHairSize;
@@ -96,7 +96,11 @@ public static class Weapons
         public float snappiness;
         public float returnSpeed;
 
-        [Header("Audio")]
+        [Header("Effect Settings")]
+        public Transform ejectionPoint;
+        public GameObject bulletCasing;
+
+        [Header("Audio Settings")]
         public AudioSource audioSource;
         public AudioClip fireClip;
 
