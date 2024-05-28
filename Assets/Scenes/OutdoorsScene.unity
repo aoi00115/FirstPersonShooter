@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 2028.9026, g: 1853.1526, b: 2184.9104, a: 1}
+  m_IndirectSpecularColor: {r: 2029.8577, g: 1853.967, b: 2185.6643, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -147,12 +147,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 18641410}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -0.36}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8553512158646562578}
+  - {fileID: 517464452}
   m_Father: {fileID: 152391432}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &113594105
@@ -533,7 +533,7 @@ Transform:
   m_GameObject: {fileID: 152391431}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.36}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -961,6 +961,38 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 496641092}
   m_CullTransparentMesh: 1
+--- !u!1 &517464451
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 517464452}
+  m_Layer: 0
+  m_Name: WeaponStance
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &517464452
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517464451}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8553512158646562578}
+  m_Father: {fileID: 18641411}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &604534382
 GameObject:
   m_ObjectHideFlags: 0
@@ -1785,38 +1817,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2483936888338210282}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &975528383
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 975528384}
-  m_Layer: 0
-  m_Name: WeaponADSSway
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &975528384
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 975528383}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.0488, z: 0.2652}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1663104770}
-  m_Father: {fileID: 1016967491}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &986262231
 GameObject:
   m_ObjectHideFlags: 0
@@ -1908,7 +1908,6 @@ MonoBehaviour:
   swayLerpSpeed: 14
   swayPosition: {x: 0, y: 0, z: 0}
   swayPoint: {fileID: 152391432}
-  adsSwayPoint: {fileID: 975528384}
 --- !u!4 &1016967491
 Transform:
   m_ObjectHideFlags: 0
@@ -1922,7 +1921,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 975528384}
   - {fileID: 152391432}
   - {fileID: 405716707}
   - {fileID: 1739147604}
@@ -2373,7 +2371,7 @@ MonoBehaviour:
     sprintingHold: 0
     MovementSmoothing: 0.05
     RunningForwardSpeed: 8
-    RunningStrafeSpeed: 8
+    RunningStrafeSpeed: 4
     StaminaDuration: 3
     SprintableTiming: 1
     WalkingForwardSpeed: 4
@@ -2402,7 +2400,7 @@ MonoBehaviour:
   gravityMin: -3
   jumpingForce: {x: 0, y: 0, z: 0}
   playerStance: 0
-  playerStanceSmoothing: 0.05
+  playerStanceSmoothing: 0.1
   playerStandStance:
     CameraHeight: 0.7
     StanceCollider: {fileID: 1340252803}
@@ -2754,37 +2752,6 @@ CanvasGroup:
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
---- !u!1 &1663104769
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1663104770}
-  m_Layer: 0
-  m_Name: WeaponADSRecoil
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1663104770
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1663104769}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 975528384}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1688519803
 GameObject:
   m_ObjectHideFlags: 0
@@ -3761,7 +3728,7 @@ Transform:
   m_GameObject: {fileID: 1980542528}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.001, y: 0.0306, z: 0.017}
+  m_LocalPosition: {x: 0.001, y: 0.026, z: 0.0107}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3970,7 +3937,7 @@ MonoBehaviour:
     weaponHolder: {fileID: 0}
     weaponSway: {fileID: 0}
     weaponRecoil: {fileID: 0}
-    weaponADSRecoil: {fileID: 0}
+    weaponStance: {fileID: 0}
     gunAnimator: {fileID: 0}
     armsAnimator: {fileID: 0}
     cameraAnimator: {fileID: 0}
@@ -4035,6 +4002,16 @@ MonoBehaviour:
     ADSRecoil: {x: 0, y: 0, z: 0}
     snappiness: 0
     returnSpeed: 0
+    crouchWeaponPosition: {x: -0.02, y: -0.03, z: -0.04}
+    crouchWeaponRotation: {x: 0, y: 0, z: 15}
+    proneWeaponPosition: {x: 0, y: 0, z: 0.04}
+    proneWeaponRotation: {x: 0, y: 0, z: 0}
+    weaponStancePositionVelocity: {x: 0, y: 0, z: 0}
+    weaponStanceRotationVelocity: {x: 0, y: 0, z: 0, w: 1}
+    weaponStanceReferencePosition: {x: 0, y: 0, z: 0}
+    weaponStanceReferencePositionVelocity: {x: 0, y: 0, z: 0}
+    weaponStanceReferenceRotation: {x: 0, y: 0, z: 0, w: 0}
+    weaponStanceReferenceRotationVelocity: {x: 0, y: 0, z: 0, w: 1}
     ejectionPoint: {fileID: 0}
     bulletCasing: {fileID: 2865194140594765246, guid: 1d15ab94680831e4e886c544a2a8cc30,
       type: 3}
@@ -4140,7 +4117,7 @@ MonoBehaviour:
     weaponHolder: {fileID: 0}
     weaponSway: {fileID: 0}
     weaponRecoil: {fileID: 0}
-    weaponADSRecoil: {fileID: 0}
+    weaponStance: {fileID: 0}
     gunAnimator: {fileID: 0}
     armsAnimator: {fileID: 0}
     cameraAnimator: {fileID: 0}
@@ -4202,6 +4179,16 @@ MonoBehaviour:
     ADSRecoil: {x: 0, y: 0, z: 0}
     snappiness: 0
     returnSpeed: 0
+    crouchWeaponPosition: {x: 0, y: 0, z: 0}
+    crouchWeaponRotation: {x: 0, y: 0, z: 0}
+    proneWeaponPosition: {x: 0, y: 0, z: 0}
+    proneWeaponRotation: {x: 0, y: 0, z: 0}
+    weaponStancePositionVelocity: {x: 0, y: 0, z: 0}
+    weaponStanceRotationVelocity: {x: 0, y: 0, z: 0, w: 1}
+    weaponStanceReferencePosition: {x: 0, y: 0, z: 0}
+    weaponStanceReferencePositionVelocity: {x: 0, y: 0, z: 0}
+    weaponStanceReferenceRotation: {x: 0, y: 0, z: 0, w: 0}
+    weaponStanceReferenceRotationVelocity: {x: 0, y: 0, z: 0, w: 1}
     ejectionPoint: {fileID: 0}
     bulletCasing: {fileID: 0}
     audioSource: {fileID: 0}
@@ -4407,7 +4394,6 @@ MonoBehaviour:
   swayLerpSpeed: 14
   swayPosition: {x: 0, y: 0, z: 0}
   swayPoint: {fileID: 0}
-  adsSwayPoint: {fileID: 0}
 --- !u!1 &784885988762485812
 GameObject:
   m_ObjectHideFlags: 0
@@ -6767,14 +6753,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9079253902375564712}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.12}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -0.120000005}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6825918133363396591}
   - {fileID: 2680817911002976844}
-  m_Father: {fileID: 18641411}
+  m_Father: {fileID: 517464452}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &8600662946380543437
 Transform:

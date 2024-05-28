@@ -143,7 +143,7 @@ public class CharacterControllerScr : MonoBehaviour
 
         camera.fieldOfView = playerSettings.FieldOfView;
 
-        Debug.Log(Mathf.Round(smoothedWalkingAnimationSpeed * 10f) / 10f);
+        // Debug.Log(Mathf.Round(smoothedWalkingAnimationSpeed * 10f) / 10f);
     }
 
     #endregion

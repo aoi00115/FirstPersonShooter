@@ -22,7 +22,10 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         CalculateReloadTime();
         CalculateDrawTime();
         CalculatePutAwayTime();
+        CalculateWeaponStance();
     }
+
+    #region "Fire"
 
     public void Fire()
     {
@@ -57,10 +60,15 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         instantiatedBulletCasing = Instantiate(gun.bulletCasing, gun.ejectionPoint.position, gun.ejectionPoint.rotation);
         Rigidbody bulletCasingRb = instantiatedBulletCasing.GetComponent<Rigidbody>();
         bulletCasingRb.AddRelativeForce(Random.Range(5.0f, 6.0f), Random.Range(2.0f, 4.0f), 0, ForceMode.Impulse);
+        bulletCasingRb.AddRelativeTorque(0, Random.Range(0f, 20f), 0, ForceMode.Impulse);
         Destroy(instantiatedBulletCasing, 5);
 
         gun.ammoCount--;
     }
+
+    #endregion
+
+    #region "ADS"
 
     public void ADSIn()
     {
@@ -185,7 +193,17 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
 
         // Change the fov according to the ads zoom progress
         gun.camera.fieldOfView = Mathf.Lerp(gun.characterController.playerSettings.FieldOfView, gun.characterController.playerSettings.FieldOfView - gun.adsZoom, (gun.adsZoomTimer / ((gun.adsDuration / gun.adsSpeed) - (gun.adsZoomStartTime / gun.adsSpeed))));
+
+        // Change the ads position if there is any change in ads position
+        if(gun.adsPosition != Vector3.zero)
+        {
+            gun.armsRig.localPosition = Vector3.Lerp(new Vector3(0, 0, -0.12f), new Vector3(gun.adsPosition.x, gun.adsPosition.y, gun.adsPosition.z - 0.12f), gun.adsTimer / (gun.adsDuration / gun.adsSpeed));
+        }
     }
+
+    #endregion
+
+    #region "Reload"
 
     public void Reload()
     {
@@ -268,10 +286,14 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         }
     }
 
+    #endregion
+
     public void SwitchFireMode()
     {
         
     }
+
+    #region "Draw"
 
     public void Draw()
     {        
@@ -306,6 +328,10 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             }
         }
     }
+
+    #endregion
+
+    #region "PutAway"
 
     public void PutAway()
     {        
@@ -368,6 +394,10 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         }
     }
 
+    #endregion
+
+    #region "Walk & Sprint"
+
     public void Walk(float walkingAnimationSpeed, bool isIdle)
     {
         gun.armsAnimator.SetBool("isIdle", isIdle);
@@ -378,7 +408,11 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
     {
         gun.armsAnimator.SetBool("isSprint", isSprint);
     }
+
+    #endregion
     
+    #region "SetUp & Reset"
+
     public void SetUp()
     {
         // if(gun.inUse)
@@ -390,18 +424,18 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         gun.characterController = transform.Find("../../../../../../").GetComponent<CharacterControllerScr>();
         gun.weaponController = transform.Find("../../").GetComponent<WeaponController>();
 
-        gun.armsRig = transform.Find("../../WeaponSway/WeaponRecoil/ArmsRig");
+        gun.armsRig = transform.Find("../../WeaponSway/WeaponRecoil/WeaponStance/ArmsRig");
         gun.cameraRecoil = transform.Find("../../../");
         gun.camera = transform.Find("../../../CameraAnimator/Camera").GetComponent<Camera>();
         gun.weaponHolder = transform.Find("../../");
         gun.weaponSway = transform.Find("../../WeaponSway");
         gun.weaponRecoil = transform.Find("../../WeaponSway/WeaponRecoil");
-        gun.weaponADSRecoil = transform.Find("../../WeaponADSSway/WeaponADSRecoil");
-        gun.socket = transform.Find("../../WeaponSway/WeaponRecoil/ArmsRig/arms_rig/root/upper_arm_R/lower_arm_R/hand_R/" + gameObject.name + "Socket");
+        gun.weaponStance = transform.Find("../../WeaponSway/WeaponRecoil/WeaponStance");
+        gun.socket = transform.Find("../../WeaponSway/WeaponRecoil/WeaponStance/ArmsRig/arms_rig/root/upper_arm_R/lower_arm_R/hand_R/" + gameObject.name + "Socket");
         gun.swayPoint = transform.Find("../../SwayPoints/" + gameObject.name + "SwayPoint");
 
         gun.gunAnimator = GetComponent<Animator>();
-        gun.armsAnimator = transform.Find("../../WeaponSway/WeaponRecoil/ArmsRig").GetComponent<Animator>();
+        gun.armsAnimator = transform.Find("../../WeaponSway/WeaponRecoil/WeaponStance/ArmsRig").GetComponent<Animator>();
         gun.cameraAnimator = transform.Find("../../../CameraAnimator").GetComponent<Animator>();
 
         gun.ejectionPoint = transform.Find("EjectionPoint");
@@ -418,9 +452,9 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         gun.weaponController.currentWeapon.transform.localRotation = Quaternion.Euler(gun.weaponRotation);
 
         // Unparent the armsRig from weaponRecoil and set the swayPoint to the appropriate swayPoint to the gun and parent it back to weaponRecoil
-        gun.armsRig.SetParent(gun.weaponHolder);
-        gun.weaponSway.localPosition = gun.swayPoint.localPosition;
-        gun.armsRig.SetParent(gun.weaponRecoil);
+        // gun.armsRig.SetParent(gun.weaponHolder);
+        // gun.weaponSway.localPosition = gun.swayPoint.localPosition;
+        // gun.armsRig.SetParent(gun.weaponRecoil);
 
         Draw();
     }
@@ -436,6 +470,10 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         gun.weaponController.currentWeapon.transform.localPosition = Vector3.zero;
         gun.weaponController.currentWeapon.transform.localRotation = Quaternion.Euler(Vector3.zero);
     }
+
+    #endregion
+
+    #region "Display"
 
     public void DisplayWeaponStats(TMP_Text weaponNameTMP, TMP_Text ammoCountTMP, TMP_Text ammoReserveCountTMP)
     {
@@ -490,8 +528,79 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             gun.currentAlpha = 1;
         }
 
+        gun.currentCrossHairSize = gun.currentCrossHairSize * (90f / gun.characterController.playerSettings.FieldOfView);
+
         crossHair.sizeDelta = new Vector2(gun.currentCrossHairSize, gun.currentCrossHairSize);
         crossHairAlpha.alpha = gun.currentAlpha;
         crossHair.gameObject.SetActive(!gun.isADS);
     }
+
+    #endregion
+
+    #region "Weapon Stance"
+
+    private void CalculateWeaponStance()
+    {
+        Vector3 stanceWeaponPosition = Vector3.zero;
+        Vector3 stanceWeaponRotation = Vector3.zero;
+
+        if(gun.characterController.isStand)
+        {
+            stanceWeaponPosition = Vector3.zero;
+            stanceWeaponRotation = Vector3.zero;
+        }
+        else if(gun.characterController.isCrouch)
+        {
+            stanceWeaponPosition = gun.crouchWeaponPosition;
+            stanceWeaponRotation = gun.crouchWeaponRotation;
+        }
+        else if(gun.characterController.isProne)
+        {
+            stanceWeaponPosition = gun.proneWeaponPosition;
+            stanceWeaponRotation = gun.proneWeaponRotation;
+        }
+
+        // Saving the position and rotation of WeaponStance solely based on values without taking the change with ADS into account
+        gun.weaponStanceReferencePosition = Vector3.SmoothDamp(gun.weaponStanceReferencePosition, stanceWeaponPosition, ref gun.weaponStanceReferencePositionVelocity, gun.characterController.playerStanceSmoothing); 
+        gun.weaponStanceReferenceRotation = QuaternionSmoothDamp(gun.weaponStanceReferenceRotation, Quaternion.Euler(stanceWeaponRotation), ref gun.weaponStanceReferenceRotationVelocity, gun.characterController.playerStanceSmoothing);
+
+        if(!gun.isADS)
+        {
+            gun.weaponStance.localPosition = Vector3.SmoothDamp(gun.weaponStance.localPosition, stanceWeaponPosition, ref gun.weaponStancePositionVelocity, gun.characterController.playerStanceSmoothing); 
+            // Smoothly interpolate the rotation towards the target rotation
+            gun.weaponStance.localRotation = QuaternionSmoothDamp(gun.weaponStance.localRotation, Quaternion.Euler(stanceWeaponRotation), ref gun.weaponStanceRotationVelocity, gun.characterController.playerStanceSmoothing);
+        }
+        else
+        {
+            if(gun.weaponStance.localPosition != stanceWeaponPosition || gun.weaponStance.localRotation != Quaternion.Euler(stanceWeaponRotation))
+            {
+                gun.weaponStance.localPosition = Vector3.SmoothDamp(gun.weaponStance.localPosition, stanceWeaponPosition, ref gun.weaponStancePositionVelocity, gun.characterController.playerStanceSmoothing); 
+                // Smoothly interpolate the rotation towards the target rotation
+                gun.weaponStance.localRotation = QuaternionSmoothDamp(gun.weaponStance.localRotation, Quaternion.Euler(stanceWeaponRotation), ref gun.weaponStanceRotationVelocity, gun.characterController.playerStanceSmoothing);
+            }
+        }
+        
+        // When ADS In and Out, reset the positon and rotation to wherever the WeaponStance should be
+        gun.weaponStance.localPosition = Vector3.Lerp(gun.weaponStanceReferencePosition, Vector3.zero, gun.adsTimer / (gun.adsDuration / gun.adsSpeed));
+        gun.weaponStance.localRotation = Quaternion.Lerp(gun.weaponStanceReferenceRotation, Quaternion.Euler(Vector3.zero), gun.adsTimer / (gun.adsDuration / gun.adsSpeed));
+    }
+
+    // Custom SmoothDamp function for Quaternions
+    Quaternion QuaternionSmoothDamp(Quaternion current, Quaternion target, ref Quaternion velocity, float smoothTime)
+    {
+        // Smooth damp for each component
+        Vector4 currentVec = new Vector4(current.x, current.y, current.z, current.w);
+        Vector4 targetVec = new Vector4(target.x, target.y, target.z, target.w);
+        Vector4 result = new Vector4(
+            Mathf.SmoothDamp(currentVec.x, targetVec.x, ref velocity.x, smoothTime),
+            Mathf.SmoothDamp(currentVec.y, targetVec.y, ref velocity.y, smoothTime),
+            Mathf.SmoothDamp(currentVec.z, targetVec.z, ref velocity.z, smoothTime),
+            Mathf.SmoothDamp(currentVec.w, targetVec.w, ref velocity.w, smoothTime)
+        );
+
+        // Normalize the result to get a valid quaternion
+        return new Quaternion(result.x, result.y, result.z, result.w).normalized;
+    }
+
+    #endregion
 }

@@ -57,7 +57,6 @@ public class WeaponController : MonoBehaviour
     private float swayTime;
     public Vector3 swayPosition;
     public Transform swayPoint;
-    public Transform adsSwayPoint;
 
     private void Start()
     {
@@ -128,8 +127,6 @@ public class WeaponController : MonoBehaviour
 
         // Combining both weapon sway and movement sway
         swayPoint.localRotation = Quaternion.Euler(newWeaponRotation + newWeaponMovementRotation);
-        // Copying the rotation of swayPoint to adsSwayPoint too so that they syncronize in movement
-        adsSwayPoint.localRotation = swayPoint.localRotation;
     }
 
     private void CalculateWeaponSway()

@@ -17,8 +17,8 @@ public static class Weapons
         public Transform weaponHolder;
         public Transform weaponSway;
         public Transform weaponRecoil;
-        public Transform weaponADSRecoil;
-        public Animator gunAnimator;
+        public Transform weaponStance;
+        public Animator gunAnimator; 
         public Animator armsAnimator;
         public Animator cameraAnimator;
         public RuntimeAnimatorController gunAnimatorController;
@@ -96,6 +96,24 @@ public static class Weapons
         public float snappiness;
         public float returnSpeed;
 
+        [Header("Weapon Stance View Settings")]
+        public Vector3 crouchWeaponPosition;
+        public Vector3 crouchWeaponRotation;
+        public Vector3 proneWeaponPosition;
+        public Vector3 proneWeaponRotation;
+        [HideInInspector]
+        public Vector3 weaponStancePositionVelocity;
+        [HideInInspector]
+        public Quaternion weaponStanceRotationVelocity = Quaternion.identity;
+        [HideInInspector]
+        public Vector3 weaponStanceReferencePosition;
+        [HideInInspector]
+        public Vector3 weaponStanceReferencePositionVelocity;
+        [HideInInspector]
+        public Quaternion weaponStanceReferenceRotation;
+        [HideInInspector]
+        public Quaternion weaponStanceReferenceRotationVelocity = Quaternion.identity;
+
         [Header("Effect Settings")]
         public Transform ejectionPoint;
         public GameObject bulletCasing;
@@ -103,7 +121,6 @@ public static class Weapons
         [Header("Audio Settings")]
         public AudioSource audioSource;
         public AudioClip fireClip;
-
     }
 
     [Serializable]
