@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 2029.8577, g: 1853.967, b: 2185.6643, a: 1}
+  m_IndirectSpecularColor: {r: 4698.563, g: 2983.7073, b: 2544.9846, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -148,11 +148,11 @@ Transform:
   m_GameObject: {fileID: 18641410}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.36}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 517464452}
+  - {fileID: 1794832008}
   m_Father: {fileID: 152391432}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &113594105
@@ -532,13 +532,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 152391431}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.36}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 18641411}
-  m_Father: {fileID: 1016967491}
+  m_Father: {fileID: 1328318237}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &227829201
 GameObject:
@@ -991,7 +991,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8553512158646562578}
-  m_Father: {fileID: 18641411}
+  m_Father: {fileID: 1794832008}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &604534382
 GameObject:
@@ -1366,7 +1366,7 @@ Transform:
   m_GameObject: {fileID: 751222251}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.045656923, y: -0.05658984, z: 0.22413445}
+  m_LocalPosition: {x: 0.04565696, y: -0.013920009, z: 0.35970443}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1897,17 +1897,25 @@ MonoBehaviour:
     SwayResetSmoothing: 0.05
     SwayClampX: 6
     SwayClampY: 6
+    SwayPoint: {fileID: 152391432}
     MovementSwayX: 5
     MovementSwayY: 1
     MovementSwaySmoothing: 0.2
-  weaponSwayObject: {fileID: 1016967491}
-  swayAmountA: 1
-  swayAmountB: 2
-  swayScale: 400
-  adsSwayScale: 1000
-  swayLerpSpeed: 14
-  swayPosition: {x: 0, y: 0, z: 0}
-  swayPoint: {fileID: 152391432}
+  targetWeaponRotation: {x: 0, y: 0, z: 0}
+  targetWeaponRotationVelocity: {x: 0, y: 0, z: 0}
+  newWeaponRotation: {x: 0, y: 0, z: 0}
+  newWeaponRotationVelocity: {x: 0, y: 0, z: 0}
+  targetWeaponMovementRotation: {x: 0, y: 0, z: 0}
+  targetWeaponMovementRotationVelocity: {x: 0, y: 0, z: 0}
+  newWeaponMovementRotation: {x: 0, y: 0, z: 0}
+  newWeaponMovementRotationVelocity: {x: 0, y: 0, z: 0}
+  weaponIdleSwayObject: {fileID: 1016967491}
+  idleSwayAmountA: 1
+  idleSwayAmountB: 2
+  idleSwayScale: 400
+  adsIdleSwayScale: 1000
+  idleSwayLerpSpeed: 14
+  idleSwayPosition: {x: 0, y: 0, z: 0}
 --- !u!4 &1016967491
 Transform:
   m_ObjectHideFlags: 0
@@ -1921,7 +1929,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 152391432}
+  - {fileID: 1277149127}
   - {fileID: 405716707}
   - {fileID: 1739147604}
   - {fileID: 1952699353}
@@ -2178,6 +2186,68 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1132257414}
   m_CullTransparentMesh: 1
+--- !u!1 &1133105148
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1133105149}
+  m_Layer: 0
+  m_Name: SwayPointReference
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1133105149
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1133105148}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: 0.04267, z: 0.13557}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5097176557360646040}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1236624096
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1236624097}
+  m_Layer: 0
+  m_Name: WeaponSwayPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1236624097
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1236624096}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.000000029304918, y: 1.6949832, z: 0.2458275}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1255378621
 GameObject:
   m_ObjectHideFlags: 0
@@ -2244,6 +2314,38 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
+  m_Father: {fileID: 1016967491}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1277149126
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1277149127}
+  m_Layer: 0
+  m_Name: WeaponADSAdjustmentLayer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1277149127
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1277149126}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1328318237}
   m_Father: {fileID: 1016967491}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1320591483
@@ -2321,6 +2423,60 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1320591483}
   m_CullTransparentMesh: 1
+--- !u!1 &1328318236
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1328318237}
+  - component: {fileID: 1328318238}
+  m_Layer: 0
+  m_Name: WeaponADS
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1328318237
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1328318236}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 152391432}
+  m_Father: {fileID: 1277149127}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &1328318238
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1328318236}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: cc8df5bb1255a4049bfce35ae412d5dd, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1340252798
 GameObject:
   m_ObjectHideFlags: 0
@@ -3199,6 +3355,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2483936888338210282}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1794832007
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1794832008}
+  m_Layer: 0
+  m_Name: WeaponStanceAdjustmentLayer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1794832008
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1794832007}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 517464452}
+  m_Father: {fileID: 18641411}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1835441500
 GameObject:
   m_ObjectHideFlags: 0
@@ -3935,19 +4123,26 @@ MonoBehaviour:
     camera: {fileID: 0}
     cameraRecoil: {fileID: 0}
     weaponHolder: {fileID: 0}
+    weaponADSAdjustmentLayer: {fileID: 0}
+    weaponADS: {fileID: 0}
     weaponSway: {fileID: 0}
     weaponRecoil: {fileID: 0}
+    weaponStanceAdjustmentLayer: {fileID: 0}
     weaponStance: {fileID: 0}
     gunAnimator: {fileID: 0}
     armsAnimator: {fileID: 0}
     cameraAnimator: {fileID: 0}
+    adsAnimator: {fileID: 0}
     gunAnimatorController: {fileID: 9100000, guid: 985c297f11c5193449750115f35cd1d0,
       type: 2}
     armsAnimatorController: {fileID: 9100000, guid: 4cc95e1063f01bc48bade61e5750a5ba,
       type: 2}
     cameraAnimatorController: {fileID: 9100000, guid: 83fb653a92e8fab4186ac64b0a62db0a,
       type: 2}
+    adsAnimatorController: {fileID: 9100000, guid: cc8df5bb1255a4049bfce35ae412d5dd,
+      type: 2}
     socket: {fileID: 0}
+    swayPointOld: {fileID: 0}
     swayPoint: {fileID: 0}
     weaponRotation: {x: -107.598, y: -41.52499, z: -46.383}
     damage: 0
@@ -3955,6 +4150,7 @@ MonoBehaviour:
     magCapacity: 12
     ammoReserveCount: 120
     isReloadWhileSprint: 0
+    isReloadWhileADS: 0
     reloadDuration: 1.467
     magInDuration: 1.03
     reloadTimer: 0
@@ -4115,16 +4311,22 @@ MonoBehaviour:
     camera: {fileID: 0}
     cameraRecoil: {fileID: 0}
     weaponHolder: {fileID: 0}
+    weaponADSAdjustmentLayer: {fileID: 0}
+    weaponADS: {fileID: 0}
     weaponSway: {fileID: 0}
     weaponRecoil: {fileID: 0}
+    weaponStanceAdjustmentLayer: {fileID: 0}
     weaponStance: {fileID: 0}
     gunAnimator: {fileID: 0}
     armsAnimator: {fileID: 0}
     cameraAnimator: {fileID: 0}
+    adsAnimator: {fileID: 0}
     gunAnimatorController: {fileID: 0}
     armsAnimatorController: {fileID: 0}
     cameraAnimatorController: {fileID: 0}
+    adsAnimatorController: {fileID: 0}
     socket: {fileID: 0}
+    swayPointOld: {fileID: 0}
     swayPoint: {fileID: 0}
     weaponRotation: {x: 0, y: 0, z: 0}
     damage: 0
@@ -4132,6 +4334,7 @@ MonoBehaviour:
     magCapacity: 0
     ammoReserveCount: 0
     isReloadWhileSprint: 0
+    isReloadWhileADS: 0
     reloadDuration: 0
     magInDuration: 0
     reloadTimer: 0
@@ -4383,17 +4586,25 @@ MonoBehaviour:
     SwayResetSmoothing: 0.05
     SwayClampX: 6
     SwayClampY: 6
+    SwayPoint: {fileID: 0}
     MovementSwayX: 5
     MovementSwayY: 1
     MovementSwaySmoothing: 0.2
-  weaponSwayObject: {fileID: 0}
-  swayAmountA: 1
-  swayAmountB: 2
-  swayScale: 300
-  adsSwayScale: 600
-  swayLerpSpeed: 14
-  swayPosition: {x: 0, y: 0, z: 0}
-  swayPoint: {fileID: 0}
+  targetWeaponRotation: {x: 0, y: 0, z: 0}
+  targetWeaponRotationVelocity: {x: 0, y: 0, z: 0}
+  newWeaponRotation: {x: 0, y: 0, z: 0}
+  newWeaponRotationVelocity: {x: 0, y: 0, z: 0}
+  targetWeaponMovementRotation: {x: 0, y: 0, z: 0}
+  targetWeaponMovementRotationVelocity: {x: 0, y: 0, z: 0}
+  newWeaponMovementRotation: {x: 0, y: 0, z: 0}
+  newWeaponMovementRotationVelocity: {x: 0, y: 0, z: 0}
+  weaponIdleSwayObject: {fileID: 0}
+  idleSwayAmountA: 1
+  idleSwayAmountB: 2
+  idleSwayScale: 50
+  adsIdleSwayScale: 600
+  idleSwayLerpSpeed: 14
+  idleSwayPosition: {x: 0, y: 0, z: 0}
 --- !u!1 &784885988762485812
 GameObject:
   m_ObjectHideFlags: 0
@@ -5881,6 +6092,7 @@ Transform:
   - {fileID: 5458059270217350081}
   - {fileID: 4012712716042877185}
   - {fileID: 1980542529}
+  - {fileID: 1133105149}
   m_Father: {fileID: 1688519804}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &5097176557360646041
@@ -6884,6 +7096,7 @@ SceneRoots:
   - {fileID: 1255378622}
   - {fileID: 2013410475}
   - {fileID: 7991290893247346821}
+  - {fileID: 1236624097}
   - {fileID: 1340252805}
   - {fileID: 1936737208}
   - {fileID: 1093909069}

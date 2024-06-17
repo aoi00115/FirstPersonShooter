@@ -84,6 +84,7 @@ public static class Models
         public float SwayResetSmoothing;
         public float SwayClampX;
         public float SwayClampY;
+        public Transform SwayPoint;
 
         [Header("Weapon Movement Sway")]
         public float MovementSwayX;

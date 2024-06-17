@@ -73,14 +73,16 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
     public void ADSIn()
     {
         // If ADS when reloading, set isADSIn true and do nothing
-        if(gun.isReloading || gun.isDrawing)
+        if(gun.isDrawing)
         {
             gun.isTryingToADSWhileDoingSomethingElse = true;
             return;
         }
-        else if(gun.isPuttingAway)
+
+        if(!gun.isReloadWhileADS && gun.isReloading)
         {
             gun.isTryingToADSWhileDoingSomethingElse = true;
+            return;
         }
 
         // If ADS when running, stop running
@@ -92,33 +94,45 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         gun.isADS = false;
         gun.isADSIn = true;
         gun.isADSOut = false;
-        gun.armsAnimator.SetFloat("ADSSpeed", gun.adsSpeed);
+        gun.adsAnimator.SetFloat("ADSSpeed", gun.adsSpeed);
 
         // When the animation is not reset when the timer is 0, play it back from 0 time frame, and when the timer is not 0, play the animation from where the animation is continued
         if(gun.adsTimer == 0)
         {
-            gun.armsAnimator.Play(gameObject.name + "_ADS_Animation", -1, 0);
+            gun.adsAnimator.Play(gameObject.name + "_ADS_Animation", -1, 0);
         }
         else
         {
-            gun.armsAnimator.Play(gameObject.name + "_ADS_Animation");
+            gun.adsAnimator.Play(gameObject.name + "_ADS_Animation");
         }
     }
 
     public void ADSOut()
     {
         // If ADSOut when reloading, set isADSIn false and do nothing
-        if(gun.isReloading || gun.isDrawing)
+        if(gun.isDrawing)
         {
             gun.isTryingToADSWhileDoingSomethingElse = false;
             return;
         }
+
+        if(!gun.isReloadWhileADS && gun.isReloading)
+        {
+            gun.isTryingToADSWhileDoingSomethingElse = false;
+            return;
+        }
+
         gun.isTryingToADSWhileDoingSomethingElse = false;
 
         gun.isADS = false;
         gun.isADSOut = true;
         gun.isADSIn = false;
-        gun.armsAnimator.SetFloat("ADSSpeed", -gun.adsSpeed);
+        gun.adsAnimator.SetFloat("ADSSpeed", -gun.adsSpeed);
+
+        if(gun.adsTimer == gun.adsDuration)
+        {
+            gun.adsAnimator.Play(gameObject.name + "_ADS_Animation", -1, 1);
+        }
     }
 
     public bool CalculateADS()
@@ -150,10 +164,12 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             {
                 gun.adsTimer = gun.adsDuration / gun.adsSpeed;
                 gun.adsZoomTimer = (gun.adsDuration / gun.adsSpeed) - (gun.adsZoomStartTime / gun.adsSpeed);
+                
+                gun.isTryingToADSWhileDoingSomethingElse = false;
 
                 gun.isADS = true;
                 gun.isADSIn = false;
-                gun.armsAnimator.SetFloat("ADSSpeed", 0f);
+                gun.adsAnimator.SetFloat("ADSSpeed", 0f);
             }
         }
         if(gun.isADSOut)
@@ -183,9 +199,9 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         if(gun.adsTimer == 0)
         {
             gun.isADSOut = false;
-            gun.armsAnimator.SetFloat("ADSSpeed", 0f);            
+            gun.adsAnimator.SetFloat("ADSSpeed", 0f);            
             // When not ADS (Hip fire) play the empty state
-            gun.armsAnimator.Play("ADS Empty");
+            gun.adsAnimator.Play("ADS Empty");
         }
 
         // Setting the float used in the blend tree in animator, it calculates the normalized ADS time from 0 to 1 where 0 being hip fire, and 1 being ADS
@@ -219,11 +235,15 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             gun.characterController.isSprinting = false;
         }
 
-        // If reload when ADS, ADSout
-        if(gun.isADS || gun.isADSIn)
+        // When "reload while ADS" is off, ADS out when reload
+        if(!gun.isReloadWhileADS)
         {
-            ADSOut();
-            gun.isTryingToADSWhileDoingSomethingElse = true;
+            // If reload when ADS, ADSout
+            if(gun.isADS || gun.isADSIn)
+            {
+                ADSOut();
+                gun.isTryingToADSWhileDoingSomethingElse = true;
+            }
         }
 
         if(!gun.isReloading)
@@ -357,7 +377,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             // Increase the timer when aiming in, until it reaches up to ADSduration, and if it reaches, freeze the timer by setting adsTimer to ADSduration
             if(gun.putAwayDuration > gun.putAwayTimer)
             {
-                gun.putAwayTimer += Time.deltaTime;                
+                gun.putAwayTimer += Time.deltaTime;         
             }
             else
             {
@@ -368,12 +388,13 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
 
                 // Action after putting the weapon away goes in below
                 gun.weaponController.SwitchWeapons();
+            }
 
-                // If PutAway when ADS,
-                if(gun.isADS || gun.isADSIn)
-                {
-                    gun.isTryingToADSWhileDoingSomethingElse = true;
-                }
+            // If PutAway when ADS,
+            if(gun.isADS || gun.isADSIn)
+            {
+                ADSOut();
+                gun.isTryingToADSWhileDoingSomethingElse = true;
             }
         }
         else
@@ -390,6 +411,12 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
                 gun.armsAnimator.SetFloat("PutAwaySpeed", 0f);            
                 // When not ADS (Hip fire) play the empty state
                 gun.armsAnimator.Play("PutAway Empty");
+            }
+
+            // If weapon switch is cancelled when ADS it'll ADS
+            if(gun.isTryingToADSWhileDoingSomethingElse)
+            {            
+                ADSIn();
             }
         }
     }
@@ -424,25 +451,30 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         gun.characterController = transform.Find("../../../../../../").GetComponent<CharacterControllerScr>();
         gun.weaponController = transform.Find("../../").GetComponent<WeaponController>();
 
-        gun.armsRig = transform.Find("../../WeaponSway/WeaponRecoil/WeaponStance/ArmsRig");
+        gun.armsRig = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoil/WeaponStanceAdjustmentLayer/WeaponStance/ArmsRig");
         gun.cameraRecoil = transform.Find("../../../");
         gun.camera = transform.Find("../../../CameraAnimator/Camera").GetComponent<Camera>();
         gun.weaponHolder = transform.Find("../../");
-        gun.weaponSway = transform.Find("../../WeaponSway");
-        gun.weaponRecoil = transform.Find("../../WeaponSway/WeaponRecoil");
-        gun.weaponStance = transform.Find("../../WeaponSway/WeaponRecoil/WeaponStance");
-        gun.socket = transform.Find("../../WeaponSway/WeaponRecoil/WeaponStance/ArmsRig/arms_rig/root/upper_arm_R/lower_arm_R/hand_R/" + gameObject.name + "Socket");
+        gun.weaponADSAdjustmentLayer = transform.Find("../../WeaponADSAdjustmentLayer");
+        gun.weaponADS = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS");
+        gun.weaponSway = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway");
+        gun.weaponRecoil = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoil");
+        gun.weaponStanceAdjustmentLayer = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoil/WeaponStanceAdjustmentLayer");
+        gun.weaponStance = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoil/WeaponStanceAdjustmentLayer/WeaponStance");
+        gun.socket = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoil/WeaponStanceAdjustmentLayer/WeaponStance/ArmsRig/arms_rig/root/upper_arm_R/lower_arm_R/hand_R/" + gameObject.name + "Socket");
         gun.swayPoint = transform.Find("../../SwayPoints/" + gameObject.name + "SwayPoint");
 
         gun.gunAnimator = GetComponent<Animator>();
-        gun.armsAnimator = transform.Find("../../WeaponSway/WeaponRecoil/WeaponStance/ArmsRig").GetComponent<Animator>();
+        gun.armsAnimator = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoil/WeaponStanceAdjustmentLayer/WeaponStance/ArmsRig").GetComponent<Animator>();
         gun.cameraAnimator = transform.Find("../../../CameraAnimator").GetComponent<Animator>();
+        gun.adsAnimator = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS").GetComponent<Animator>();
 
         gun.ejectionPoint = transform.Find("EjectionPoint");
 
         gun.gunAnimator.runtimeAnimatorController = gun.gunAnimatorController;
         gun.armsAnimator.runtimeAnimatorController = gun.armsAnimatorController;
         gun.cameraAnimator.runtimeAnimatorController = gun.cameraAnimatorController;
+        gun.adsAnimator.runtimeAnimatorController = gun.adsAnimatorController;
 
         gun.audioSource = GetComponent<AudioSource>();
 
@@ -452,9 +484,9 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         gun.weaponController.currentWeapon.transform.localRotation = Quaternion.Euler(gun.weaponRotation);
 
         // Unparent the armsRig from weaponRecoil and set the swayPoint to the appropriate swayPoint to the gun and parent it back to weaponRecoil
-        // gun.armsRig.SetParent(gun.weaponHolder);
-        // gun.weaponSway.localPosition = gun.swayPoint.localPosition;
-        // gun.armsRig.SetParent(gun.weaponRecoil);
+        gun.weaponStanceAdjustmentLayer.SetParent(gun.weaponHolder);
+        gun.weaponADSAdjustmentLayer.localPosition = gun.swayPoint.localPosition;
+        gun.weaponStanceAdjustmentLayer.SetParent(gun.weaponRecoil);
 
         Draw();
     }
@@ -604,3 +636,4 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
 
     #endregion
 }
+

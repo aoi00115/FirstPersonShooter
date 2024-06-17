@@ -2,11 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RotateAround : MonoBehaviour
+public class CubeMove : MonoBehaviour
 {
-    public Transform swayPoint1;
-    public float angle;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -16,6 +13,6 @@ public class RotateAround : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.RotateAround(swayPoint1.position, Vector3.up, angle); 
+        transform.position += Vector3.up * Time.deltaTime;
     }
 }

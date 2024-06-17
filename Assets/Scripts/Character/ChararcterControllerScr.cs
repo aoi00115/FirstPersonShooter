@@ -340,6 +340,11 @@ public class CharacterControllerScr : MonoBehaviour
 
     private void Crouch()
     {
+        if(isSprinting)
+        {
+            isSprinting = false;
+        }
+
         if(playerStance == PlayerStance.Crouch)
         {
             if(StanceCheck(playerStandStance.StanceCollider.height))
@@ -361,6 +366,11 @@ public class CharacterControllerScr : MonoBehaviour
 
     private void Prone()
     {
+        if(isSprinting)
+        {
+            isSprinting = false;
+        }
+        
         if(playerStance == PlayerStance.Prone)
         {
             if(StanceCheck(playerStandStance.StanceCollider.height) || StanceCheck(playerCrouchStance.StanceCollider.height))

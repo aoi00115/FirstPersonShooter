@@ -15,16 +15,22 @@ public static class Weapons
         public Camera camera;
         public Transform cameraRecoil;
         public Transform weaponHolder;
+        public Transform weaponADSAdjustmentLayer;
+        public Transform weaponADS;
         public Transform weaponSway;
         public Transform weaponRecoil;
+        public Transform weaponStanceAdjustmentLayer;
         public Transform weaponStance;
         public Animator gunAnimator; 
         public Animator armsAnimator;
         public Animator cameraAnimator;
+        public Animator adsAnimator;
         public RuntimeAnimatorController gunAnimatorController;
         public RuntimeAnimatorController armsAnimatorController;
         public RuntimeAnimatorController cameraAnimatorController;
+        public RuntimeAnimatorController adsAnimatorController;
         public Transform socket;
+        public Transform swayPointOld;
         public Transform swayPoint;
         public Vector3 weaponRotation;
 
@@ -34,6 +40,7 @@ public static class Weapons
         public int magCapacity;
         public int ammoReserveCount;
         public bool isReloadWhileSprint;
+        public bool isReloadWhileADS;
         public float reloadDuration;
         public float magInDuration;
         public float reloadTimer;
