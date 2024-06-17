@@ -50,8 +50,17 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
 
         gun.fireCrossHairTimer = gun.crossHairResetDuration;
 
-        gun.armsAnimator.Play("Arms Fire Blend Tree");
-        gun.gunAnimator.Play(gameObject.name + "_Gun_Fire_Animation");
+        // When it's the last bullet
+        if(gun.ammoCount == 1)
+        {
+            gun.armsAnimator.Play("Arms Last Fire Blend Tree");
+            gun.gunAnimator.Play(gameObject.name + "_Gun_Last_Fire_Animation");
+        }
+        else
+        {
+            gun.armsAnimator.Play("Arms Fire Blend Tree");
+            gun.gunAnimator.Play(gameObject.name + "_Gun_Fire_Animation");
+        }
 
         gun.audioSource.PlayOneShot(gun.fireClip, 1);
 
@@ -64,6 +73,13 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         Destroy(instantiatedBulletCasing, 5);
 
         gun.ammoCount--;
+
+        // Set is Empty to true when the ammo count is zero after firing
+        if(gun.ammoCount == 0)
+        {
+            gun.isEmpty = true;
+            gun.gunAnimator.SetBool("isEmpty", gun.isEmpty);
+        }
     }
 
     #endregion
@@ -251,9 +267,19 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             gun.isReloading = true;
         }
 
-        gun.armsAnimator.Play(gameObject.name + "_Arms_Reload_Animation");
-        gun.gunAnimator.Play(gameObject.name + "_Gun_Reload_Animation");
-        gun.cameraAnimator.Play(gameObject.name + "_Camera_Reload_Animation");
+        // When the mag is empty
+        if(gun.isEmpty)
+        {
+            gun.armsAnimator.Play(gameObject.name + "_Arms_Empty_Reload_Animation");
+            gun.gunAnimator.Play(gameObject.name + "_Gun_Empty_Reload_Animation");
+            gun.cameraAnimator.Play(gameObject.name + "_Camera_Reload_Animation");
+        }
+        else
+        {
+            gun.armsAnimator.Play(gameObject.name + "_Arms_Reload_Animation");
+            gun.gunAnimator.Play(gameObject.name + "_Gun_Reload_Animation");
+            gun.cameraAnimator.Play(gameObject.name + "_Camera_Reload_Animation");
+        }
     }
 
     public void CalculateReloadTime()
@@ -261,15 +287,19 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         if(gun.isReloading)
         {
             // Increase the timer when aiming in, until it reaches up to ADSduration, and if it reaches, freeze the timer by setting adsTimer to ADSduration
-            if(gun.reloadDuration > gun.reloadTimer)
+            // When the mag is empty, use the emptyReloadDuration
+            if((gun.isEmpty ? gun.emptyReloadDuration : gun.reloadDuration) > gun.reloadTimer)
             {
                 gun.reloadTimer += Time.deltaTime;                
             }
             else
             {
                 // If the timer reaches the reload duration
-                gun.reloadTimer = gun.reloadDuration;
+                // When the mag is empty, set it to emptyReloadDuration
+                gun.reloadTimer = (gun.isEmpty ? gun.emptyReloadDuration : gun.reloadDuration);
                 gun.isReloading = false;
+                // Set isEmpty to false after inserting magazine
+                gun.isEmpty = false;
 
                 // If ADS when reloading the gun, reset everything and reADS
                 if(gun.isTryingToADSWhileDoingSomethingElse)
@@ -287,7 +317,8 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             gun.cameraAnimator.Play(gameObject.name + "_Camera_Idle_Animation");
         }
 
-        if(gun.magInDuration <= gun.reloadTimer)
+        // When the mag is empty, use the gun.boltReleaseDuration to determine the timing of which the player can do reload-cancelling
+        if((gun.isEmpty ? gun.boltReleaseDuration : gun.magInDuration) <= gun.reloadTimer)
         {
             // Action after reloading goes below
             int loadedAmmo = gun.magCapacity - gun.ammoCount;
@@ -297,6 +328,8 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             }
             gun.ammoReserveCount -= loadedAmmo;
             gun.ammoCount += loadedAmmo;
+
+            gun.gunAnimator.SetBool("isEmpty", gun.isEmpty);
         }
 
         // Cancel reload if sprint and isReloadWhileSprint is fault

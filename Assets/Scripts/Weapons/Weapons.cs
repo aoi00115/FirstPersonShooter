@@ -42,9 +42,12 @@ public static class Weapons
         public bool isReloadWhileSprint;
         public bool isReloadWhileADS;
         public float reloadDuration;
+        public float emptyReloadDuration;
         public float magInDuration;
+        public float boltReleaseDuration;
         public float reloadTimer;
         public bool isReloading;
+        public bool isEmpty;
         public float drawDuration;
         public float drawTimer;
         public bool isDrawing;

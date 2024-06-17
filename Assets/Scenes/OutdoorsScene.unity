@@ -4152,9 +4152,12 @@ MonoBehaviour:
     isReloadWhileSprint: 0
     isReloadWhileADS: 0
     reloadDuration: 1.467
+    emptyReloadDuration: 2.167
     magInDuration: 1.03
+    boltReleaseDuration: 1.7
     reloadTimer: 0
     isReloading: 0
+    isEmpty: 0
     drawDuration: 0.233
     drawTimer: 0
     isDrawing: 0
@@ -4336,9 +4339,12 @@ MonoBehaviour:
     isReloadWhileSprint: 0
     isReloadWhileADS: 0
     reloadDuration: 0
+    emptyReloadDuration: 0
     magInDuration: 0
+    boltReleaseDuration: 0
     reloadTimer: 0
     isReloading: 0
+    isEmpty: 0
     drawDuration: 0
     drawTimer: 0
     isDrawing: 0
@@ -5587,7 +5593,7 @@ Transform:
   m_Children:
   - {fileID: 8687070549478569823}
   m_Father: {fileID: 5097176557360646040}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 179.99998, z: 0}
 --- !u!4 &4022463853451019826
 Transform:
   m_ObjectHideFlags: 0
