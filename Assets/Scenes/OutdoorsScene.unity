@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 4698.563, g: 2983.7073, b: 2544.9846, a: 1}
+  m_IndirectSpecularColor: {r: 2028.3284, g: 1852.9573, b: 2184.8792, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -4129,6 +4129,10 @@ MonoBehaviour:
     weaponRecoil: {fileID: 0}
     weaponStanceAdjustmentLayer: {fileID: 0}
     weaponStance: {fileID: 0}
+    socket: {fileID: 0}
+    swayPointOld: {fileID: 0}
+    swayPoint: {fileID: 0}
+    weaponRotation: {x: -107.598, y: -41.52499, z: -46.383}
     gunAnimator: {fileID: 0}
     armsAnimator: {fileID: 0}
     cameraAnimator: {fileID: 0}
@@ -4141,16 +4145,13 @@ MonoBehaviour:
       type: 2}
     adsAnimatorController: {fileID: 9100000, guid: cc8df5bb1255a4049bfce35ae412d5dd,
       type: 2}
-    socket: {fileID: 0}
-    swayPointOld: {fileID: 0}
-    swayPoint: {fileID: 0}
-    weaponRotation: {x: -107.598, y: -41.52499, z: -46.383}
     damage: 0
     ammoCount: 12
     magCapacity: 12
     ammoReserveCount: 120
     isReloadWhileSprint: 0
     isReloadWhileADS: 0
+    reloadSpeed: 1
     reloadDuration: 1.467
     emptyReloadDuration: 2.167
     magInDuration: 1.03
@@ -4160,9 +4161,11 @@ MonoBehaviour:
     isEmpty: 0
     drawDuration: 0.233
     drawTimer: 0
+    drawSpeed: 1
     isDrawing: 0
     putAwayDuration: 0.233
     putAwayTimer: 0
+    putAwaySpeed: 1
     isPuttingAway: 0
     fireRate: 0
     fireMode: 0
@@ -4215,7 +4218,21 @@ MonoBehaviour:
     bulletCasing: {fileID: 2865194140594765246, guid: 1d15ab94680831e4e886c544a2a8cc30,
       type: 3}
     audioSource: {fileID: 0}
-    fireClip: {fileID: 8300000, guid: b901583ebf3f47d42aac03d3ac156b6e, type: 3}
+    fireAudioClip: {fileID: 8300000, guid: b901583ebf3f47d42aac03d3ac156b6e, type: 3}
+    reloadAudioSequences:
+    - action: Mag In
+      time: 0
+      audioClip: {fileID: 0}
+    - action: Mag Out
+      time: 0
+      audioClip: {fileID: 0}
+    emptyReloadAudioSequences:
+    - action: Empty Mag In
+      time: 0
+      audioClip: {fileID: 0}
+    - action: Empty Mag Out
+      time: 0
+      audioClip: {fileID: 0}
 --- !u!1 &124465327280173419
 GameObject:
   m_ObjectHideFlags: 0
@@ -4320,6 +4337,10 @@ MonoBehaviour:
     weaponRecoil: {fileID: 0}
     weaponStanceAdjustmentLayer: {fileID: 0}
     weaponStance: {fileID: 0}
+    socket: {fileID: 0}
+    swayPointOld: {fileID: 0}
+    swayPoint: {fileID: 0}
+    weaponRotation: {x: 0, y: 0, z: 0}
     gunAnimator: {fileID: 0}
     armsAnimator: {fileID: 0}
     cameraAnimator: {fileID: 0}
@@ -4328,16 +4349,13 @@ MonoBehaviour:
     armsAnimatorController: {fileID: 0}
     cameraAnimatorController: {fileID: 0}
     adsAnimatorController: {fileID: 0}
-    socket: {fileID: 0}
-    swayPointOld: {fileID: 0}
-    swayPoint: {fileID: 0}
-    weaponRotation: {x: 0, y: 0, z: 0}
     damage: 0
     ammoCount: 0
     magCapacity: 0
     ammoReserveCount: 0
     isReloadWhileSprint: 0
     isReloadWhileADS: 0
+    reloadSpeed: 0
     reloadDuration: 0
     emptyReloadDuration: 0
     magInDuration: 0
@@ -4347,9 +4365,11 @@ MonoBehaviour:
     isEmpty: 0
     drawDuration: 0
     drawTimer: 0
+    drawSpeed: 0
     isDrawing: 0
     putAwayDuration: 0
     putAwayTimer: 0
+    putAwaySpeed: 0
     isPuttingAway: 0
     fireRate: 0
     fireMode: 0
@@ -4401,7 +4421,9 @@ MonoBehaviour:
     ejectionPoint: {fileID: 0}
     bulletCasing: {fileID: 0}
     audioSource: {fileID: 0}
-    fireClip: {fileID: 0}
+    fireAudioClip: {fileID: 0}
+    reloadAudioSequences: []
+    emptyReloadAudioSequences: []
 --- !u!23 &263238842356092870
 MeshRenderer:
   m_ObjectHideFlags: 0

@@ -5,6 +5,7 @@ using UnityEngine;
 public interface IFireable
 {
     void Fire();
+    void FireUp();
     void ADSIn();
     void ADSOut();
     bool CalculateADS();

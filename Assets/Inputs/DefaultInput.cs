@@ -100,6 +100,15 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""FireUp"",
+                    ""type"": ""Button"",
+                    ""id"": ""6b48360f-5997-4931-afd1-3d03e6029077"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""Reload"",
                     ""type"": ""Button"",
                     ""id"": ""bfa5acbe-366e-42c3-9856-ef44ac5eff43"",
@@ -312,6 +321,17 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""action"": ""SwitchWeapons"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""aa256839-24d9-421f-a5cb-e9030400976c"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": ""Press(behavior=1)"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FireUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -328,6 +348,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         m_Character_Sprint = m_Character.FindAction("Sprint", throwIfNotFound: true);
         m_Character_SprintReleased = m_Character.FindAction("SprintReleased", throwIfNotFound: true);
         m_Character_Fire = m_Character.FindAction("Fire", throwIfNotFound: true);
+        m_Character_FireUp = m_Character.FindAction("FireUp", throwIfNotFound: true);
         m_Character_Reload = m_Character.FindAction("Reload", throwIfNotFound: true);
         m_Character_ADSIn = m_Character.FindAction("ADSIn", throwIfNotFound: true);
         m_Character_ADSOut = m_Character.FindAction("ADSOut", throwIfNotFound: true);
@@ -401,6 +422,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Character_Sprint;
     private readonly InputAction m_Character_SprintReleased;
     private readonly InputAction m_Character_Fire;
+    private readonly InputAction m_Character_FireUp;
     private readonly InputAction m_Character_Reload;
     private readonly InputAction m_Character_ADSIn;
     private readonly InputAction m_Character_ADSOut;
@@ -417,6 +439,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         public InputAction @Sprint => m_Wrapper.m_Character_Sprint;
         public InputAction @SprintReleased => m_Wrapper.m_Character_SprintReleased;
         public InputAction @Fire => m_Wrapper.m_Character_Fire;
+        public InputAction @FireUp => m_Wrapper.m_Character_FireUp;
         public InputAction @Reload => m_Wrapper.m_Character_Reload;
         public InputAction @ADSIn => m_Wrapper.m_Character_ADSIn;
         public InputAction @ADSOut => m_Wrapper.m_Character_ADSOut;
@@ -454,6 +477,9 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
             @Fire.started += instance.OnFire;
             @Fire.performed += instance.OnFire;
             @Fire.canceled += instance.OnFire;
+            @FireUp.started += instance.OnFireUp;
+            @FireUp.performed += instance.OnFireUp;
+            @FireUp.canceled += instance.OnFireUp;
             @Reload.started += instance.OnReload;
             @Reload.performed += instance.OnReload;
             @Reload.canceled += instance.OnReload;
@@ -494,6 +520,9 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
             @Fire.started -= instance.OnFire;
             @Fire.performed -= instance.OnFire;
             @Fire.canceled -= instance.OnFire;
+            @FireUp.started -= instance.OnFireUp;
+            @FireUp.performed -= instance.OnFireUp;
+            @FireUp.canceled -= instance.OnFireUp;
             @Reload.started -= instance.OnReload;
             @Reload.performed -= instance.OnReload;
             @Reload.canceled -= instance.OnReload;
@@ -533,6 +562,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         void OnSprint(InputAction.CallbackContext context);
         void OnSprintReleased(InputAction.CallbackContext context);
         void OnFire(InputAction.CallbackContext context);
+        void OnFireUp(InputAction.CallbackContext context);
         void OnReload(InputAction.CallbackContext context);
         void OnADSIn(InputAction.CallbackContext context);
         void OnADSOut(InputAction.CallbackContext context);

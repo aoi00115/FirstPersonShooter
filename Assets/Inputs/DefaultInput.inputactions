@@ -78,6 +78,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "FireUp",
+                    "type": "Button",
+                    "id": "6b48360f-5997-4931-afd1-3d03e6029077",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Reload",
                     "type": "Button",
                     "id": "bfa5acbe-366e-42c3-9856-ef44ac5eff43",
@@ -288,6 +297,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "SwitchWeapons",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "aa256839-24d9-421f-a5cb-e9030400976c",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "Press(behavior=1)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "FireUp",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

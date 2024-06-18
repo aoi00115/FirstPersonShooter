@@ -30,7 +30,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
     public void Fire()
     {
         // Fire only after drawing, reloading or only not putting away
-        if(gun.isDrawing || gun.isPuttingAway || gun.isReloading)
+        if(gun.isDrawing || gun.isPuttingAway || gun.isReloading || !gun.isReadyToFire)
         {            
             return;
         }
@@ -48,6 +48,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             gun.characterController.isSprinting = false;
         }
 
+        // Expanding the cross-hair
         gun.fireCrossHairTimer = gun.crossHairResetDuration;
 
         // When it's the last bullet
@@ -62,7 +63,8 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             gun.gunAnimator.Play(gameObject.name + "_Gun_Fire_Animation");
         }
 
-        gun.audioSource.PlayOneShot(gun.fireClip, 1);
+        // Play the firing sound
+        gun.audioSource.PlayOneShot(gun.fireAudioClip, 1);
 
         // Ejecting bullet casing
         GameObject instantiatedBulletCasing;
@@ -80,6 +82,11 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             gun.isEmpty = true;
             gun.gunAnimator.SetBool("isEmpty", gun.isEmpty);
         }
+    }
+
+    public void FireUp()
+    {
+
     }
 
     #endregion
@@ -266,6 +273,10 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         {
             gun.isReloading = true;
         }
+        
+        gun.armsAnimator.SetFloat("ReloadSpeed", gun.reloadSpeed);
+        gun.gunAnimator.SetFloat("ReloadSpeed", gun.reloadSpeed);
+        gun.cameraAnimator.SetFloat("ReloadSpeed", gun.reloadSpeed);
 
         // When the mag is empty
         if(gun.isEmpty)
@@ -288,18 +299,46 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         {
             // Increase the timer when aiming in, until it reaches up to ADSduration, and if it reaches, freeze the timer by setting adsTimer to ADSduration
             // When the mag is empty, use the emptyReloadDuration
-            if((gun.isEmpty ? gun.emptyReloadDuration : gun.reloadDuration) > gun.reloadTimer)
+            if((gun.isEmpty ? gun.emptyReloadDuration : gun.reloadDuration) / gun.reloadSpeed > gun.reloadTimer)
             {
-                gun.reloadTimer += Time.deltaTime;                
+                gun.reloadTimer += Time.deltaTime;
+
+                // Play the reload sound at the certain time depending on the bullet left
+                if(gun.isEmpty)
+                {
+                    foreach(AudioSequence emptyReloadAS in gun.emptyReloadAudioSequences)
+                    {
+                        if(emptyReloadAS.time / gun.reloadSpeed <= gun.reloadTimer)
+                        {
+                            if(!emptyReloadAS.hasPlayed)
+                            {
+                                gun.reloadAudioSource.PlayOneShot(emptyReloadAS.audioClip, 1);
+                                emptyReloadAS.hasPlayed = true;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    foreach(AudioSequence reloadAS in gun.reloadAudioSequences)
+                    {
+                        if(reloadAS.time / gun.reloadSpeed <= gun.reloadTimer)
+                        {
+                            if(!reloadAS.hasPlayed)
+                            {
+                                gun.reloadAudioSource.PlayOneShot(reloadAS.audioClip, 1);
+                                reloadAS.hasPlayed = true;
+                            }
+                        }
+                    }
+                }
             }
             else
             {
                 // If the timer reaches the reload duration
                 // When the mag is empty, set it to emptyReloadDuration
-                gun.reloadTimer = (gun.isEmpty ? gun.emptyReloadDuration : gun.reloadDuration);
+                gun.reloadTimer = (gun.isEmpty ? gun.emptyReloadDuration : gun.reloadDuration) / gun.reloadSpeed;
                 gun.isReloading = false;
-                // Set isEmpty to false after inserting magazine
-                gun.isEmpty = false;
 
                 // If ADS when reloading the gun, reset everything and reADS
                 if(gun.isTryingToADSWhileDoingSomethingElse)
@@ -310,15 +349,35 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         }
         else
         {
-            // When reload is cancelled
+            // When reload is completed/cancelled
             gun.reloadTimer = 0;
             gun.armsAnimator.Play("Reload Empty");
             gun.gunAnimator.Play("Reload Empty");
             gun.cameraAnimator.Play(gameObject.name + "_Camera_Idle_Animation");
+
+            // Set isEmpty to false after the reload is done or cancelled
+            // The if below ensures that when reload cancelling after rechambering, it sets gun.isEmpty to false
+            if(gun.ammoCount > 0)
+            {
+                gun.isEmpty = false;
+                gun.gunAnimator.SetBool("isEmpty", gun.isEmpty);
+            }
+
+            // Setting the hasPlayed bool in the reloadAudioSequence to false after reloading
+            foreach(AudioSequence emptyReloadAS in gun.emptyReloadAudioSequences)
+            {
+                emptyReloadAS.hasPlayed = false;
+            }
+            foreach(AudioSequence reloadAS in gun.reloadAudioSequences)
+            {
+                reloadAS.hasPlayed = false;
+            }
+
+            gun.reloadAudioSource.Stop();
         }
 
-        // When the mag is empty, use the gun.boltReleaseDuration to determine the timing of which the player can do reload-cancelling
-        if((gun.isEmpty ? gun.boltReleaseDuration : gun.magInDuration) <= gun.reloadTimer)
+        // When the mag is empty, use the gun.rechamberDuration to determine the timing of which the player can do reload-cancelling
+        if((gun.isEmpty ? gun.rechamberDuration : gun.magInDuration) / gun.reloadSpeed <= gun.reloadTimer)
         {
             // Action after reloading goes below
             int loadedAmmo = gun.magCapacity - gun.ammoCount;
@@ -328,8 +387,6 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             }
             gun.ammoReserveCount -= loadedAmmo;
             gun.ammoCount += loadedAmmo;
-
-            gun.gunAnimator.SetBool("isEmpty", gun.isEmpty);
         }
 
         // Cancel reload if sprint and isReloadWhileSprint is fault
@@ -349,7 +406,8 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
     #region "Draw"
 
     public void Draw()
-    {        
+    {
+        gun.armsAnimator.SetFloat("DrawSpeed", gun.drawSpeed);
         gun.armsAnimator.Play(gameObject.name + "_Draw_Animation", -1, 0);
         gun.isPuttingAway = false;
         gun.putAwayTimer = 0;
@@ -361,7 +419,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         if(gun.isDrawing)
         {
             // Increase the timer when aiming in, until it reaches up to ADSduration, and if it reaches, freeze the timer by setting adsTimer to ADSduration
-            if(gun.drawDuration > gun.drawTimer)
+            if(gun.drawDuration / gun.drawSpeed > gun.drawTimer)
             {
                 gun.drawTimer += Time.deltaTime;
             }
@@ -389,18 +447,24 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
     public void PutAway()
     {        
         gun.armsAnimator.Play(gameObject.name + "_PutAway_Animation");
+
         if(!gun.isPuttingAway)
         {
             gun.isPuttingAway = !gun.isPuttingAway;            
-            gun.armsAnimator.SetFloat("PutAwaySpeed", 1);
+            gun.armsAnimator.SetFloat("PutAwaySpeed", gun.putAwaySpeed);
         }
         else
         {
             gun.isPuttingAway = !gun.isPuttingAway;
-            gun.armsAnimator.SetFloat("PutAwaySpeed", -1);
+            gun.armsAnimator.SetFloat("PutAwaySpeed", -gun.putAwaySpeed);
         }
 
         gun.isReloading = false;
+
+        // This will ensure to stop drawing animation when weapon swapping
+        gun.drawTimer = 0;
+        gun.isDrawing = false;
+        gun.armsAnimator.Play("Draw Empty");
     }
 
     public void CalculatePutAwayTime()
@@ -408,14 +472,14 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         if(gun.isPuttingAway)
         {
             // Increase the timer when aiming in, until it reaches up to ADSduration, and if it reaches, freeze the timer by setting adsTimer to ADSduration
-            if(gun.putAwayDuration > gun.putAwayTimer)
+            if(gun.putAwayDuration / gun.putAwaySpeed > gun.putAwayTimer)
             {
                 gun.putAwayTimer += Time.deltaTime;         
             }
             else
             {
                 // If the timer reaches the putaway duration
-                gun.putAwayTimer = gun.putAwayDuration;
+                gun.putAwayTimer = gun.putAwayDuration / gun.putAwaySpeed;
 
                 gun.armsAnimator.SetFloat("PutAwaySpeed", 0f);
 
@@ -432,7 +496,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         }
         else
         {
-            // Decrease the timer when aiming out, until it reaches to 0, if it reaches, set the timer to 0
+            // Decrease the timer when cancelling putAway, until it reaches to 0, if it reaches, set the timer to 0
             if(gun.putAwayTimer > 0)
             {
                 gun.putAwayTimer -= Time.deltaTime;
@@ -510,6 +574,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         gun.adsAnimator.runtimeAnimatorController = gun.adsAnimatorController;
 
         gun.audioSource = GetComponent<AudioSource>();
+        gun.reloadAudioSource = transform.Find("ReloadAudioSource").GetComponent<AudioSource>();
 
         // Setting the parent of primary/secondary weapon to it's appropriate weapon socket
         gun.weaponController.currentWeapon.transform.SetParent(gun.socket);
@@ -668,5 +733,30 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
     }
 
     #endregion
+
+    public void ReloadAudioSequencer()
+    {
+        if (!gun.isReloading)
+        {
+            return;
+        }
+
+        AnimatorStateInfo stateInfo = gun.armsAnimator.GetCurrentAnimatorStateInfo(3);
+        if(stateInfo.IsName(gameObject.name + "_Arms_Empty_Reload_Animation"))
+        {
+            float elapsedTime = stateInfo.normalizedTime * stateInfo.length * stateInfo.speed;
+            // if (frame >= targetFrame && !hasPlayedAudio)
+            // {
+            //     // gun.audioSource.PlayOneShot(gun.fireClip, 1);
+            //     
+            // }
+            // Debug.Log(elapsedTime);
+            
+            foreach(AudioSequence AS in gun.reloadAudioSequences)
+            {
+                Debug.Log(AS.action);
+            }
+        }
+    }
 }
 

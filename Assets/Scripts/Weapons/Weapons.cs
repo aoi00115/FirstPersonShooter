@@ -8,7 +8,7 @@ public static class Weapons
     [Serializable]
     public class Gun
     {
-        [Header("References")]
+        [Header("References - Transform")]
         public WeaponController weaponController;
         public CharacterControllerScr characterController;
         public Transform armsRig;
@@ -21,18 +21,21 @@ public static class Weapons
         public Transform weaponRecoil;
         public Transform weaponStanceAdjustmentLayer;
         public Transform weaponStance;
+        public Transform socket;
+        public Transform swayPoint;
+        public Vector3 weaponRotation;
+
+        [Header("References - Animator")]
         public Animator gunAnimator; 
         public Animator armsAnimator;
         public Animator cameraAnimator;
         public Animator adsAnimator;
+
+        [Header("References - Animator Controller")]
         public RuntimeAnimatorController gunAnimatorController;
         public RuntimeAnimatorController armsAnimatorController;
         public RuntimeAnimatorController cameraAnimatorController;
         public RuntimeAnimatorController adsAnimatorController;
-        public Transform socket;
-        public Transform swayPointOld;
-        public Transform swayPoint;
-        public Vector3 weaponRotation;
 
         [Header("Gun Stats Settings")]
         public int damage;
@@ -41,19 +44,23 @@ public static class Weapons
         public int ammoReserveCount;
         public bool isReloadWhileSprint;
         public bool isReloadWhileADS;
+        public float reloadSpeed;
         public float reloadDuration;
         public float emptyReloadDuration;
         public float magInDuration;
-        public float boltReleaseDuration;
+        public float rechamberDuration;
         public float reloadTimer;
         public bool isReloading;
         public bool isEmpty;
         public float drawDuration;
         public float drawTimer;
+        public float drawSpeed;
         public bool isDrawing;
         public float putAwayDuration;
         public float putAwayTimer;
+        public float putAwaySpeed;
         public bool isPuttingAway;
+        public bool isReadyToFire;
         public float fireRate;
         public int fireMode;
         public Vector2 bulletSpread;
@@ -130,7 +137,10 @@ public static class Weapons
 
         [Header("Audio Settings")]
         public AudioSource audioSource;
-        public AudioClip fireClip;
+        public AudioSource reloadAudioSource;
+        public AudioClip fireAudioClip;
+        public AudioSequence[] reloadAudioSequences;
+        public AudioSequence[] emptyReloadAudioSequences;
     }
 
     [Serializable]
@@ -149,5 +159,14 @@ public static class Weapons
         public int hitDamage;
         public bool isFused;
         public float fuseTime;
+    }
+
+    [Serializable]
+    public class AudioSequence
+    {
+        public string action;
+        public float time;
+        public AudioClip audioClip;
+        public bool hasPlayed;
     }
 }

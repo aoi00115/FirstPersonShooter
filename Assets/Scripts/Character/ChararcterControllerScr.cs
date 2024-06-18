@@ -103,6 +103,7 @@ public class CharacterControllerScr : MonoBehaviour
 
         // Weapon Action
         defaultInput.Character.Fire.performed += e => weaponController.fireable.Fire();
+        defaultInput.Character.FireUp.performed += e => weaponController.fireable.FireUp();
         defaultInput.Character.Reload.performed += e => weaponController.fireable.Reload();
         defaultInput.Character.ADSIn.performed += e => weaponController.fireable.ADSIn();
         defaultInput.Character.ADSOut.performed += e => weaponController.fireable.ADSOut();
