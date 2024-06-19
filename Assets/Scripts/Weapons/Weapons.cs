@@ -50,7 +50,6 @@ public static class Weapons
         public int numberOfBurst;
         public float fireRate;
         public FireMode fireMode;
-        public Vector2 bulletSpread;        
         public bool isPrimary;
         public bool isSecondary;
         public bool inUse;
@@ -82,6 +81,8 @@ public static class Weapons
         public float adsSpeed;
         public float adsZoom;
         public float adsZoomStartTime;
+        [Range(0f, 10f)]
+        public float ADSMovementSlownessSpeedEffector;
         public bool isReloadableWhileADS;
         public bool isAimable;
 
@@ -106,14 +107,16 @@ public static class Weapons
         public bool isPuttingAway;
 
         [Header("Cross Hair Settings")]
-        public float crossHairSize;
         public float standCrossHairSize;
         public float crouchCrossHairSize;
         public float proneCrossHairSize;
-        public float walkCrossHairSize;
-        public float fireCrossHairSize;
-        public float crossHairResetDuration;
+        public float walkAdditiveCrossHairSize;
+        public float fireAdditiveCrossHairSize;
         [HideInInspector]
+        public float crossHairSize;
+        public float crossHairResetDuration;
+
+        [Header("Cross Hair Debug")]
         public float currentCrossHairSize;
         [HideInInspector]
         public float fireCrossHairTimer;
@@ -155,6 +158,7 @@ public static class Weapons
         [Header("Effect Settings")]
         public Transform ejectionPoint;
         public GameObject bulletCasing;
+        public GameObject bulletDecal;
 
         [Header("Audio Settings")]
         public AudioSource audioSource;

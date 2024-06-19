@@ -126,18 +126,26 @@ public class WeaponController : MonoBehaviour
         newWeaponRotation = Vector3.SmoothDamp(newWeaponRotation, targetWeaponRotation, ref newWeaponRotationVelocity, settings.SwaySmoothing);
 
         // Weapon rotation along z axis when moving side to side 
+        // Disable rotation along x axis and set the smoothing to 0.05f so that it snaps back to 0 quicker leaving the smoothing of the rotation along other axises un-touched when ADS
         targetWeaponMovementRotation.z = settings.MovementSwayX * -characterController.input_Movement.x;
-        if(!fireable.CalculateADS())
+        if(fireable.CalculateADSIn() || fireable.CalculateADS())
         {
-            targetWeaponMovementRotation.x = settings.MovementSwayY * -characterController.input_Movement.y;
+            targetWeaponMovementRotation.x = 0;
+
+            targetWeaponMovementRotation.x = Mathf.SmoothDamp(targetWeaponMovementRotation.x, 0, ref targetWeaponMovementRotationVelocity.x, 0.05f);
+            newWeaponMovementRotation.x = Mathf.SmoothDamp(newWeaponMovementRotation.x, targetWeaponMovementRotation.x, ref newWeaponMovementRotationVelocity.x, 0.05f);
+            targetWeaponMovementRotation.y = Mathf.SmoothDamp(targetWeaponMovementRotation.y, 0, ref targetWeaponMovementRotationVelocity.y, settings.SwayResetSmoothing);
+            newWeaponMovementRotation.y = Mathf.SmoothDamp(newWeaponMovementRotation.y, targetWeaponMovementRotation.y, ref newWeaponMovementRotationVelocity.y, settings.MovementSwaySmoothing);
+            targetWeaponMovementRotation.z = Mathf.SmoothDamp(targetWeaponMovementRotation.z, 0, ref targetWeaponMovementRotationVelocity.z, settings.SwayResetSmoothing);
+            newWeaponMovementRotation.z = Mathf.SmoothDamp(newWeaponMovementRotation.z, targetWeaponMovementRotation.z, ref newWeaponMovementRotationVelocity.z, settings.MovementSwaySmoothing);
         }
         else
         {
-            targetWeaponMovementRotation.x = 0;
+            targetWeaponMovementRotation.x = settings.MovementSwayY * -characterController.input_Movement.y;
+            
+            targetWeaponMovementRotation = Vector3.SmoothDamp(targetWeaponMovementRotation, Vector3.zero, ref targetWeaponMovementRotationVelocity, settings.SwayResetSmoothing);
+            newWeaponMovementRotation = Vector3.SmoothDamp(newWeaponMovementRotation, targetWeaponMovementRotation, ref newWeaponMovementRotationVelocity, settings.MovementSwaySmoothing);
         }
-
-        targetWeaponMovementRotation = Vector3.SmoothDamp(targetWeaponMovementRotation, Vector3.zero, ref targetWeaponMovementRotationVelocity, settings.SwayResetSmoothing);
-        newWeaponMovementRotation = Vector3.SmoothDamp(newWeaponMovementRotation, targetWeaponMovementRotation, ref newWeaponMovementRotationVelocity, settings.MovementSwaySmoothing);
 
         // Combining both weapon sway and movement sway
         settings.SwayPoint.localRotation = Quaternion.Euler(newWeaponRotation + newWeaponMovementRotation);

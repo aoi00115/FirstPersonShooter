@@ -10,6 +10,7 @@ public interface IFireable
     void ADSOut();
     bool CalculateADS();
     bool CalculateADSIn();
+    float CalculateADSMovementSlownessSpeedEffector();
     void Reload();
     void SwitchFireMode();
     void Draw();

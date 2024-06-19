@@ -57,7 +57,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         {
             case FireMode.Semi:
                 SemiFire();
-                Debug.Log("Semi Firing");
+                // Debug.Log("Semi Firing");
                 break;
 
             case FireMode.Burst:
@@ -67,13 +67,13 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
                     gun.isSubscribingBurstFire = true;
                 }
                 gun.isBurstFiring = true;
-                Debug.Log("Burst Firing");
+                // Debug.Log("Burst Firing");
                 break;
 
             case FireMode.Full:
 
                 gun.isFullFiring = true;
-                Debug.Log("Full Firing");
+                // Debug.Log("Full Firing");
                 break;
         }
     }
@@ -146,7 +146,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         // Expanding the cross-hair
         gun.fireCrossHairTimer = gun.crossHairResetDuration;
 
-        // When it's the last bullet
+        // Play firing animation depending on the ammo left in the magazine
         if(gun.ammoCount == 1)
         {
             gun.armsAnimator.Play("Arms Last Fire Blend Tree");
@@ -158,8 +158,25 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             gun.gunAnimator.Play(gameObject.name + "_Gun_Fire_Animation");
         }
 
-        // Play the firing sound
+        // Play firing sound
         gun.audioSource.PlayOneShot(gun.fireAudioClip, 1);
+
+        // Using raycast to actually shooting a bullet
+        // Calculate random spread within the crosshair
+        float spreadX = Random.Range(-gun.currentCrossHairSize, gun.currentCrossHairSize);
+        float spreadY = Random.Range(-gun.currentCrossHairSize, gun.currentCrossHairSize);
+        // Get the center position of the screen
+        Vector2 screenCenter = new Vector2(Screen.width / 2f, Screen.height / 2f);
+        // Apply the random spread to the screen center position
+        Vector2 spreadPosition = new Vector2(screenCenter.x + spreadX, screenCenter.y + spreadY);
+        // Convert the spread position from screen space to a ray
+        Ray ray = gun.camera.ScreenPointToRay(spreadPosition);
+        // Perform the raycast
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit))
+        {
+            Instantiate(gun.bulletDecal, hit.point, Quaternion.LookRotation(hit.normal));
+        }
 
         // Ejecting bullet casing
         GameObject instantiatedBulletCasing;
@@ -169,6 +186,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         bulletCasingRb.AddRelativeTorque(0, Random.Range(0f, 20f), 0, ForceMode.Impulse);
         Destroy(instantiatedBulletCasing, 5);
 
+        // Subtracting ammoCount by one
         gun.ammoCount--;
 
         // Set is Empty to true when the ammo count is zero after firing
@@ -296,6 +314,11 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
     public bool CalculateADSIn()
     {
         return gun.isADSIn;
+    }
+
+    public float CalculateADSMovementSlownessSpeedEffector()
+    {
+        return Mathf.Lerp(1, gun.ADSMovementSlownessSpeedEffector / 10, gun.adsTimer / (gun.adsDuration / gun.adsSpeed));
     }
 
     public void CalculateADSTime()
@@ -820,8 +843,8 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         }
 
         gun.crossHairSize = Mathf.SmoothDamp(gun.crossHairSize, stanceCrossHairSize, ref gun.crossHairStanceSizeVelocity, gun.characterController.playerStanceSmoothing);        
-        gun.walkCrossHairLerp = Mathf.Lerp(0, gun.walkCrossHairSize, gun.characterController.smoothedWalkingAnimationSpeed);
-        gun.fireCrossHairLerp = Mathf.Lerp(0, gun.fireCrossHairSize, gun.fireCrossHairTimer / gun.crossHairResetDuration);
+        gun.walkCrossHairLerp = Mathf.Lerp(0, gun.walkAdditiveCrossHairSize, gun.characterController.smoothedWalkingAnimationSpeed);
+        gun.fireCrossHairLerp = Mathf.Lerp(0, gun.fireAdditiveCrossHairSize, gun.fireCrossHairTimer / gun.crossHairResetDuration);
 
         gun.addedCrossHairSize = gun.crossHairSize + gun.fireCrossHairLerp + gun.walkCrossHairLerp;
 

@@ -145,6 +145,7 @@ public class CharacterControllerScr : MonoBehaviour
 
         camera.fieldOfView = playerSettings.FieldOfView;
 
+        // Debug.Log(playerSettings.SpeedEffector);
         // Debug.Log(Mathf.Round(smoothedWalkingAnimationSpeed * 10f) / 10f);
     }
 
@@ -198,6 +199,12 @@ public class CharacterControllerScr : MonoBehaviour
         else
         {
             playerSettings.SpeedEffector = 1;
+        }
+
+        // Slowing down player's movement speed when ADS by some percent
+        if(weaponController.fireable != null)
+        {
+            playerSettings.SpeedEffector = playerSettings.SpeedEffector * weaponController.fireable.CalculateADSMovementSlownessSpeedEffector();
         }
 
         verticalSpeed *= playerSettings.SpeedEffector;
@@ -402,9 +409,12 @@ public class CharacterControllerScr : MonoBehaviour
     private void ToggleSprint()
     {
         // Return when ADS
-        if(weaponController.fireable.CalculateADS() || weaponController.fireable.CalculateADSIn())
+        if(weaponController.fireable != null)
         {
-            return;
+            if(weaponController.fireable.CalculateADS() || weaponController.fireable.CalculateADSIn())
+            {
+                return;
+            }
         }
         
         if(playerStance == PlayerStance.Crouch || playerStance == PlayerStance.Prone)
