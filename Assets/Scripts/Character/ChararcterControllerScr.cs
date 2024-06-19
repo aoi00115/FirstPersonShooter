@@ -108,6 +108,7 @@ public class CharacterControllerScr : MonoBehaviour
         defaultInput.Character.ADSIn.performed += e => weaponController.fireable.ADSIn();
         defaultInput.Character.ADSOut.performed += e => weaponController.fireable.ADSOut();
         defaultInput.Character.SwitchWeapons.performed += e => weaponController.fireable.PutAway();
+        defaultInput.Character.SwitchFireMode.performed += e => weaponController.fireable.SwitchFireMode();
 
         defaultInput.Enable();
 

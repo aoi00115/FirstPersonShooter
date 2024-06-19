@@ -143,6 +143,15 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SwitchFireMode"",
+                    ""type"": ""Button"",
+                    ""id"": ""5e653780-f049-41d2-9c79-ba2328f21955"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -332,6 +341,17 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
                     ""action"": ""FireUp"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6f180092-51bd-45e3-9c5f-5241390e4010"",
+                    ""path"": ""<Mouse>/middleButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwitchFireMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -353,6 +373,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         m_Character_ADSIn = m_Character.FindAction("ADSIn", throwIfNotFound: true);
         m_Character_ADSOut = m_Character.FindAction("ADSOut", throwIfNotFound: true);
         m_Character_SwitchWeapons = m_Character.FindAction("SwitchWeapons", throwIfNotFound: true);
+        m_Character_SwitchFireMode = m_Character.FindAction("SwitchFireMode", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -427,6 +448,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Character_ADSIn;
     private readonly InputAction m_Character_ADSOut;
     private readonly InputAction m_Character_SwitchWeapons;
+    private readonly InputAction m_Character_SwitchFireMode;
     public struct CharacterActions
     {
         private @DefaultInput m_Wrapper;
@@ -444,6 +466,7 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         public InputAction @ADSIn => m_Wrapper.m_Character_ADSIn;
         public InputAction @ADSOut => m_Wrapper.m_Character_ADSOut;
         public InputAction @SwitchWeapons => m_Wrapper.m_Character_SwitchWeapons;
+        public InputAction @SwitchFireMode => m_Wrapper.m_Character_SwitchFireMode;
         public InputActionMap Get() { return m_Wrapper.m_Character; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -492,6 +515,9 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
             @SwitchWeapons.started += instance.OnSwitchWeapons;
             @SwitchWeapons.performed += instance.OnSwitchWeapons;
             @SwitchWeapons.canceled += instance.OnSwitchWeapons;
+            @SwitchFireMode.started += instance.OnSwitchFireMode;
+            @SwitchFireMode.performed += instance.OnSwitchFireMode;
+            @SwitchFireMode.canceled += instance.OnSwitchFireMode;
         }
 
         private void UnregisterCallbacks(ICharacterActions instance)
@@ -535,6 +561,9 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
             @SwitchWeapons.started -= instance.OnSwitchWeapons;
             @SwitchWeapons.performed -= instance.OnSwitchWeapons;
             @SwitchWeapons.canceled -= instance.OnSwitchWeapons;
+            @SwitchFireMode.started -= instance.OnSwitchFireMode;
+            @SwitchFireMode.performed -= instance.OnSwitchFireMode;
+            @SwitchFireMode.canceled -= instance.OnSwitchFireMode;
         }
 
         public void RemoveCallbacks(ICharacterActions instance)
@@ -567,5 +596,6 @@ public partial class @DefaultInput: IInputActionCollection2, IDisposable
         void OnADSIn(InputAction.CallbackContext context);
         void OnADSOut(InputAction.CallbackContext context);
         void OnSwitchWeapons(InputAction.CallbackContext context);
+        void OnSwitchFireMode(InputAction.CallbackContext context);
     }
 }

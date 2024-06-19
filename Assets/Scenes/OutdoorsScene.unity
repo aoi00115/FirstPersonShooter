@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 2029.8538, g: 1853.9788, b: 2185.6643, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -4381,9 +4381,27 @@ MonoBehaviour:
     damage: 0
     ammoCount: 12
     magCapacity: 12
-    ammoReserveCount: 120
-    isReloadWhileSprint: 0
-    isReloadWhileADS: 0
+    ammoReserveCount: 9999
+    isFireableWhileSprint: 0
+    isFireModeSwitchable: 1
+    canBurstFire: 1
+    isHoldBurst: 0
+    isBurstSubscribable: 0
+    numberOfBurst: 3
+    fireRate: 15
+    fireMode: 0
+    bulletSpread: {x: 0, y: 0}
+    isPrimary: 0
+    isSecondary: 0
+    inUse: 1
+    isEmpty: 0
+    lastFiredTime: 0
+    isReadyToFire: 1
+    burstCounter: 0
+    isBurstFiring: 0
+    isSubscribingBurstFire: 0
+    isFullFiring: 0
+    isReloadableWhileSprint: 0
     reloadSpeed: 1
     reloadDuration: 1.467
     emptyReloadDuration: 2.167
@@ -4391,35 +4409,27 @@ MonoBehaviour:
     rechamberDuration: 1.7
     reloadTimer: 0
     isReloading: 0
-    isEmpty: 0
-    drawDuration: 0.233
-    drawTimer: 0
-    drawSpeed: 1
-    isDrawing: 0
-    putAwayDuration: 0.233
-    putAwayTimer: 0
-    putAwaySpeed: 1
-    isPuttingAway: 0
-    isReadyToFire: 1
-    fireRate: 2
-    fireMode: 0
-    bulletSpread: {x: 0, y: 0}
     adsPosition: {x: 0, y: 0, z: 0}
     adsDuration: 0.167
-    adsTimer: 0
     adsSpeed: 1
     adsZoom: 10
     adsZoomStartTime: 0.1
+    isReloadableWhileADS: 0
+    isAimable: 0
+    adsTimer: 0
     adsZoomTimer: 0
     isADS: 0
     isADSIn: 0
     isADSOut: 0
     isTryingToADSWhileDoingSomethingElse: 0
-    isFireModeSwitchable: 0
-    isAimable: 0
-    isPrimary: 0
-    isSecondary: 0
-    inUse: 1
+    drawDuration: 0.233
+    drawSpeed: 1
+    putAwayDuration: 0.233
+    putAwaySpeed: 1
+    drawTimer: 0
+    isDrawing: 0
+    putAwayTimer: 0
+    isPuttingAway: 0
     crossHairSize: 15
     standCrossHairSize: 15
     crouchCrossHairSize: 10
@@ -4603,8 +4613,26 @@ MonoBehaviour:
     ammoCount: 0
     magCapacity: 0
     ammoReserveCount: 0
-    isReloadWhileSprint: 0
-    isReloadWhileADS: 0
+    isFireableWhileSprint: 0
+    isFireModeSwitchable: 0
+    canBurstFire: 0
+    isHoldBurst: 0
+    isBurstSubscribable: 0
+    numberOfBurst: 0
+    fireRate: 0
+    fireMode: 0
+    bulletSpread: {x: 0, y: 0}
+    isPrimary: 0
+    isSecondary: 0
+    inUse: 0
+    isEmpty: 0
+    lastFiredTime: 0
+    isReadyToFire: 0
+    burstCounter: 0
+    isBurstFiring: 0
+    isSubscribingBurstFire: 0
+    isFullFiring: 0
+    isReloadableWhileSprint: 0
     reloadSpeed: 0
     reloadDuration: 0
     emptyReloadDuration: 0
@@ -4612,35 +4640,27 @@ MonoBehaviour:
     rechamberDuration: 0
     reloadTimer: 0
     isReloading: 0
-    isEmpty: 0
-    drawDuration: 0
-    drawTimer: 0
-    drawSpeed: 0
-    isDrawing: 0
-    putAwayDuration: 0
-    putAwayTimer: 0
-    putAwaySpeed: 0
-    isPuttingAway: 0
-    isReadyToFire: 0
-    fireRate: 0
-    fireMode: 0
-    bulletSpread: {x: 0, y: 0}
     adsPosition: {x: 0, y: 0, z: 0}
     adsDuration: 0
-    adsTimer: 0
     adsSpeed: 0
     adsZoom: 0
     adsZoomStartTime: 0
+    isReloadableWhileADS: 0
+    isAimable: 0
+    adsTimer: 0
     adsZoomTimer: 0
     isADS: 0
     isADSIn: 0
     isADSOut: 0
     isTryingToADSWhileDoingSomethingElse: 0
-    isFireModeSwitchable: 0
-    isAimable: 0
-    isPrimary: 0
-    isSecondary: 0
-    inUse: 0
+    drawDuration: 0
+    drawSpeed: 0
+    putAwayDuration: 0
+    putAwaySpeed: 0
+    drawTimer: 0
+    isDrawing: 0
+    putAwayTimer: 0
+    isPuttingAway: 0
     crossHairSize: 0
     standCrossHairSize: 0
     crouchCrossHairSize: 0

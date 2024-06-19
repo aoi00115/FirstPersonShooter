@@ -23,14 +23,19 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         CalculateDrawTime();
         CalculatePutAwayTime();
         CalculateWeaponStance();
+
+        CalculateFireCap();
+        FullFire();
+        BurstFire();
     }
 
     #region "Fire"
 
     public void Fire()
     {
-        // Fire only after drawing, reloading or only not putting away
-        if(gun.isDrawing || gun.isPuttingAway || gun.isReloading || !gun.isReadyToFire)
+        
+        // This will ensure not to execute the following
+        if(gun.isDrawing || gun.isPuttingAway || gun.isReloading)
         {            
             return;
         }
@@ -43,9 +48,99 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         }
 
         // If fired when running, stop running
-        if(gun.characterController.isSprinting == true)
+        if(gun.characterController.isSprinting == true && !gun.isFireableWhileSprint)
         {
             gun.characterController.isSprinting = false;
+        }
+
+        switch (gun.fireMode)
+        {
+            case FireMode.Semi:
+                SemiFire();
+                Debug.Log("Semi Firing");
+                break;
+
+            case FireMode.Burst:
+                // When fired while burst firing it'll subscribe burst fire for the next one
+                if(gun.isBurstFiring && gun.isBurstSubscribable)
+                {
+                    gun.isSubscribingBurstFire = true;
+                }
+                gun.isBurstFiring = true;
+                Debug.Log("Burst Firing");
+                break;
+
+            case FireMode.Full:
+
+                gun.isFullFiring = true;
+                Debug.Log("Full Firing");
+                break;
+        }
+    }
+
+    public void FireUp()
+    {
+        if(gun.fireMode == FireMode.Full)
+        {
+            gun.isFullFiring = false;
+        }
+
+        if(gun.isHoldBurst)
+        {
+            gun.isBurstFiring = false;
+            gun.burstCounter = 0;
+        }
+    }
+
+    public void SemiFire()
+    {
+        BaseFire();
+    }
+
+    public void BurstFire()
+    {
+        if(gun.isBurstFiring)
+        {
+            if(gun.burstCounter < gun.numberOfBurst)
+            {
+                BaseFire();
+            }
+            else
+            {
+                gun.isBurstFiring = false;
+                gun.burstCounter = 0;
+            }
+        }
+
+        // Set isBurstFiring to false and burstCounter to 0 after running out of ammo
+        if(gun.ammoCount <= 0)
+        {
+            gun.isBurstFiring = false;
+            gun.burstCounter = 0;
+        }
+    }
+
+    public void FullFire()
+    {
+        if(gun.isFullFiring)
+        {
+            BaseFire();
+        }
+
+        // Set isFullFiring to false after running out of ammo
+        if(gun.ammoCount <= 0)
+        {
+            gun.isFullFiring = false;
+        }
+    }
+
+    public void BaseFire()
+    {
+        // Maybe clean up the Fire() function by utilizing this function and semi full fire functions
+        // Fire only after drawing, reloading or only not putting away
+        if(!gun.isReadyToFire)
+        {            
+            return;
         }
 
         // Expanding the cross-hair
@@ -82,11 +177,46 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             gun.isEmpty = true;
             gun.gunAnimator.SetBool("isEmpty", gun.isEmpty);
         }
+        
+        gun.isReadyToFire = false;
+        gun.lastFiredTime = Time.time;
+
+        // If canBurstFire, add up one at the end
+        if(gun.fireMode == FireMode.Burst)
+        {
+            gun.burstCounter++;
+
+            // If the burst fire is subscribed before the final round is shot, keeps burst firing by resetting burst counter to 0 then un-subscribe burst fire
+            if(gun.burstCounter == gun.numberOfBurst && gun.isSubscribingBurstFire && gun.isBurstSubscribable)
+            {
+                if(gun.ammoCount <= 0)
+                {
+                    gun.isSubscribingBurstFire = false;
+                }
+                else
+                {
+                    gun.burstCounter = 0;
+                    gun.isSubscribingBurstFire = false;
+                }
+            }
+        }
     }
 
-    public void FireUp()
+    public void CalculateFireCap()
     {
+        if(Time.time > gun.lastFiredTime + 1 / gun.fireRate)
+        {
+            gun.isReadyToFire = true;
+        }
 
+        // if (fireTime > 0)
+        // {
+        //     fireTime -= Time.deltaTime;
+        // }
+        // else
+        // {
+        //     gun.isReadyToFire = true;
+        // }
     }
 
     #endregion
@@ -102,7 +232,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             return;
         }
 
-        if(!gun.isReloadWhileADS && gun.isReloading)
+        if(!gun.isReloadableWhileADS && gun.isReloading)
         {
             gun.isTryingToADSWhileDoingSomethingElse = true;
             return;
@@ -139,7 +269,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             return;
         }
 
-        if(!gun.isReloadWhileADS && gun.isReloading)
+        if(!gun.isReloadableWhileADS && gun.isReloading)
         {
             gun.isTryingToADSWhileDoingSomethingElse = false;
             return;
@@ -253,13 +383,13 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         }
 
         // If reload when sprinting and isReloadWhileSprint is fault, stop running
-        if(gun.characterController.isSprinting == true && !gun.isReloadWhileSprint)
+        if(gun.characterController.isSprinting == true && !gun.isReloadableWhileSprint)
         {
             gun.characterController.isSprinting = false;
         }
 
         // When "reload while ADS" is off, ADS out when reload
-        if(!gun.isReloadWhileADS)
+        if(!gun.isReloadableWhileADS)
         {
             // If reload when ADS, ADSout
             if(gun.isADS || gun.isADSIn)
@@ -268,6 +398,11 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
                 gun.isTryingToADSWhileDoingSomethingElse = true;
             }
         }
+
+        // Cancel burst firing when reloading
+        gun.isSubscribingBurstFire = false;
+        gun.isBurstFiring = false;
+        gun.burstCounter = 0;
 
         if(!gun.isReloading)
         {
@@ -390,7 +525,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         }
 
         // Cancel reload if sprint and isReloadWhileSprint is fault
-        if(gun.characterController.isSprinting && !gun.isReloadWhileSprint)
+        if(gun.characterController.isSprinting && !gun.isReloadableWhileSprint)
         {
             gun.isReloading = false;
         }
@@ -400,7 +535,37 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
 
     public void SwitchFireMode()
     {
-        
+        if(!gun.isFireModeSwitchable)
+        {
+            return;
+        }
+
+        if(gun.fireMode == FireMode.Semi)
+        {
+            if(gun.canBurstFire)
+            {
+                gun.fireMode = FireMode.Burst;
+            }
+            else
+            {
+                gun.fireMode = FireMode.Full;
+            }
+        }
+        else if(gun.fireMode == FireMode.Burst)
+        {
+            if(gun.canBurstFire)
+            {
+                gun.fireMode = FireMode.Semi;
+            }
+            else
+            {
+                gun.fireMode = FireMode.Full;
+            }
+        }
+        else if(gun.fireMode == FireMode.Full)
+        {
+            gun.fireMode = FireMode.Semi;
+        }
     }
 
     #region "Draw"
@@ -459,7 +624,11 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             gun.armsAnimator.SetFloat("PutAwaySpeed", -gun.putAwaySpeed);
         }
 
+        // Cancel reloading, burst firing when swapping weapon
         gun.isReloading = false;
+        gun.isSubscribingBurstFire = false;
+        gun.isBurstFiring = false;
+        gun.burstCounter = 0;
 
         // This will ensure to stop drawing animation when weapon swapping
         gun.drawTimer = 0;
@@ -530,7 +699,16 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
 
     public void Sprint(bool isSprint)
     {
-        gun.armsAnimator.SetBool("isSprint", isSprint);
+        // When isReloadableWhileSprint is set to true, play fast walk animation when reloading
+        if((gun.isReloading && gun.isReloadableWhileSprint) || (isSprint && gun.isFireableWhileSprint && Time.time < gun.lastFiredTime + 0.5f))
+        {
+            gun.armsAnimator.SetBool("isSprint", false);
+            gun.armsAnimator.SetFloat("WalkingAnimationSpeed", 1.5f);
+        }
+        else
+        {
+            gun.armsAnimator.SetBool("isSprint", isSprint);
+        }
     }
 
     #endregion
@@ -607,7 +785,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
 
     public void DisplayWeaponStats(TMP_Text weaponNameTMP, TMP_Text ammoCountTMP, TMP_Text ammoReserveCountTMP)
     {
-        weaponNameTMP.text = gameObject.name;
+        weaponNameTMP.text = gameObject.name + " : " + gun.fireMode.ToString();
         ammoCountTMP.text = gun.ammoCount.ToString();
         ammoReserveCountTMP.text = gun.ammoReserveCount.ToString();
     }

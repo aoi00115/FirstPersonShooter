@@ -42,47 +42,68 @@ public static class Weapons
         public int ammoCount;
         public int magCapacity;
         public int ammoReserveCount;
-        public bool isReloadWhileSprint;
-        public bool isReloadWhileADS;
+        public bool isFireableWhileSprint;
+        public bool isFireModeSwitchable;
+        public bool canBurstFire;
+        public bool isHoldBurst;
+        public bool isBurstSubscribable;
+        public int numberOfBurst;
+        public float fireRate;
+        public FireMode fireMode;
+        public Vector2 bulletSpread;        
+        public bool isPrimary;
+        public bool isSecondary;
+        public bool inUse;
+
+        [Header("Gun Stats Debug")]
+        public bool isEmpty;
+        public float lastFiredTime;
+        public bool isReadyToFire;
+        public int burstCounter;
+        public bool isBurstFiring;
+        public bool isSubscribingBurstFire;
+        public bool isFullFiring;
+
+        [Header("Reload Settings")]
+        public bool isReloadableWhileSprint;
         public float reloadSpeed;
         public float reloadDuration;
         public float emptyReloadDuration;
         public float magInDuration;
         public float rechamberDuration;
+
+        [Header("Reload Debug")]
         public float reloadTimer;
         public bool isReloading;
-        public bool isEmpty;
-        public float drawDuration;
-        public float drawTimer;
-        public float drawSpeed;
-        public bool isDrawing;
-        public float putAwayDuration;
-        public float putAwayTimer;
-        public float putAwaySpeed;
-        public bool isPuttingAway;
-        public bool isReadyToFire;
-        public float fireRate;
-        public int fireMode;
-        public Vector2 bulletSpread;
 
         [Header("ADS Settings")]
         public Vector3 adsPosition;
         public float adsDuration;
-        public float adsTimer;
         public float adsSpeed;
         public float adsZoom;
         public float adsZoomStartTime;
+        public bool isReloadableWhileADS;
+        public bool isAimable;
+
+        [Header("ADS Debug")]
+        public float adsTimer;
         public float adsZoomTimer;
         public bool isADS;
         public bool isADSIn;
         public bool isADSOut;
         public bool isTryingToADSWhileDoingSomethingElse;
 
-        public bool isFireModeSwitchable;
-        public bool isAimable;
-        public bool isPrimary;
-        public bool isSecondary;
-        public bool inUse;
+        [Header("PutAway/Draw Settings")]
+        public float drawDuration;
+        public float drawSpeed;
+        public float putAwayDuration;
+        public float putAwaySpeed;
+
+        [Header("PutAway/Draw Debug")]
+        public float drawTimer;
+        public bool isDrawing;
+        public float putAwayTimer;
+        public bool isPuttingAway;
 
         [Header("Cross Hair Settings")]
         public float crossHairSize;
@@ -141,6 +162,13 @@ public static class Weapons
         public AudioClip fireAudioClip;
         public AudioSequence[] reloadAudioSequences;
         public AudioSequence[] emptyReloadAudioSequences;
+    }
+
+    public enum FireMode
+    {
+        Semi,
+        Burst,
+        Full
     }
 
     [Serializable]
