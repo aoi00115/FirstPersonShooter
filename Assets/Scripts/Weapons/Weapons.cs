@@ -107,6 +107,7 @@ public static class Weapons
         public bool isPuttingAway;
 
         [Header("Cross Hair Settings")]
+        public CrossHairType crossHairType;
         public float standCrossHairSize;
         public float crouchCrossHairSize;
         public float proneCrossHairSize;
@@ -173,6 +174,12 @@ public static class Weapons
         Semi,
         Burst,
         Full
+    }
+
+    public enum CrossHairType
+    {
+        CrossHair,
+        Dot
     }
 
     [Serializable]

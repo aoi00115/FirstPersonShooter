@@ -15,7 +15,8 @@ public class WeaponController : MonoBehaviour
     public TMP_Text weaponNameTMP;
     public TMP_Text ammoCountTMP;
     public TMP_Text ammoReserveCountTMP;
-    public RectTransform crossHair;
+    public RectTransform crossHairType_CrossHair;
+    public RectTransform crossHairType_Dot;
 
     [Header("Weapon Settings")]
     public GameObject[] weaponArray;
@@ -94,7 +95,7 @@ public class WeaponController : MonoBehaviour
         if(currentWeapon != null)
         {
             displayable.DisplayWeaponStats(weaponNameTMP, ammoCountTMP, ammoReserveCountTMP);
-            displayable.DisplayCrossHair(crossHair);
+            displayable.DisplayCrossHair(crossHairType_CrossHair, crossHairType_Dot);
         }
         else
         {

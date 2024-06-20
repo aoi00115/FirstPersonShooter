@@ -813,57 +813,91 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         ammoReserveCountTMP.text = gun.ammoReserveCount.ToString();
     }
 
-    public void DisplayCrossHair(RectTransform crossHair)
+    public void DisplayCrossHair(RectTransform crossHair, RectTransform dot)
     {
-        CanvasGroup crossHairAlpha = crossHair.gameObject.GetComponent<CanvasGroup>();
+        RectTransform currentCrossHair = null;
 
-        // Reducing the timer after a shot is fired
-        if(gun.fireCrossHairTimer > 0)
+        switch (gun.crossHairType)
         {
-            gun.fireCrossHairTimer -= Time.deltaTime;
+            case CrossHairType.CrossHair:
+                crossHair.gameObject.SetActive(true);
+                dot.gameObject.SetActive(false);
+                currentCrossHair = crossHair;
+                break;
+
+            case CrossHairType.Dot:
+                crossHair.gameObject.SetActive(false);
+                dot.gameObject.SetActive(true);
+                currentCrossHair = dot;
+                break;
+        }
+
+        CanvasGroup crossHairAlpha = currentCrossHair.gameObject.GetComponent<CanvasGroup>();
+
+        // Calculate cross-hair size only when the currentCrossHair is other than dot, when currentCrossHairis dot keep the size at 0 to keep the bullet from spreading
+        if(currentCrossHair != dot)
+        {
+            // Reducing the timer after a shot is fired
+            if(gun.fireCrossHairTimer > 0)
+            {
+                gun.fireCrossHairTimer -= Time.deltaTime;
+            }
+            else
+            {
+                gun.fireCrossHairTimer = 0;
+            }
+
+            var stanceCrossHairSize = 0f;
+
+            if(gun.characterController.isStand)
+            {
+                stanceCrossHairSize = gun.standCrossHairSize;
+            }
+            else if(gun.characterController.isCrouch)
+            {
+                stanceCrossHairSize = gun.crouchCrossHairSize;
+            }
+            else if(gun.characterController.isProne)
+            {
+                stanceCrossHairSize = gun.proneCrossHairSize;
+            }
+
+            gun.crossHairSize = Mathf.SmoothDamp(gun.crossHairSize, stanceCrossHairSize, ref gun.crossHairStanceSizeVelocity, gun.characterController.playerStanceSmoothing);        
+            gun.walkCrossHairLerp = Mathf.Lerp(0, gun.walkAdditiveCrossHairSize, gun.characterController.smoothedWalkingAnimationSpeed);
+            gun.fireCrossHairLerp = Mathf.Lerp(0, gun.fireAdditiveCrossHairSize, gun.fireCrossHairTimer / gun.crossHairResetDuration);
+
+            gun.addedCrossHairSize = gun.crossHairSize + gun.fireCrossHairLerp + gun.walkCrossHairLerp;
+
+            if(gun.isADSIn || gun.isADSOut || gun.isADS)
+            {
+                gun.currentCrossHairSize = Mathf.Lerp(gun.addedCrossHairSize, 0, gun.adsTimer / (gun.adsDuration / gun.adsSpeed));
+                gun.currentAlpha = Mathf.Lerp(1, 0, (gun.adsTimer / (gun.adsDuration / gun.adsSpeed)) / 0.8f);
+            }
+            else
+            {
+                gun.currentCrossHairSize = gun.addedCrossHairSize;            
+                gun.currentAlpha = 1;
+            }
+
+            gun.currentCrossHairSize = gun.currentCrossHairSize * (90f / gun.characterController.playerSettings.FieldOfView);
         }
         else
         {
-            gun.fireCrossHairTimer = 0;
+            gun.currentCrossHairSize = 0;
+
+            if(gun.isADSIn || gun.isADSOut || gun.isADS)
+            {
+                gun.currentAlpha = Mathf.Lerp(1, 0, (gun.adsTimer / (gun.adsDuration / gun.adsSpeed)) / 0.8f);
+            }
+            else
+            {       
+                gun.currentAlpha = 1;
+            }
         }
 
-        var stanceCrossHairSize = 0f;
-
-        if(gun.characterController.isStand)
-        {
-            stanceCrossHairSize = gun.standCrossHairSize;
-        }
-        else if(gun.characterController.isCrouch)
-        {
-            stanceCrossHairSize = gun.crouchCrossHairSize;
-        }
-        else if(gun.characterController.isProne)
-        {
-            stanceCrossHairSize = gun.proneCrossHairSize;
-        }
-
-        gun.crossHairSize = Mathf.SmoothDamp(gun.crossHairSize, stanceCrossHairSize, ref gun.crossHairStanceSizeVelocity, gun.characterController.playerStanceSmoothing);        
-        gun.walkCrossHairLerp = Mathf.Lerp(0, gun.walkAdditiveCrossHairSize, gun.characterController.smoothedWalkingAnimationSpeed);
-        gun.fireCrossHairLerp = Mathf.Lerp(0, gun.fireAdditiveCrossHairSize, gun.fireCrossHairTimer / gun.crossHairResetDuration);
-
-        gun.addedCrossHairSize = gun.crossHairSize + gun.fireCrossHairLerp + gun.walkCrossHairLerp;
-
-        if(gun.isADSIn || gun.isADSOut || gun.isADS)
-        {
-            gun.currentCrossHairSize = Mathf.Lerp(gun.addedCrossHairSize, 0, gun.adsTimer / (gun.adsDuration / gun.adsSpeed));
-            gun.currentAlpha = Mathf.Lerp(1, 0, (gun.adsTimer / (gun.adsDuration / gun.adsSpeed)) / 0.8f);
-        }
-        else
-        {
-            gun.currentCrossHairSize = gun.addedCrossHairSize;            
-            gun.currentAlpha = 1;
-        }
-
-        gun.currentCrossHairSize = gun.currentCrossHairSize * (90f / gun.characterController.playerSettings.FieldOfView);
-
-        crossHair.sizeDelta = new Vector2(gun.currentCrossHairSize, gun.currentCrossHairSize);
+        currentCrossHair.sizeDelta = new Vector2(gun.currentCrossHairSize, gun.currentCrossHairSize);
         crossHairAlpha.alpha = gun.currentAlpha;
-        crossHair.gameObject.SetActive(!gun.isADS);
+        currentCrossHair.gameObject.SetActive(!gun.isADS);
     }
 
     #endregion
