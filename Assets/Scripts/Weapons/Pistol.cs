@@ -8,7 +8,10 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
 {
     [Header("Pistol Settings")]
     public Gun gun;
-    
+
+    float zRotationRef;
+    public float lerp;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -23,6 +26,10 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         CalculateDrawTime();
         CalculatePutAwayTime();
         CalculateWeaponStance();
+
+        CalculateTotalCameraRecoil();
+        CalculateCameraRecoil();
+        CalculateCameraRecoilImpact();
 
         CalculateFireCap();
         FullFire();
@@ -178,6 +185,10 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             Instantiate(gun.bulletDecal, hit.point, Quaternion.LookRotation(hit.normal));
         }
 
+        // Camera Recoil
+        if(gun.enableRecoil) CameraRecoil();
+        if(gun.enableRecoilImpact) CameraRecoilImpact();
+
         // Ejecting bullet casing
         GameObject instantiatedBulletCasing;
         instantiatedBulletCasing = Instantiate(gun.bulletCasing, gun.ejectionPoint.position, gun.ejectionPoint.rotation);
@@ -235,6 +246,69 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         // {
         //     gun.isReadyToFire = true;
         // }
+    }
+
+    #endregion
+
+    #region "Recoil"
+
+    public void CameraRecoil()
+    {
+        gun.targetCameraRecoilRotation += new Vector3(gun.isADS ? -gun.adsRecoil.x : -gun.recoil.x, Random.Range((gun.isADS ? -gun.adsRecoil.y : -gun.recoil.y), (gun.isADS ? gun.adsRecoil.y : gun.recoil.y)), Random.Range((gun.isADS ? -gun.adsRecoil.z : -gun.recoil.z), (gun.isADS ? gun.adsRecoil.z : gun.recoil.z)));
+    }
+
+    public void CameraRecoilImpact()
+    {
+        // Reset animation curve's time to 0
+        gun.recoilImpactTime = 0;
+        gun.recoilImpactReference = Vector3.zero;
+
+        // Generate a random number 0 or 1, so that the rotation z only uses either negative or postive of set recoil z, no in between
+        int randomNumber = Random.Range(0, 2);
+
+        // No.1(The best). The recoil impact along x and y are either positive or negative, and z is random ranged
+        gun.recoilImpactReference.x = gun.isADS ? ((randomNumber == 0) ? -gun.adsRecoilImpact.x : gun.adsRecoilImpact.x) : ((randomNumber == 0) ? -gun.recoilImpact.x : gun.recoilImpact.x);
+        gun.recoilImpactReference.y = gun.isADS ? ((randomNumber == 0) ? -gun.adsRecoilImpact.y : gun.adsRecoilImpact.y) : ((randomNumber == 0) ? -gun.recoilImpact.y : gun.recoilImpact.y);
+        gun.recoilImpactReference.z = Random.Range((gun.isADS ? -gun.adsRecoilImpact.z : -gun.recoilImpact.z), (gun.isADS ? gun.adsRecoilImpact.z : gun.recoilImpact.z));
+
+        // No.2(Good). The recoil impact along x and y are random ranged, and z is either positive or negative
+        // gun.recoilImpactReference.x = Random.Range((gun.isADS ? -gun.adsRecoilImpact.x : -gun.recoilImpact.x), (gun.isADS ? gun.adsRecoilImpact.x : gun.recoilImpact.x));
+        // gun.recoilImpactReference.y = Random.Range((gun.isADS ? -gun.adsRecoilImpact.y : -gun.recoilImpact.y), (gun.isADS ? gun.adsRecoilImpact.y : gun.recoilImpact.y));
+        // gun.recoilImpactReference.z = gun.isADS ? ((randomNumber == 0) ? -gun.adsRecoilImpact.z : gun.adsRecoilImpact.z) : ((randomNumber == 0) ? -gun.recoilImpact.z : gun.recoilImpact.z);
+
+        // No.3(Inconsistent). The recoil impact along x, y and z are all random ranged
+        // gun.recoilImpactReference.x = Random.Range((gun.isADS ? -gun.adsRecoilImpact.x : -gun.recoilImpact.x), (gun.isADS ? gun.adsRecoilImpact.x : gun.recoilImpact.x));
+        // gun.recoilImpactReference.y = Random.Range((gun.isADS ? -gun.adsRecoilImpact.y : -gun.recoilImpact.y), (gun.isADS ? gun.adsRecoilImpact.y : gun.recoilImpact.y));
+        // gun.recoilImpactReference.z = Random.Range((gun.isADS ? -gun.adsRecoilImpact.z : -gun.recoilImpact.z), (gun.isADS ? gun.adsRecoilImpact.z : gun.recoilImpact.z));
+
+        // // No.3(Chaotic and too repetitive). The recoil impact along x, y and z are all either postive or negative
+        // gun.recoilImpactReference.x = gun.isADS ? ((randomNumber == 0) ? -gun.adsRecoilImpact.x : gun.adsRecoilImpact.x) : ((randomNumber == 0) ? -gun.recoilImpact.x : gun.recoilImpact.x);
+        // gun.recoilImpactReference.y = gun.isADS ? ((randomNumber == 0) ? -gun.adsRecoilImpact.y : gun.adsRecoilImpact.y) : ((randomNumber == 0) ? -gun.recoilImpact.y : gun.recoilImpact.y);
+        // gun.recoilImpactReference.z = gun.isADS ? ((randomNumber == 0) ? -gun.adsRecoilImpact.z : gun.adsRecoilImpact.z) : ((randomNumber == 0) ? -gun.recoilImpact.z : gun.recoilImpact.z);
+    }
+
+    public void CalculateTotalCameraRecoil()
+    {
+        // Setting cameraRecoils rotation to the total of recoil and recoil impact
+        gun.cameraRecoil.transform.localRotation = Quaternion.Euler(gun.currentCameraRecoilRotation + gun.currentCameraRecoilImpactRotation);
+    }
+
+    public void CalculateCameraRecoil()
+    {
+        // Lerping the cameraRecoils rotation to zero 
+        gun.targetCameraRecoilRotation = Vector3.Lerp(gun.targetCameraRecoilRotation, Vector3.zero, gun.recoilReturnSpeed * Time.deltaTime);
+
+        gun.currentCameraRecoilRotation = Vector3.Lerp(gun.currentCameraRecoilRotation, gun.targetCameraRecoilRotation, gun.recoilSnappiness * Time.fixedDeltaTime);
+    }
+
+    public void CalculateCameraRecoilImpact()
+    {
+        gun.targetCameraRecoilImpactRotation.x = gun.recoilImpactReference.x * gun.recoilImpactSpringDampingCurve.Evaluate(gun.recoilImpactTime);
+        gun.targetCameraRecoilImpactRotation.y = gun.recoilImpactReference.y * gun.recoilImpactSpringDampingCurve.Evaluate(gun.recoilImpactTime);
+        gun.targetCameraRecoilImpactRotation.z = gun.recoilImpactReference.z * gun.recoilImpactSpringDampingCurve.Evaluate(gun.recoilImpactTime);
+        gun.recoilImpactTime += gun.recoilImpactSpringDampingSpeed * Time.deltaTime;
+
+        gun.currentCameraRecoilImpactRotation = Vector3.Lerp(gun.currentCameraRecoilImpactRotation, gun.targetCameraRecoilImpactRotation, gun.recoilSnappiness * Time.fixedDeltaTime);
     }
 
     #endregion
@@ -558,11 +632,13 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
 
     public void SwitchFireMode()
     {
+        // If the fire mode is not switchable on the gun, return
         if(!gun.isFireModeSwitchable)
         {
             return;
         }
 
+        // If the gun shoots burst fire, switch between semi-burst, if not switch between semi-full
         if(gun.fireMode == FireMode.Semi)
         {
             if(gun.canBurstFire)
@@ -835,7 +911,20 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         CanvasGroup crossHairAlpha = currentCrossHair.gameObject.GetComponent<CanvasGroup>();
 
         // Calculate cross-hair size only when the currentCrossHair is other than dot, when currentCrossHairis dot keep the size at 0 to keep the bullet from spreading
-        if(currentCrossHair != dot)
+        if(currentCrossHair == dot)
+        {
+            gun.currentCrossHairSize = 0;
+
+            if(gun.isADSIn || gun.isADSOut || gun.isADS)
+            {
+                gun.currentAlpha = Mathf.Lerp(1, 0, (gun.adsTimer / (gun.adsDuration / gun.adsSpeed)) / 0.8f);
+            }
+            else
+            {       
+                gun.currentAlpha = 1;
+            }
+        }
+        else
         {
             // Reducing the timer after a shot is fired
             if(gun.fireCrossHairTimer > 0)
@@ -880,19 +969,6 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
             }
 
             gun.currentCrossHairSize = gun.currentCrossHairSize * (90f / gun.characterController.playerSettings.FieldOfView);
-        }
-        else
-        {
-            gun.currentCrossHairSize = 0;
-
-            if(gun.isADSIn || gun.isADSOut || gun.isADS)
-            {
-                gun.currentAlpha = Mathf.Lerp(1, 0, (gun.adsTimer / (gun.adsDuration / gun.adsSpeed)) / 0.8f);
-            }
-            else
-            {       
-                gun.currentAlpha = 1;
-            }
         }
 
         currentCrossHair.sizeDelta = new Vector2(gun.currentCrossHairSize, gun.currentCrossHairSize);

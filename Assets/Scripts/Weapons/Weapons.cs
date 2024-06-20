@@ -94,6 +94,30 @@ public static class Weapons
         public bool isADSOut;
         public bool isTryingToADSWhileDoingSomethingElse;
 
+        [Header("Recoil Settings")]
+        public bool enableRecoil;
+        public bool enableRecoilImpact;
+        public Vector3 recoil;
+        public Vector3 adsRecoil;
+        public Vector3 recoilImpact;
+        public Vector3 adsRecoilImpact;
+        public float recoilSnappiness;
+        public float recoilReturnSpeed;
+        public AnimationCurve recoilImpactSpringDampingCurve;
+        public float recoilImpactSpringDampingSpeed;
+        [HideInInspector]
+        public Vector3 recoilImpactReference;
+        [HideInInspector]
+        public float recoilImpactTime;
+        [HideInInspector]
+        public Vector3 currentCameraRecoilRotation;
+        [HideInInspector]
+        public Vector3 targetCameraRecoilRotation;
+        [HideInInspector]
+        public Vector3 currentCameraRecoilImpactRotation;
+        [HideInInspector]
+        public Vector3 targetCameraRecoilImpactRotation;
+        
         [Header("PutAway/Draw Settings")]
         public float drawDuration;
         public float drawSpeed;
@@ -131,12 +155,6 @@ public static class Weapons
         public float crossHairStanceSizeVelocity;
         [HideInInspector]
         public float currentAlpha;
-
-        [Header("Recoil Settings")]
-        public Vector3 recoil;
-        public Vector3 ADSRecoil;
-        public float snappiness;
-        public float returnSpeed;
 
         [Header("Weapon Stance View Settings")]
         public Vector3 crouchWeaponPosition;
