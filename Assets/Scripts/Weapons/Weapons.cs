@@ -18,6 +18,7 @@ public static class Weapons
         public Transform weaponADSAdjustmentLayer;
         public Transform weaponADS;
         public Transform weaponSway;
+        public Transform weaponRecoilAdjustmentLayer;
         public Transform weaponRecoil;
         public Transform weaponStanceAdjustmentLayer;
         public Transform weaponStance;
@@ -50,6 +51,7 @@ public static class Weapons
         public int numberOfBurst;
         public float fireRate;
         public FireMode fireMode;
+        public bool isManualRechambering;
         public bool isPrimary;
         public bool isSecondary;
         public bool inUse;
@@ -65,6 +67,7 @@ public static class Weapons
 
         [Header("Reload Settings")]
         public bool isReloadableWhileSprint;
+        public bool isReloadableWhileADS;
         public float reloadSpeed;
         public float reloadDuration;
         public float emptyReloadDuration;
@@ -83,7 +86,6 @@ public static class Weapons
         public float adsZoomStartTime;
         [Range(0f, 10f)]
         public float ADSMovementSlownessSpeedEffector;
-        public bool isReloadableWhileADS;
         public bool isAimable;
 
         [Header("ADS Debug")]

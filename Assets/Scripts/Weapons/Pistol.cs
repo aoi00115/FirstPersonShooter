@@ -825,21 +825,22 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         gun.characterController = transform.Find("../../../../../../").GetComponent<CharacterControllerScr>();
         gun.weaponController = transform.Find("../../").GetComponent<WeaponController>();
 
-        gun.armsRig = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoil/WeaponStanceAdjustmentLayer/WeaponStance/ArmsRig");
+        gun.armsRig = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoilAdjustmentLayer/WeaponRecoil/WeaponStanceAdjustmentLayer/WeaponStance/ArmsRig");
         gun.cameraRecoil = transform.Find("../../../");
         gun.camera = transform.Find("../../../CameraAnimator/Camera").GetComponent<Camera>();
         gun.weaponHolder = transform.Find("../../");
         gun.weaponADSAdjustmentLayer = transform.Find("../../WeaponADSAdjustmentLayer");
         gun.weaponADS = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS");
         gun.weaponSway = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway");
-        gun.weaponRecoil = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoil");
-        gun.weaponStanceAdjustmentLayer = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoil/WeaponStanceAdjustmentLayer");
-        gun.weaponStance = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoil/WeaponStanceAdjustmentLayer/WeaponStance");
-        gun.socket = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoil/WeaponStanceAdjustmentLayer/WeaponStance/ArmsRig/arms_rig/root/upper_arm_R/lower_arm_R/hand_R/" + gameObject.name + "Socket");
+        gun.weaponRecoilAdjustmentLayer = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoilAdjustmentLayer");
+        gun.weaponRecoil = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoilAdjustmentLayer/WeaponRecoil");
+        gun.weaponStanceAdjustmentLayer = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoilAdjustmentLayer/WeaponRecoil/WeaponStanceAdjustmentLayer");
+        gun.weaponStance = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoilAdjustmentLayer/WeaponRecoil/WeaponStanceAdjustmentLayer/WeaponStance");
+        gun.socket = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoilAdjustmentLayer/WeaponRecoil/WeaponStanceAdjustmentLayer/WeaponStance/ArmsRig/arms_rig/root/upper_arm_R/lower_arm_R/hand_R/" + gameObject.name + "Socket");
         gun.swayPoint = transform.Find("../../SwayPoints/" + gameObject.name + "SwayPoint");
 
         gun.gunAnimator = GetComponent<Animator>();
-        gun.armsAnimator = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoil/WeaponStanceAdjustmentLayer/WeaponStance/ArmsRig").GetComponent<Animator>();
+        gun.armsAnimator = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoilAdjustmentLayer/WeaponRecoil/WeaponStanceAdjustmentLayer/WeaponStance/ArmsRig").GetComponent<Animator>();
         gun.cameraAnimator = transform.Find("../../../CameraAnimator").GetComponent<Animator>();
         gun.adsAnimator = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS").GetComponent<Animator>();
 
@@ -1070,4 +1071,3 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         }
     }
 }
-
