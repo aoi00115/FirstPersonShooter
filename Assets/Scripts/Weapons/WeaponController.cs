@@ -92,16 +92,20 @@ public class WeaponController : MonoBehaviour
 
         CalculateCurrentWeapon();        
 
-        if(currentWeapon != null)
+        if(currentWeapon != null && weaponNameTMP != null)
         {
             displayable.DisplayWeaponStats(weaponNameTMP, ammoCountTMP, ammoReserveCountTMP);
             displayable.DisplayCrossHair(crossHairType_CrossHair, crossHairType_Dot);
         }
-        else
+        else if(currentWeapon == null && weaponNameTMP != null)
         {
             weaponNameTMP.text = "null";
             ammoCountTMP.text = "null";
             ammoReserveCountTMP.text = "null";
+        }
+        else if(currentWeapon != null && weaponNameTMP == null)
+        {
+
         }
     }
 
@@ -212,12 +216,16 @@ public class WeaponController : MonoBehaviour
             CalculateCurrentWeapon();
             fireable.SetUp();
         }
-        else
+        else if(weaponArray[1].transform.childCount > 0)
         {
             currentWeapon = weaponArray[1];
             weaponIndex = 1;
             CalculateCurrentWeapon();
             fireable.SetUp();
+        }
+        else
+        {
+            currentWeapon = null;
         }
     }
 

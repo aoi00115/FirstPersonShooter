@@ -13,7 +13,8 @@ public class CharacterControllerScr : MonoBehaviour
     [HideInInspector]
     public Vector2 input_View;
 
-    private Vector3 newCameraRotation;
+    public Vector3 newCameraRotationWithRecoil;
+    public Vector3 newCameraRotation;
     private Vector3 newCharacterRotation;
 
     private float timer = 0;
@@ -28,6 +29,11 @@ public class CharacterControllerScr : MonoBehaviour
     public PlayerSettingsModel playerSettings;
     public float viewClampYMin = -89;
     public float viewClampYMax = 89;
+    public float onWeaponSetUpCameraRecoilXRotation;
+    public float onWeaponSetUpViewClampYMax;
+    public float onWeaponSetUpViewClampYMin;
+    public float viewClampWithRecoilYMin;
+    public float viewClampWithRecoilYMax;
     public LayerMask playerMask;
     public LayerMask groundMask;
 
@@ -115,6 +121,9 @@ public class CharacterControllerScr : MonoBehaviour
         newCameraRotation = headPosition.localRotation.eulerAngles;
         newCharacterRotation = transform.localRotation.eulerAngles;
 
+        onWeaponSetUpViewClampYMax = viewClampYMax;
+        onWeaponSetUpViewClampYMin = viewClampYMin;
+
         characterController = GetComponent<CharacterController>();
 
         cameraHeight = headPosition.localPosition.y;
@@ -145,6 +154,7 @@ public class CharacterControllerScr : MonoBehaviour
 
         camera.fieldOfView = playerSettings.FieldOfView;
 
+        // Debug.Log(input_Movement.x);
         // Debug.Log(playerSettings.SpeedEffector);
         // Debug.Log(Mathf.Round(smoothedWalkingAnimationSpeed * 10f) / 10f);
     }
@@ -158,11 +168,22 @@ public class CharacterControllerScr : MonoBehaviour
         newCharacterRotation.y += playerSettings.ViewXSensitivity * (playerSettings.ViewXInverted ? -input_View.x : input_View.x) * Time.deltaTime;
         transform.localRotation = Quaternion.Euler(newCharacterRotation);
 
+        // If a gun with recoil is equipped set viewClampWithRecoilYMax/Min viewClampYMax - currentRecoilRotation.x, if not viewClampWithRecoilYMax/Min = viewClampWithRecoilYMax/Min
+        if(weaponController.currentWeapon != null)
+        {
+            viewClampWithRecoilYMax = onWeaponSetUpViewClampYMax - weaponController.fireable.CalculateCurrentCameraRecoilRotation();
+            viewClampWithRecoilYMin = onWeaponSetUpViewClampYMin - weaponController.fireable.CalculateCurrentCameraRecoilRotation();
+        }
+
         // If the boolean playerSettings.ViewYInverted is true the left side of the options followed by ? is selected and vice versa
         newCameraRotation.x += playerSettings.ViewYSensitivity * (playerSettings.ViewYInverted ? input_View.y : -input_View.y) * Time.deltaTime;
-        newCameraRotation.x = Mathf.Clamp(newCameraRotation.x, viewClampYMin, viewClampYMax);
+        newCameraRotation.x = Mathf.Clamp(newCameraRotation.x, viewClampWithRecoilYMin, viewClampWithRecoilYMax);
 
-        headPosition.localRotation = Quaternion.Euler(newCameraRotation);
+        // headPosition.localRotation = Quaternion.Euler(newCameraRotation);
+        headPosition.localRotation = Quaternion.Euler(newCameraRotationWithRecoil);
+
+        // Debug.Log(headPosition.localRotation.x);
+        // Debug.Log(newCameraRotation.x);
     }
 
     private void CalculateMovement()
@@ -232,6 +253,8 @@ public class CharacterControllerScr : MonoBehaviour
 
         // Move the player position with characterController.Move
         characterController.Move(movementSpeed);
+
+        Debug.Log(movementSpeed);
 
         // if(characterController.isGrounded)  
         // {
@@ -408,10 +431,10 @@ public class CharacterControllerScr : MonoBehaviour
 
     private void ToggleSprint()
     {
-        // Return when ADS
+        // Return when ADS and firing
         if(weaponController.fireable != null)
         {
-            if(weaponController.fireable.CalculateADS() || weaponController.fireable.CalculateADSIn())
+            if(weaponController.fireable.CalculateADS() || weaponController.fireable.CalculateADSIn() || weaponController.fireable.CalculateFiring())
             {
                 return;
             }

@@ -14,6 +14,7 @@ public static class Weapons
         public Transform armsRig;
         public Camera camera;
         public Transform cameraRecoil;
+        public Transform cameraRecoilImpact;
         public Transform weaponHolder;
         public Transform weaponADSAdjustmentLayer;
         public Transform weaponADS;
@@ -64,6 +65,7 @@ public static class Weapons
         public bool isBurstFiring;
         public bool isSubscribingBurstFire;
         public bool isFullFiring;
+        public bool isFiring;
 
         [Header("Reload Settings")]
         public bool isReloadableWhileSprint;
@@ -107,18 +109,24 @@ public static class Weapons
         public float recoilReturnSpeed;
         public AnimationCurve recoilImpactSpringDampingCurve;
         public float recoilImpactSpringDampingSpeed;
+
+        [Header("Recoil Debug")]
+        public Vector3 lastFiredHeadPositionRotation;
+        public Vector3 headPositionRotationEulerAngle;
         [HideInInspector]
         public Vector3 recoilImpactReference;
         [HideInInspector]
         public float recoilImpactTime;
-        [HideInInspector]
+        public Vector3 cameraRecoilReferenceRotation;
         public Vector3 currentCameraRecoilRotation;
-        [HideInInspector]
         public Vector3 targetCameraRecoilRotation;
         [HideInInspector]
         public Vector3 currentCameraRecoilImpactRotation;
         [HideInInspector]
         public Vector3 targetCameraRecoilImpactRotation;
+        public float onSetUpCameraRecoilXRotation;
+        public float onWeaponSetUpViewClampYMax;
+        public float onWeaponSetUpViewClampYMin;
         
         [Header("PutAway/Draw Settings")]
         public float drawDuration;

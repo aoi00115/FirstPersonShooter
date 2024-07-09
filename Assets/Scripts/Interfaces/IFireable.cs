@@ -6,6 +6,8 @@ public interface IFireable
 {
     void Fire();
     void FireUp();
+    bool CalculateFiring();
+    float CalculateCurrentCameraRecoilRotation();
     void ADSIn();
     void ADSOut();
     bool CalculateADS();

@@ -27,7 +27,6 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         CalculatePutAwayTime();
         CalculateWeaponStance();
 
-        CalculateTotalCameraRecoil();
         CalculateCameraRecoil();
         CalculateCameraRecoilImpact();
 
@@ -63,6 +62,8 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         switch (gun.fireMode)
         {
             case FireMode.Semi:
+                // Set lastFiredXRotation at each semi fire
+                gun.lastFiredHeadPositionRotation = gun.headPositionRotationEulerAngle;
                 SemiFire();
                 // Debug.Log("Semi Firing");
                 break;
@@ -73,12 +74,21 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
                 {
                     gun.isSubscribingBurstFire = true;
                 }
+                // Set lastFiredXRotation at the start of burst firing and when the timer has not passed 0.25 seconds after the last fire
+                if(!gun.isBurstFiring && Time.time > gun.lastFiredTime + 0.25f)
+                {
+                    gun.lastFiredHeadPositionRotation = gun.headPositionRotationEulerAngle;
+                }
                 gun.isBurstFiring = true;
                 // Debug.Log("Burst Firing");
                 break;
 
             case FireMode.Full:
-
+                // Set lastFiredXRotation at the start of full firing and when the timer has not passed 0.25 seconds after the last fire
+                if(Time.time > gun.lastFiredTime + 0.25f)
+                {
+                    gun.lastFiredHeadPositionRotation = gun.headPositionRotationEulerAngle;
+                }
                 gun.isFullFiring = true;
                 // Debug.Log("Full Firing");
                 break;
@@ -248,6 +258,20 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         // }
     }
 
+    public bool CalculateFiring()
+    {
+        if(gun.isBurstFiring || gun.isFullFiring)
+        {
+            gun.isFiring = true;
+        }
+        else
+        {
+            gun.isFiring = false;
+        }
+
+        return gun.isFiring;
+    }
+
     #endregion
 
     #region "Recoil"
@@ -255,6 +279,7 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
     public void CameraRecoil()
     {
         gun.targetCameraRecoilRotation += new Vector3(gun.isADS ? -gun.adsRecoil.x : -gun.recoil.x, Random.Range((gun.isADS ? -gun.adsRecoil.y : -gun.recoil.y), (gun.isADS ? gun.adsRecoil.y : gun.recoil.y)), Random.Range((gun.isADS ? -gun.adsRecoil.z : -gun.recoil.z), (gun.isADS ? gun.adsRecoil.z : gun.recoil.z)));
+        gun.cameraRecoilReferenceRotation = gun.targetCameraRecoilRotation;
     }
 
     public void CameraRecoilImpact()
@@ -287,28 +312,76 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         // gun.recoilImpactReference.z = gun.isADS ? ((randomNumber == 0) ? -gun.adsRecoilImpact.z : gun.adsRecoilImpact.z) : ((randomNumber == 0) ? -gun.recoilImpact.z : gun.recoilImpact.z);
     }
 
-    public void CalculateTotalCameraRecoil()
+    public float CalculateCurrentCameraRecoilRotation()
     {
-        // Setting cameraRecoils rotation to the total of recoil and recoil impact
-        gun.cameraRecoil.transform.localRotation = Quaternion.Euler(gun.currentCameraRecoilRotation + gun.currentCameraRecoilImpactRotation);
+        return gun.currentCameraRecoilRotation.x;
     }
 
     public void CalculateCameraRecoil()
     {
-        // Lerping the cameraRecoils rotation to zero 
-        gun.targetCameraRecoilRotation = Vector3.Lerp(gun.targetCameraRecoilRotation, Vector3.zero, gun.recoilReturnSpeed * Time.deltaTime);
+        // Calculating headPosition's x rotation in euler angle form, so that it can be recorded when firing and assign it to the lastFiredXRotation
+        gun.headPositionRotationEulerAngle.x = gun.characterController.headPosition.localRotation.eulerAngles.x > 180 ? gun.characterController.headPosition.localRotation.eulerAngles.x - 360 : gun.characterController.headPosition.localRotation.eulerAngles.x;
+        
+        // If the player view's x rotation is within the lastFiredXRotation and cameraRecoilReferenceRotation, lerp back to the lastFiredXRotation
+        if(gun.headPositionRotationEulerAngle.x <= gun.lastFiredHeadPositionRotation.x && gun.headPositionRotationEulerAngle.x >= gun.lastFiredHeadPositionRotation.x + (gun.cameraRecoilReferenceRotation.x - 2))
+        {
+            // Lerping the cameraRecoils rotation to zero 
+            // if(!gun.isFullFiring)
+            // {
+            //     gun.targetCameraRecoilRotation.x = Mathf.Lerp(gun.targetCameraRecoilRotation.x, 0, gun.recoilReturnSpeed * Time.deltaTime);
+            //     gun.targetCameraRecoilRotation.y = Mathf.Lerp(gun.targetCameraRecoilRotation.y, 0, gun.recoilReturnSpeed * Time.deltaTime);
+            // }
+            // Debug.Log("true");
+        }
+        else
+        {
+            // Lerp back to lastFiredCameraRecoilRotation
+            // if(gun.isFullFiring || gun.isBurstFiring)
+            // {
+            //     gun.targetCameraRecoilRotation = Vector3.Lerp(gun.targetCameraRecoilRotation, gun.lastFiredHeadPositionRotation, gun.recoilReturnSpeed * Time.deltaTime);
+            // }
+            // Debug.Log("false");
+        }
 
+        // Lerping the cameraRecoils rotation to zero. Un-comment two lines below to let the recoil return automatically(un-natural)
+        if((!gun.isFullFiring && gun.fireMode == FireMode.Full) || (!gun.isBurstFiring && gun.fireMode == FireMode.Burst) || gun.fireMode == FireMode.Semi)
+        {
+            gun.targetCameraRecoilRotation.x = Mathf.Lerp(gun.targetCameraRecoilRotation.x, 0, gun.recoilReturnSpeed * Time.deltaTime);
+            gun.targetCameraRecoilRotation.y = Mathf.Lerp(gun.targetCameraRecoilRotation.y, 0, gun.recoilReturnSpeed * Time.deltaTime);
+        }
+        gun.targetCameraRecoilRotation.z = Mathf.Lerp(gun.targetCameraRecoilRotation.z, 0, gun.recoilReturnSpeed * Time.deltaTime);
+
+        // Lerping the currentCameraRecoilRotation to targetCameraRecoilRotation 
         gun.currentCameraRecoilRotation = Vector3.Lerp(gun.currentCameraRecoilRotation, gun.targetCameraRecoilRotation, gun.recoilSnappiness * Time.fixedDeltaTime);
+
+        // Applying the current recoil rotation to the headPosition.localRotation and player.localRotation by multiplying the quaternion
+        // gun.characterController.headPosition.localRotation *= Quaternion.Euler(new Vector3(gun.currentCameraRecoilRotation.x, 0, 0));  
+        gun.characterController.newCameraRotationWithRecoil.x = gun.characterController.newCameraRotation.x + gun.currentCameraRecoilRotation.x;
+        gun.characterController.transform.localRotation *= Quaternion.Euler(new Vector3(0, gun.currentCameraRecoilRotation.y, 0));
+        gun.characterController.headPosition.localRotation *= Quaternion.Euler(new Vector3(0, 0, gun.currentCameraRecoilRotation.z));
     }
 
     public void CalculateCameraRecoilImpact()
     {
+        // It'll stop adding after 1 seconds to stop adding time infinitely 
+        if(gun.recoilImpactTime < 1)
+        {
+            gun.recoilImpactTime += gun.recoilImpactSpringDampingSpeed * Time.deltaTime;
+        }
+        else
+        {
+            gun.recoilImpactTime = 1;
+        }
+
         gun.targetCameraRecoilImpactRotation.x = gun.recoilImpactReference.x * gun.recoilImpactSpringDampingCurve.Evaluate(gun.recoilImpactTime);
         gun.targetCameraRecoilImpactRotation.y = gun.recoilImpactReference.y * gun.recoilImpactSpringDampingCurve.Evaluate(gun.recoilImpactTime);
         gun.targetCameraRecoilImpactRotation.z = gun.recoilImpactReference.z * gun.recoilImpactSpringDampingCurve.Evaluate(gun.recoilImpactTime);
-        gun.recoilImpactTime += gun.recoilImpactSpringDampingSpeed * Time.deltaTime;
 
+        // Lerping the currentCameraRecoilImpactRotation to targetCameraRecoilImpactRotation 
         gun.currentCameraRecoilImpactRotation = Vector3.Lerp(gun.currentCameraRecoilImpactRotation, gun.targetCameraRecoilImpactRotation, gun.recoilSnappiness * Time.fixedDeltaTime);
+
+        // Applying the current recoil impact rotation to the CameraRecoilImpact object
+        gun.cameraRecoilImpact.localRotation = Quaternion.Euler(gun.currentCameraRecoilImpactRotation);
     }
 
     #endregion
@@ -822,12 +895,15 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         // }
 
         // Setting up all the scripts and reference
+        // Obtaining scripts
         gun.characterController = transform.Find("../../../../../../").GetComponent<CharacterControllerScr>();
         gun.weaponController = transform.Find("../../").GetComponent<WeaponController>();
 
+        // Obtaining transforms
         gun.armsRig = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoilAdjustmentLayer/WeaponRecoil/WeaponStanceAdjustmentLayer/WeaponStance/ArmsRig");
         gun.cameraRecoil = transform.Find("../../../");
-        gun.camera = transform.Find("../../../CameraAnimator/Camera").GetComponent<Camera>();
+        gun.cameraRecoilImpact = transform.Find("../../../CameraRecoilImpact");
+        gun.camera = transform.Find("../../../CameraRecoilImpact/CameraAnimator/Camera").GetComponent<Camera>();
         gun.weaponHolder = transform.Find("../../");
         gun.weaponADSAdjustmentLayer = transform.Find("../../WeaponADSAdjustmentLayer");
         gun.weaponADS = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS");
@@ -839,20 +915,27 @@ public class Pistol : MonoBehaviour, IFireable, IDisplayable
         gun.socket = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoilAdjustmentLayer/WeaponRecoil/WeaponStanceAdjustmentLayer/WeaponStance/ArmsRig/arms_rig/root/upper_arm_R/lower_arm_R/hand_R/" + gameObject.name + "Socket");
         gun.swayPoint = transform.Find("../../SwayPoints/" + gameObject.name + "SwayPoint");
 
+        // Obtaining animator
         gun.gunAnimator = GetComponent<Animator>();
         gun.armsAnimator = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS/WeaponSway/WeaponRecoilAdjustmentLayer/WeaponRecoil/WeaponStanceAdjustmentLayer/WeaponStance/ArmsRig").GetComponent<Animator>();
-        gun.cameraAnimator = transform.Find("../../../CameraAnimator").GetComponent<Animator>();
+        gun.cameraAnimator = transform.Find("../../../CameraRecoilImpact/CameraAnimator").GetComponent<Animator>();
         gun.adsAnimator = transform.Find("../../WeaponADSAdjustmentLayer/WeaponADS").GetComponent<Animator>();
 
+        // Obtaining ejectionPoint
         gun.ejectionPoint = transform.Find("EjectionPoint");
 
+        // Setting up animator controller
         gun.gunAnimator.runtimeAnimatorController = gun.gunAnimatorController;
         gun.armsAnimator.runtimeAnimatorController = gun.armsAnimatorController;
         gun.cameraAnimator.runtimeAnimatorController = gun.cameraAnimatorController;
         gun.adsAnimator.runtimeAnimatorController = gun.adsAnimatorController;
 
+        // Setting up audio
         gun.audioSource = GetComponent<AudioSource>();
         gun.reloadAudioSource = transform.Find("ReloadAudioSource").GetComponent<AudioSource>();
+
+        // Setting a onWeaponSetUpViewClampYMax/Min variable upon setting up the gun for the recoil and player look/view
+        
 
         // Setting the parent of primary/secondary weapon to it's appropriate weapon socket
         gun.weaponController.currentWeapon.transform.SetParent(gun.socket);
