@@ -31,35 +31,45 @@ namespace KinematicCharacterController.Test
     {
         public KinematicCharacterMotor Motor;
         private DefaultInput defaultInput;
-        public Transform cameraHolder;
         public Transform headPosition;
+        public Transform cameraHolder;
+        public Transform headBob;
 
         [Header("View")]
-        public float viewXSensitivity;
-        public float viewYSensitivity;
-        public float viewClampYMax;
-        public float viewClampYMin;
+        public float viewXSensitivity = 8f;
+        public float viewYSensitivity = 8f;
+        public float viewClampYMax = 89f;
+        public float viewClampYMin = -89f;
         public bool viewXInverted;
         public bool viewYInverted;
         private Vector3 newCameraRotation;
 
         [Header("Stable Movement")]
-        public float MaxStableWalkingForwardSpeed = 6f;
-        public float MaxStableWalkingStrafeSpeed = 6f;
-        public float MaxStableSprintingForwardSpeed = 12f;
-        public float MaxStableSprintingStrafeSpeed = 12f;
         public float StableMovementSmoothing = 15f;
 
-        [Header("Sprinting Movement Settings")]
-        public float sprintingForwardSpeed;
-        public float sprintingStrafeSpeed;
+        [Header("Stable Movement - Walking")]
+        public float MaxStableWalkingForwardSpeed = 5f;
+        public float MaxStableWalkingStrafeSpeed = 5f;
+
+        [Header("Stable Movement - Sprinting")]
+        public float MaxStableSprintingForwardSpeed = 10f;
+        public float MaxStableSprintingStrafeSpeed = 10f;
+        public float staminaDuration = 5f;
+        public float sprintCooldownDuration = 2f;
         public bool enableStamina;
         [Tooltip("Enable this to sprint when holding sprint button")]
         public bool isSprintingHold;
         [HideInInspector] public bool isSprinting;
+        private bool isSprintCooldownRequired;
+        private float staminaTimer;
+
+        [Header("Speed Effectors")]
+        public float speedEffector = 1f;
+        public float crouchSpeedEffector = 0.6f;
+        public float proneSpeedEffector = 0.2f;
 
         [Header("Air Movement")]
-        public float MaxAirMoveSpeed = 6f;
+        public float MaxAirMoveSpeed = 5f;
         public float AirAccelerationSpeed = 15f;
         public float Drag = 0f;
 
@@ -73,18 +83,28 @@ namespace KinematicCharacterController.Test
         [Header("Stance")]
         public PlayerStance playerStance;
         public float playerStanceSmoothing = 0.1f;
+        public float capsuleRadius;
         public CharacterStance playerStandStance;
         public CharacterStance playerCrouchStance;
         public CharacterStance playerProneStance;
+        
         private float stanceCheckErrorMargine = 0.05f;
         private float currentCapsuleHeight;
         private float currentCameraHeight;
+        private float currentCapsuleHeightVelocity;
         private float currentCameraHeightVelocity;
-        private Vector3 stanceCapsuleCenterVelocity;
-        private float stanceCapsuleHeightVelocity;
         [HideInInspector] public bool isStand;
         [HideInInspector] public bool isCrouch;
         [HideInInspector] public bool isProne;
+
+        [Header("Head Bobbing")]
+        public bool enableHeadBobbing;
+        [Range(0, 1f)]
+        public float headBobbingAmplitude = 0.5f;
+        [Range(0, 30)]
+        public float headBobbingFrequency = 15f;
+        private float headBobbingToggleSpeed = 0.1f;
+        private Vector3 headBobbingStartPos = Vector3.zero;
 
         [Header("Mask Settings")]
         public LayerMask playerMask;
@@ -95,7 +115,7 @@ namespace KinematicCharacterController.Test
         public BonusOrientationMethod BonusOrientationMethod = BonusOrientationMethod.None;
         public float BonusOrientationSharpness = 20f;
         public Vector3 Gravity = new Vector3(0, -30f, 0);
-        public float CrouchedCapsuleHeight = 1f;
+        public float walkingAnimationSpeed;
 
         [HideInInspector]
         public Vector2 input_Movement;
@@ -115,6 +135,7 @@ namespace KinematicCharacterController.Test
         private bool _shouldBeCrouching = false;
         private bool _isCrouching = false;
 
+        #region - Awake, Start, Update -
         void Awake()
         {
             // Assign the characterController to the motor
@@ -134,13 +155,17 @@ namespace KinematicCharacterController.Test
         {
             // Put CalculateStance and whatnot in update
             SetInputs();
+            CalculateSprint();
             CalculateStance();
+            CalculateHeadBobbing();
         }
 
         void LateUpdate()
         {
             CalculateCameraPositionandRotation();
         }
+
+        #endregion
 
         void ActivateInputAction()
         {
@@ -154,8 +179,8 @@ namespace KinematicCharacterController.Test
             defaultInput.Character.Jump.performed += e => Jump();
             defaultInput.Character.Crouch.performed += e => Crouch();
             defaultInput.Character.Prone.performed += e => Prone();
-            // defaultInput.Character.Sprint.performed += e => ToggleSprint();
-            // defaultInput.Character.SprintReleased.performed += e => StopSprint();
+            defaultInput.Character.Sprint.performed += e => ToggleSprint();
+            defaultInput.Character.SprintReleased.performed += e => StopSprint();
 
             defaultInput.Enable();
 
@@ -167,6 +192,116 @@ namespace KinematicCharacterController.Test
             // Set cursor mode to locked
             Cursor.lockState = CursorLockMode.Locked;
         }
+
+        #region - Sprinting -
+
+        private void ToggleSprint()
+        {        
+            if(playerStance == PlayerStance.Crouch || playerStance == PlayerStance.Prone)
+            {
+                if(StanceCheck(playerCrouchStance.capsuleHeight))
+                {
+                    return;
+                }
+                if(StanceCheck(playerCrouchStance.capsuleHeight))
+                {
+                    playerStance = PlayerStance.Crouch;
+                    return;
+                }
+                
+                playerStance = PlayerStance.Stand;
+            }
+            
+            if(input_Movement.y <= 0.2f)
+            {
+                isSprinting = false;
+                return;
+            }
+            
+            // If enableStamina is true 
+            if(enableStamina)
+            {
+                // Timer has to have less than 2 seconds to sprint when the limit is on. Sprint immediately if the limit is off.
+                if(isSprintCooldownRequired)
+                {
+                    return;
+                }
+                else
+                {
+                    isSprinting = true; 
+                }
+            }
+            else
+            {
+                isSprinting = true; 
+            }
+            
+        }
+
+        private void CalculateSprint()
+        {
+            if(isSprinting)
+            {
+                // This will ensure to stand while sprinting. Without this it player might sprint while changing the stance to crouch or prone, resulting in sprinting while in crouch or prone position
+                if(playerStance == PlayerStance.Crouch || playerStance == PlayerStance.Prone)
+                {
+                    playerStance = PlayerStance.Stand;
+                }
+            }
+
+            if(enableStamina)
+            {
+                CalculateStamina();
+            }
+        }
+
+        private void CalculateStamina()
+        {
+            if(isSprinting)
+            {
+                // Increase the timer, and if the stamina ran out set isSprintCooldownRequired to true and disable sprinting
+                if(staminaDuration < staminaTimer)
+                {
+                    isSprintCooldownRequired = true;
+                    isSprinting = false;
+                }
+                else
+                {
+                    staminaTimer += Time.deltaTime;
+                }
+            }
+            else
+            {
+                // When not sprinting, reduce the time until 0
+                if(staminaTimer > 0)
+                {
+                    staminaTimer -= Time.deltaTime;
+                }
+                else
+                {
+                    staminaTimer = 0;
+                }
+
+                // Set isSprintCooldownRequired to false after the cool down if isSprintCooldownRequired
+                if(isSprintCooldownRequired)
+                {            
+                    if(staminaTimer < sprintCooldownDuration)
+                    {
+                        isSprintCooldownRequired = false;
+                    }
+                }
+            }
+        }
+
+        private void StopSprint()
+        {
+            if(isSprintingHold)
+            {
+                isSprinting = false;
+            }
+        }
+
+        #endregion
 
         #region - Jump -
 
@@ -191,6 +326,11 @@ namespace KinematicCharacterController.Test
 
             _timeSinceJumpRequested = 0f;
             _jumpRequested = true;
+
+            if(isSprinting)
+            {
+                isSprinting = false;
+            }
         }
 
         #endregion
@@ -271,23 +411,59 @@ namespace KinematicCharacterController.Test
             headPosition.localPosition = new Vector3(headPosition.localPosition.x, currentCameraHeight, headPosition.localPosition.z);
 
             // Set capsule height according to the current camera hight
-            currentCapsuleHeight = Mathf.SmoothDamp(currentCapsuleHeight, currentStance.capsuleHeight, ref stanceCapsuleHeightVelocity, playerStanceSmoothing);
-            Motor.SetCapsuleDimensions(Motor.CapsuleRadius, currentCapsuleHeight, currentCapsuleHeight * 0.5f);
+            currentCapsuleHeight = Mathf.SmoothDamp(currentCapsuleHeight, currentStance.capsuleHeight, ref currentCapsuleHeightVelocity, playerStanceSmoothing);
+            Motor.SetCapsuleDimensions(capsuleRadius, currentCapsuleHeight, currentCapsuleHeight * 0.5f);
         }
 
         private bool StanceCheck(float stanceCheckHeight)
         {
-            var start = new Vector3(transform.position.x, transform.position.y + Motor.CapsuleRadius + stanceCheckErrorMargine, transform.position.z);
-            var end = new Vector3(transform.position.x, transform.position.y - Motor.CapsuleRadius - stanceCheckErrorMargine + stanceCheckHeight, transform.position.z);
+            var start = new Vector3(transform.position.x, transform.position.y + capsuleRadius + stanceCheckErrorMargine, transform.position.z);
+            var end = new Vector3(transform.position.x, transform.position.y - capsuleRadius - stanceCheckErrorMargine + stanceCheckHeight, transform.position.z);
 
-            return Physics.CheckCapsule(start, end, Motor.CapsuleRadius, playerMask);
+            return Physics.CheckCapsule(start, end, capsuleRadius, playerMask);
         }
 
         #endregion
 
+        #region - Inputs and Camera -
+
         // Read the value of wasd input and rotation of cameraHolder
         void SetInputs()
         {
+            // Stop sprinting when walking backward and stopping
+            if(input_Movement.y <= 0.2f)
+            {
+                isSprinting = false;
+            }
+
+            // Set speed effector 
+            float verticalSpeed = MaxStableWalkingForwardSpeed;
+            float horizontalSpeed = MaxStableWalkingStrafeSpeed;
+
+            // Multiplying player movement speed by sprinting speed when sprinting
+            if(isSprinting)
+            {
+                verticalSpeed = MaxStableSprintingForwardSpeed;
+                horizontalSpeed = MaxStableSprintingStrafeSpeed;
+            }
+
+            // Speed effectors for when the player is in a different stance
+            if(playerStance == PlayerStance.Crouch)
+            {
+                speedEffector = crouchSpeedEffector;
+            }
+            else if(playerStance == PlayerStance.Prone)
+            {
+                speedEffector = proneSpeedEffector;
+            }
+            else
+            {
+                speedEffector = 1;
+            }
+
+            verticalSpeed *= speedEffector;
+            horizontalSpeed *= speedEffector;
+
             // Clamp input
             Vector3 moveInputVector = Vector3.ClampMagnitude(new Vector3(input_Movement.x, 0f, input_Movement.y), 1f);
 
@@ -299,15 +475,14 @@ namespace KinematicCharacterController.Test
             }
             Quaternion cameraPlanarRotation = Quaternion.LookRotation(cameraPlanarDirection, Motor.CharacterUp);
 
-            // Move and look inputs
-            _moveInputVector = cameraPlanarRotation * moveInputVector;
-            _lookInputVector = cameraPlanarDirection;
+            // Un-comment the "Separate Speed" to set different speed for forward and strafe
+            // Original : Move and look inputs
+            // _moveInputVector = cameraPlanarRotation * moveInputVector;
+            // _lookInputVector = cameraPlanarDirection;
 
-            // Stop sprinting when walking backward and stopping
-            if(input_Movement.y <= 0.2f)
-            {
-                isSprinting = false;
-            }
+            // Separate Speed : Move and look inputs
+            _moveInputVector = cameraPlanarRotation * new Vector3(moveInputVector.x * horizontalSpeed, 0, moveInputVector.z * verticalSpeed);
+            _lookInputVector = cameraPlanarDirection;
         }
 
         // Change the camera's rotation and postion based on player's mouse input and player's position
@@ -340,6 +515,89 @@ namespace KinematicCharacterController.Test
             // newCameraRotation.x = Mathf.Clamp(newCameraRotation.x, viewClampYMin, viewClampYMax);
             // cameraHolder.localRotation = Quaternion.Euler(newCameraRotation);
         }
+
+        #endregion
+
+        #region - Head Bobbing -
+
+        private void CalculateHeadBobbing()
+        {
+            if(enableHeadBobbing)
+            {
+                CheckMotion();
+                float cameraHolderXRotationEulerAngle = cameraHolder.localRotation.eulerAngles.x > 180 ? cameraHolder.localRotation.eulerAngles.x - 360 : cameraHolder.localRotation.eulerAngles.x;
+                if(cameraHolderXRotationEulerAngle < 60 && cameraHolderXRotationEulerAngle > -60)
+                { 
+                    headBob.transform.LookAt(FocusTarget());
+                }
+            }
+        }
+
+        private void PlayMotion(Vector3 motion)
+        {
+            headBob.localPosition += motion; 
+        }
+
+        private void CheckMotion()
+        {
+            float speed = walkingAnimationSpeed;
+
+            ResetPosition();
+
+            if(speed < headBobbingToggleSpeed || !Motor.GroundingStatus.IsStableOnGround) 
+            {
+                return;
+            }
+            
+            PlayMotion(FootStepMotion());
+        }
+
+        private Vector3 FootStepMotion()
+        {
+            Vector3 pos = Vector3.zero;
+            float frequency = 0;
+            float amplitude = 0;
+
+            if(isSprinting)
+            {
+                amplitude = headBobbingAmplitude * walkingAnimationSpeed * 2.5f;
+                frequency = headBobbingFrequency * walkingAnimationSpeed * 1.5f;
+            }
+            else
+            {
+                amplitude = headBobbingAmplitude * walkingAnimationSpeed;
+                frequency = headBobbingFrequency * walkingAnimationSpeed;
+            }
+
+            // Fix this part!!! So that it has smoother transition of head bobbing when fully looking up or down. Or fix the weird head bobbing problem as a whole
+            // if(newCameraRotation.x < 83 && newCameraRotation.x > -83)
+            // {            
+            pos.y += Mathf.Sin(Time.time * frequency) * (amplitude / 500);
+            pos.x += Mathf.Cos(Time.time * frequency / 2) * (((amplitude / 500) * 2));
+            // }
+
+            return pos;
+        }
+
+        private void ResetPosition()
+        {
+            if(headBob.localPosition == headBobbingStartPos) 
+            {
+                return;
+            }
+            headBob.localPosition = Vector3.Lerp(headBob.localPosition, headBobbingStartPos, 10 * Time.deltaTime);
+        }
+
+        private Vector3 FocusTarget()
+        {
+            Vector3 pos = new Vector3(transform.position.x, transform.position.y + headPosition.localPosition.y, transform.position.z);
+            pos += cameraHolder.forward * 15.0f;
+            return pos;
+        }
+
+        #endregion
+
+        #region - KCC -
 
         /// <summary>
         /// (Called by KinematicCharacterMotor during its update cycle)
@@ -400,16 +658,27 @@ namespace KinematicCharacterController.Test
                 // Reorient velocity on slope
                 currentVelocity = Motor.GetDirectionTangentToSurface(currentVelocity, effectiveGroundNormal) * currentVelocityMagnitude;
 
-                // Calculate target velocity
+                // Un-comment the "Separate Speed" to set different speed for forward and strafe
+                // Original : Calculate target velocity
+                // Vector3 inputRight = Vector3.Cross(_moveInputVector, Motor.CharacterUp);
+                // Vector3 reorientedInput = Vector3.Cross(effectiveGroundNormal, inputRight).normalized * _moveInputVector.magnitude;
+                // Vector3 targetMovementVelocity = reorientedInput * MaxStableWalkingForwardSpeed;
+
+                // Separate Speed : Calculate target velocity
                 Vector3 inputRight = Vector3.Cross(_moveInputVector, Motor.CharacterUp);
                 Vector3 reorientedInput = Vector3.Cross(effectiveGroundNormal, inputRight).normalized * _moveInputVector.magnitude;
-                Vector3 targetMovementVelocity = reorientedInput * MaxStableWalkingForwardSpeed;
-
-                // Debug.Log(inputRight);
-                Debug.Log(_moveInputVector.magnitude);
+                Vector3 targetMovementVelocity = reorientedInput;
 
                 // Smooth movement Velocity
                 currentVelocity = Vector3.Lerp(currentVelocity, targetMovementVelocity, 1f - Mathf.Exp(-StableMovementSmoothing * deltaTime));
+
+                // Set walkingAnimationSpeed
+                walkingAnimationSpeed = currentVelocity.magnitude / MaxStableWalkingForwardSpeed;
+                if(walkingAnimationSpeed > 1)
+                {
+                    walkingAnimationSpeed = 1;
+                }
+                Debug.Log(currentVelocity.magnitude);
             }
             // Air movement
             else
@@ -417,7 +686,7 @@ namespace KinematicCharacterController.Test
                 // Add move input
                 if (_moveInputVector.sqrMagnitude > 0f)
                 {
-                    Vector3 addedVelocity = _moveInputVector * AirAccelerationSpeed * deltaTime;
+                    Vector3 addedVelocity = _moveInputVector.normalized * AirAccelerationSpeed * deltaTime;
 
                     Vector3 currentVelocityOnInputsPlane = Vector3.ProjectOnPlane(currentVelocity, Motor.CharacterUp);
 
@@ -547,28 +816,6 @@ namespace KinematicCharacterController.Test
                     _timeSinceLastAbleToJump += deltaTime;
                 }
             }
-
-            // Handle uncrouching
-            if (_isCrouching && !_shouldBeCrouching)
-            {
-                // Do an overlap test with the character's standing height to see if there are any obstructions
-                Motor.SetCapsuleDimensions(0.5f, 2f, 1f);
-                if (Motor.CharacterOverlap(
-                    Motor.TransientPosition,
-                    Motor.TransientRotation,
-                    _probedColliders,
-                    Motor.CollidableLayers,
-                    QueryTriggerInteraction.Ignore) > 0)
-                {
-                    // If obstructions, just stick to crouching dimensions
-                    Motor.SetCapsuleDimensions(0.5f, CrouchedCapsuleHeight, CrouchedCapsuleHeight * 0.5f);
-                }
-                else
-                {
-                    // If no obstructions, uncrouch
-                    _isCrouching = false;
-                }
-            }
         }
 
         /// <summary>
@@ -630,5 +877,7 @@ namespace KinematicCharacterController.Test
         {
 
         }
+
+        #endregion
     }
 }

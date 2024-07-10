@@ -157,6 +157,7 @@ public class CharacterControllerScr : MonoBehaviour
         // Debug.Log(input_Movement.x);
         // Debug.Log(playerSettings.SpeedEffector);
         // Debug.Log(Mathf.Round(smoothedWalkingAnimationSpeed * 10f) / 10f);
+        Debug.Log(new Vector3(characterController.velocity.x, 0, characterController.velocity.z).magnitude);
     }
 
     #endregion
@@ -253,8 +254,6 @@ public class CharacterControllerScr : MonoBehaviour
 
         // Move the player position with characterController.Move
         characterController.Move(movementSpeed);
-
-        Debug.Log(movementSpeed);
 
         // if(characterController.isGrounded)  
         // {

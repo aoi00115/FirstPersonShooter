@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 4809.637, g: 3119.6235, b: 2336.6526, a: 1}
+  m_IndirectSpecularColor: {r: 4817.6157, g: 3120.104, b: 2329.598, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -765,6 +765,38 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &375073301
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 375073302}
+  m_Layer: 3
+  m_Name: HeadBob
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &375073302
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 375073301}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5370887266190138512}
+  m_Father: {fileID: 5041271728921397547}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &436134666 stripped
 GameObject:
@@ -4075,24 +4107,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Motor: {fileID: 3463421824225281451}
-  cameraHolder: {fileID: 5041271728921397547}
   headPosition: {fileID: 5908007061911248332}
+  cameraHolder: {fileID: 5041271728921397547}
+  headBob: {fileID: 375073302}
   viewXSensitivity: 8
   viewYSensitivity: 8
   viewClampYMax: 89
   viewClampYMin: -89
   viewXInverted: 0
   viewYInverted: 0
-  MaxStableWalkingForwardSpeed: 6
-  MaxStableWalkingStrafeSpeed: 15.4
-  MaxStableSprintingForwardSpeed: 12
-  MaxStableSprintingStrafeSpeed: 12
   StableMovementSmoothing: 15
-  sprintingForwardSpeed: 0
-  sprintingStrafeSpeed: 0
-  enableStamina: 0
+  MaxStableWalkingForwardSpeed: 5
+  MaxStableWalkingStrafeSpeed: 5
+  MaxStableSprintingForwardSpeed: 10
+  MaxStableSprintingStrafeSpeed: 5
+  staminaDuration: 5
+  sprintCooldownDuration: 2
+  enableStamina: 1
   isSprintingHold: 0
   isSprinting: 0
+  speedEffector: 1
+  crouchSpeedEffector: 0.6
+  proneSpeedEffector: 0.2
   MaxAirMoveSpeed: 6
   AirAccelerationSpeed: 15
   Drag: 0
@@ -4103,6 +4139,7 @@ MonoBehaviour:
   JumpPostGroundingGraceTime: 0.1
   playerStance: 0
   playerStanceSmoothing: 0.1
+  capsuleRadius: 0.3
   playerStandStance:
     capsuleHeight: 2
     cameraHeight: 1.7
@@ -4115,6 +4152,9 @@ MonoBehaviour:
   isStand: 0
   isCrouch: 0
   isProne: 0
+  enableHeadBobbing: 0
+  headBobbingAmplitude: 0.5
+  headBobbingFrequency: 15
   playerMask:
     serializedVersion: 2
     m_Bits: 119
@@ -4125,7 +4165,7 @@ MonoBehaviour:
   BonusOrientationMethod: 1
   BonusOrientationSharpness: 20
   Gravity: {x: 0, y: -30, z: 0}
-  CrouchedCapsuleHeight: 1
+  walkingAnimationSpeed: 0
   input_Movement: {x: 0, y: 0}
   input_View: {x: 0, y: 0}
 --- !u!33 &1096122846950872464
@@ -6663,9 +6703,9 @@ MonoBehaviour:
   StepHandling: 2
   MaxStepHeight: 0.5
   AllowSteppingWithoutStableGrounding: 0
-  MinRequiredStepDepth: 0.1
+  MinRequiredStepDepth: 0
   LedgeAndDenivelationHandling: 1
-  MaxStableDistanceFromLedge: 0.3
+  MaxStableDistanceFromLedge: 0
   MaxVelocityForLedgeSnap: 3
   MaxStableDenivelationAngle: 180
   InteractiveRigidbodyHandling: 1
@@ -8079,7 +8119,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5370887266190138512}
+  - {fileID: 375073302}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &5045099604743880108
@@ -8379,7 +8419,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5041271728921397547}
+  m_Father: {fileID: 375073302}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5395764065337128552
 MeshFilter:
