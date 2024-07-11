@@ -88,7 +88,7 @@ namespace KinematicCharacterController.Test
         public CharacterStance playerCrouchStance;
         public CharacterStance playerProneStance;
         
-        private float stanceCheckErrorMargine = 0.05f;
+        private float stanceCheckErrorMargine = 0.01f;
         private float currentCapsuleHeight;
         private float currentCameraHeight;
         private float currentCapsuleHeightVelocity;
@@ -203,7 +203,7 @@ namespace KinematicCharacterController.Test
                 {
                     return;
                 }
-                if(StanceCheck(playerCrouchStance.capsuleHeight))
+                if(StanceCheck(playerStandStance.capsuleHeight))
                 {
                     playerStance = PlayerStance.Crouch;
                     return;
@@ -418,7 +418,7 @@ namespace KinematicCharacterController.Test
         private bool StanceCheck(float stanceCheckHeight)
         {
             var start = new Vector3(transform.position.x, transform.position.y + capsuleRadius + stanceCheckErrorMargine, transform.position.z);
-            var end = new Vector3(transform.position.x, transform.position.y - capsuleRadius - stanceCheckErrorMargine + stanceCheckHeight, transform.position.z);
+            var end = new Vector3(transform.position.x, transform.position.y + stanceCheckHeight - capsuleRadius, transform.position.z);
 
             return Physics.CheckCapsule(start, end, capsuleRadius, playerMask);
         }
@@ -678,7 +678,7 @@ namespace KinematicCharacterController.Test
                 {
                     walkingAnimationSpeed = 1;
                 }
-                Debug.Log(currentVelocity.magnitude);
+                // Debug.Log(currentVelocity.magnitude);
             }
             // Air movement
             else
